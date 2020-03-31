@@ -68,6 +68,7 @@ function App() {
       const staffRatio = customers / openHours;
       const cleanRatio = customers / cleanHours;
 
+      const employees = [...business.employees];
       // compare staffing to customers
       console.log("staff ratio", staffRatio);
       console.log("clean ratio", cleanRatio);
@@ -75,9 +76,13 @@ function App() {
       if (staffRatio > 8) {
         console.log("You were very understaffed today");
         //todo lower staff morale
+        employees.forEach(e => e.morale -= 10);
 
       }
-      else if (staffRatio > 5) { console.log("You were understaffed today"); }
+      else if (staffRatio > 5) { 
+        console.log("You were understaffed today");
+        employees.forEach(e => e.morale -= 5);
+       }
 
       if (cleanRatio < 10) { console.log("your store looks very clean") }
 
@@ -86,7 +91,7 @@ function App() {
       setBusiness({
         ...business,
         money: business.money - business.employees.map(e => e.pay).reduce((p, v) => p + (v * 8)),
-        employees: business.employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < (business.customerLimit || customers) * city.infected / city.population } as Employee)),
+        employees: employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < (business.customerLimit || customers) * city.infected / city.population } as Employee)),
       });
     }
 

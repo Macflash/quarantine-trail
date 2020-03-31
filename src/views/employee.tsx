@@ -2,7 +2,7 @@
 import React from 'react';
 import { PickRandom, InRange, ArraySetter } from '../utils';
 
-export type EmploymentStatus = "fulltime" | "parttime" | "paidleave" | "unpaidleave" | "fired";
+export type EmploymentStatus = "fulltime" | "parttime" | "paidleave" | "unpaidleave" | "fired" | "quit";
 
 export interface Employee {
     name: string,
@@ -46,6 +46,24 @@ export function CreateEmployees(n: number): Employee[] {
     return result;
 }
 
+const ScaleBlock: React.FC<{ color: string}> = props => {
+    return <div style={{border: "1px solid blue", backgroundColor: props.color, height:20, width: 20, margin: 2}}></div>
+}
+const Pay: React.FC<{ e: Employee }> = props => {
+    const p = props.e.pay;
+    const min = 13;
+    const max = 25;
+    const stops = 5;
+
+    const c = [];
+    for(let i =0;i<stops;i++){
+        let x = min + i * (max - min) / stops;
+        c.push(<ScaleBlock color={x < p ? "green" : "grey"} />)
+    }
+        
+    return <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>{c}</div>
+}
+
 const Morale: React.FC<{ e: Employee }> = props => {
     const m = props.e.morale;
     let color = "unset";
@@ -69,6 +87,8 @@ export const EmployeeView: React.FC<{ e: Employee, i: number, setEmployee?: Arra
 
         <div>{e.name}</div>
         <div>${e.pay}/hr</div>
+        <Pay e={e} />
+
         <div>Age: {e.age}</div>
         <div>Employed: {e.yearsOnStaff}</div>
         <div><Morale e={e} /></div>
