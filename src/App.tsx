@@ -5,6 +5,7 @@ import { Business, BusinessView, advanceBusiness } from './views/business';
 import { City, CityView, AdvanceCity } from './views/city';
 import { useHistory } from './utils';
 import { BarDisplay } from './components/barDisplay';
+import { StoreDisplay } from './components/storeDisplay';
 
 
 function App() {
@@ -51,6 +52,8 @@ function App() {
       <br />
 
       <button onClick={advanceDay}>Run Day</button>
+
+      <StoreDisplay customers={(business?.customers ?? 0) / (business?.openHours ?? 1)} />
     </div>
   );
 }

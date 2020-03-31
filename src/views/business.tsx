@@ -15,6 +15,8 @@ export interface Business {
 
     openHours: number;
     cleanHours: number;
+
+    customers: number;
 }
 
 export const BusinessView: React.FC<{ b: Business, setBusiness?: Setter<Business> }> = props => {
@@ -54,18 +56,18 @@ export const BusinessView: React.FC<{ b: Business, setBusiness?: Setter<Business
 
 export function advanceBusiness(b: Business, c: City): Business {
     const newBusiness = {...b};
-    const customers = InRange(50, 400);
+    newBusiness.customers = InRange(50, 400);
     let volume = "normal";
-    if (customers > 250) {
+    if (newBusiness.customers > 250) {
       volume = "busy";
     }
-    if (customers > 330) {
+    if (newBusiness.customers > 330) {
       volume = "very busy";
     }
-    if (customers < 150) {
+    if (newBusiness.customers < 150) {
       volume = "quiet";
     }
-    console.log(`today was a ${volume} day with ${customers} customers`);
+    console.log(`today was a ${volume} day with ${newBusiness.customers} customers`);
 
     const staffHours: number = b.employees.map(e => e.status).map(s => {
       switch (s) {
@@ -81,8 +83,8 @@ export function advanceBusiness(b: Business, c: City): Business {
     const openHours = staffHours * b.openHours;
     const cleanHours = staffHours * b.cleanHours;
 
-    const staffRatio = customers / openHours;
-    const cleanRatio = customers / cleanHours;
+    const staffRatio = newBusiness.customers / openHours;
+    const cleanRatio = newBusiness.customers / cleanHours;
 
     const employees = [...b.employees];
     // compare staffing to customers
@@ -105,7 +107,7 @@ export function advanceBusiness(b: Business, c: City): Business {
     // compare cleaning to customers
 
     newBusiness.money -= b.employees.map(e => e.pay).reduce((p, v) => p + (v * (b.openHours + b.cleanHours)));
-    newBusiness.employees = employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < (b.customerLimit || customers) * c.infected / c.population } as Employee));
+    newBusiness.employees = employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < (b.customerLimit || newBusiness.customers) * c.infected / c.population } as Employee));
     newBusiness.employees = newBusiness.employees.map(e => advanceEmployee(e, b, c));
 
     return newBusiness;
