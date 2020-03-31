@@ -43,5 +43,10 @@ export function AdvanceCity(c: City): City {
   newCity.testedPositive += InRange(.1 * newInfections, .5 *newInfections);
   newCity.day++;
 
+  if(newCity.infected > newCity.population *.001 && !(c.infected > c.population *.001)){
+    alert("!! The city has enacted a quarantine !!");
+    newCity.interaction = 50;
+  }
+  
   return newCity;
 }

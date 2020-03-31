@@ -106,8 +106,19 @@ export function advanceBusiness(b: Business, c: City): Business {
 
     // compare cleaning to customers
 
+    let infectedShoppers = 0;
+    for(let i = 0; i < newBusiness.customers; i++){
+        if(Math.random() > (c.population - c.infected) / c.population){
+            infectedShoppers++;
+        }
+    }
+
+    console.log(`You had ${infectedShoppers} infected shoppers today!`);
+    // should have like a HALF life of the cleanliness of the store
+    const ic = .05;
+
     newBusiness.money -= b.employees.map(e => e.pay).reduce((p, v) => p + (v * (b.openHours + b.cleanHours)));
-    newBusiness.employees = employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < (b.customerLimit || newBusiness.customers) * c.infected / c.population } as Employee));
+    newBusiness.employees = employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < ic*infectedShoppers } as Employee));
     newBusiness.employees = newBusiness.employees.map(e => advanceEmployee(e, b, c));
 
     return newBusiness;
