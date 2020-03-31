@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 
 export function InRange(low: number, high: number): number {
