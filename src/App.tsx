@@ -7,6 +7,7 @@ import { useHistory } from './utils';
 import { BarDisplay } from './components/barDisplay';
 import { StoreDisplay } from './components/storeDisplay';
 
+const confirmedCases =[1,3,6,13,18,28,39,70,80,102,136,162,267,366,457,568,642,769,904,1012,1187,1376,1524,1793,1996,2469,2580,3207,3723,4310,4896];
 
 function App() {
   const [infected, addInfected] = useHistory([0]);
@@ -40,7 +41,7 @@ function App() {
       You run a small business, you will need to manage your store, employees and hygiene practices to try and get through the pandemic while providing an essential service to your customers.
 
       <br />
-
+      <div>{city.testedPositive - confirmedCases[city.day]} diff</div>
       <BarDisplay values={infected} />
 
       <br />
