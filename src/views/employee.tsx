@@ -1,6 +1,9 @@
 
 import React from 'react';
 import { PickRandom, InRange, ArraySetter } from '../utils';
+import { ScaleRange } from '../components/scaleDisplay';
+import { Business } from './business';
+import { City } from './city';
 
 export type EmploymentStatus = "fulltime" | "parttime" | "paidleave" | "unpaidleave" | "fired" | "quit";
 
@@ -46,43 +49,38 @@ export function CreateEmployees(n: number): Employee[] {
     return result;
 }
 
-const ScaleBlock: React.FC<{ color: string}> = props => {
-    return <div style={{border: "1px solid blue", backgroundColor: props.color, height:20, width: 20, margin: 2}}></div>
-}
 const Pay: React.FC<{ e: Employee }> = props => {
     const p = props.e.pay;
-    const min = 13;
-    const max = 25;
-    const stops = 5;
-
-    const c = [];
-    for(let i =0;i<stops;i++){
-        let x = min + i * (max - min) / stops;
-        c.push(<ScaleBlock color={x < p ? "green" : "grey"} />)
-    }
-        
-    return <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>{c}</div>
+    return <ScaleRange value={p} min={13} max={25} />
 }
 
 const Morale: React.FC<{ e: Employee }> = props => {
     const m = props.e.morale;
     let color = "unset";
     let s = "?";
-    if (m > 90) { s = ":D"; color = "green" }
-    else if (m > 80) { s = ":)"; color = "blue" }
-    else if (m > 80) { s = ":)"; }
-    else if (m > 70) { s = ":/"; }
-    else if (m > 60) { s = ":("; color = "orange" }
-    else if (m > 50) { s = ">:("; color = "red"; }
-    else if (m <= 50) { s = ">:O !!"; color = "red"; }
+    if (m > 90) { s = "😄"; color = "green" }
+    else if (m > 80) { s = "🙂"; color = "blue" }
+    else if (m > 70) { s = "😐"; color = "lightblue" }
+    else if (m > 60) { s = "😕"; color = "yellow" }
+    else if (m > 50) { s = "😟"; color = "tan"; }
+    else if (m > 40) { s = "😣"; color = "orange"; }
+    else if (m > 30) { s = "😠"; color = "red" }
+    else if (m <= 30) { s = "🤬"; color = "black"; }
 
+    if (props.e.isSick) {
+        s = "🤒";
+    }
 
-    return <b style={{ color }}>{s}</b>
+    if (props.e.hasVirus) {
+        s = "😷";
+    }
+
+    return <span style={{ display: "inline-block", fontSize: "24px", backgroundColor: color, padding: 1, paddingBottom: 3, margin: 5 }}>{s}</span>
 }
 
 export const EmployeeView: React.FC<{ e: Employee, i: number, setEmployee?: ArraySetter<Employee> }> = props => {
-    const { e } = props;
-    return <div style={{ border: "1px solid black", padding: 10 }} key={props.i}>
+    const { e, i, setEmployee } = props;
+    return <div style={{ border: "1px solid black", padding: 10 }} key={i}>
 
 
         <div>{e.name}</div>
@@ -94,6 +92,7 @@ export const EmployeeView: React.FC<{ e: Employee, i: number, setEmployee?: Arra
         <div><Morale e={e} /></div>
 
         {e.hasKids && <div>Has kids</div>}
+        {(e.isSick || e.hasVirus) && <div style={{ fontWeight: 800 }}>Is Sick</div>}
         {e.hasVirus && <div style={{ color: "red", fontWeight: 800 }}>Has Virus</div>}
 
 
@@ -101,18 +100,28 @@ export const EmployeeView: React.FC<{ e: Employee, i: number, setEmployee?: Arra
             Status:
             <select
                 value={e.status}
-                disabled={e.status == "fired" || !props.setEmployee}
-                onChange={ev => props.setEmployee?.({ ...props.e, status: ev.target.value as EmploymentStatus }, props.i)}
+                disabled={e.status == "fired" || e.status == "quit" || !setEmployee}
+                onChange={ev => setEmployee?.({ ...props.e, status: ev.target.value as EmploymentStatus }, props.i)}
             >
                 <option value="fulltime">Full time</option>
                 <option value="parttime">Part time</option>
                 <option value="paidleave">Paid Leave</option>
                 <option value="unpaidleave">Unpaid Leave</option>
                 <option value="fired">Fire</option>
+                <option disabled value="quit">Quit</option>
             </select>
         </label>
 
         <br />
         <br />
     </div>;
+}
+
+export function advanceEmployee(e: Employee, b: Business, c: City): Employee {
+    const newEmployee = { ...e };
+    if (newEmployee.morale < 20) {
+        newEmployee.status = "quit";
+    }
+
+    return newEmployee;
 }

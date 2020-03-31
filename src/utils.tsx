@@ -8,5 +8,23 @@ export function PickRandom<T>(input: T[]) {
     return input[InRange(0, input.length - 1)];
 }
 
+export function ConstrainRange(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
+
+export function ParseConstrainRange(value: string, min: number, max: number): number {
+    return ConstrainRange(parseFloat(value), min, max);
+}
+
 export type Setter<T> = (newV: T) => void;
 export type ArraySetter<T> = (newV: T, index: number) => void;
+
+
+export function useHistory<T>(initial: T[] = []): [T[], Setter<T>] {
+    const [history, setHistory] = React.useState(initial);
+    const add = React.useCallback((newValue: T) => {
+        setHistory([...history, newValue]);
+    }, [history, setHistory]);
+
+    return [history, add];
+}

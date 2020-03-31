@@ -1,6 +1,7 @@
 import React from 'react';
-import { Employee, EmployeeView } from './employee';
-import { Setter } from '../utils';
+import { Employee, EmployeeView, advanceEmployee } from './employee';
+import { Setter, ParseConstrainRange, InRange } from '../utils';
+import { City } from './city';
 
 export type BusinessType = "grocery";
 
@@ -17,16 +18,16 @@ export interface Business {
 }
 
 export const BusinessView: React.FC<{ b: Business, setBusiness?: Setter<Business> }> = props => {
-    const { b } = props;
+    const { b, setBusiness } = props;
     return <div>
         <div>Business: {b.name}</div>
         <div>Money: ${b.money}</div>
 
         <div>
             <h3>Hours</h3>
-            Open: <input value={b.openHours} type="number" />
+            Open: <input value={b.openHours} type="number" onChange={ev=> setBusiness?.({...b, openHours: ParseConstrainRange(ev.target.value, 0, 24 - b.cleanHours) })} />
             &nbsp;
-            Clean: <input value={b.cleanHours} type="number" />
+            Clean: <input value={b.cleanHours} type="number" onChange={ev=>setBusiness?.({...b, cleanHours: ParseConstrainRange(ev.target.value, 0, 24 - b.openHours) })} />
         </div>
 
         <div>
@@ -34,6 +35,7 @@ export const BusinessView: React.FC<{ b: Business, setBusiness?: Setter<Business
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
                 {b.employees.map((e, i) =>
                     <EmployeeView
+                        key={i}
                         e={e}
                         i={i}
                         setEmployee={props.setBusiness ? (newE, i) => {
@@ -47,4 +49,64 @@ export const BusinessView: React.FC<{ b: Business, setBusiness?: Setter<Business
         <br />
         <br />
     </div>;
+}
+
+
+export function advanceBusiness(b: Business, c: City): Business {
+    const newBusiness = {...b};
+    const customers = InRange(50, 400);
+    let volume = "normal";
+    if (customers > 250) {
+      volume = "busy";
+    }
+    if (customers > 330) {
+      volume = "very busy";
+    }
+    if (customers < 150) {
+      volume = "quiet";
+    }
+    console.log(`today was a ${volume} day with ${customers} customers`);
+
+    const staffHours: number = b.employees.map(e => e.status).map(s => {
+      switch (s) {
+        case "fulltime":
+          return 1;
+        case "parttime":
+          return .5;
+        default:
+          return 0;
+      }
+    }).reduce((p, v) => p + v as any);
+
+    const openHours = staffHours * b.openHours;
+    const cleanHours = staffHours * b.cleanHours;
+
+    const staffRatio = customers / openHours;
+    const cleanRatio = customers / cleanHours;
+
+    const employees = [...b.employees];
+    // compare staffing to customers
+    console.log("staff ratio", staffRatio);
+    console.log("clean ratio", cleanRatio);
+
+    if (staffRatio > 8) {
+      console.log("You were very understaffed today");
+      //todo lower staff morale
+      employees.forEach(e => e.morale -= 10);
+
+    }
+    else if (staffRatio > 5) {
+      console.log("You were understaffed today");
+      employees.forEach(e => e.morale -= 5);
+    }
+
+    if (cleanRatio < 10) { console.log("your store looks very clean") }
+
+    // compare cleaning to customers
+
+    newBusiness.money -= b.employees.map(e => e.pay).reduce((p, v) => p + (v * (b.openHours + b.cleanHours)));
+    newBusiness.employees = employees.map(e => ({ ...e, hasVirus: e.hasVirus || Math.random() < (b.customerLimit || customers) * c.infected / c.population } as Employee));
+    newBusiness.employees = newBusiness.employees.map(e => advanceEmployee(e, b, c));
+
+    return newBusiness;
 }
