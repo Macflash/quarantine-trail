@@ -21,6 +21,6 @@ export const StartGame: React.FC<{ onCreate: (newB: Business) => void }> = props
         </label>
 
         <br />
-        <button disabled={!name} onClick={() => name && props.onCreate({ name, businessType, money: 10000, employees: CreateEmployees(5), openHours: 10, cleanHours: 0, customers: 0 })}>Start!</button>
+        <button disabled={!name} onClick={() => name && props.onCreate({ name, businessType, money: 10000, employees: CreateEmployees(10), openHours: 10, cleanHours: 0, customers: 0 })}>Start!</button>
     </div>
 }

@@ -80,40 +80,39 @@ const Morale: React.FC<{ e: Employee }> = props => {
 
 export const EmployeeView: React.FC<{ e: Employee, i: number, setEmployee?: ArraySetter<Employee> }> = props => {
     const { e, i, setEmployee } = props;
-    return <div style={{ border: "1px solid black", padding: 10 }} key={i}>
+    return <div style={{ border: "1px solid black", padding: 10, margin: 10, display: "inline-block", height: 250 }} key={i}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
 
 
-        <div>{e.name}</div>
-        <div>${e.pay}/hr</div>
-        <Pay e={e} />
+            <div>{e.name}</div>
+            <div>${e.pay}/hr</div>
+            <Pay e={e} />
 
-        <div>Age: {e.age}</div>
-        <div>Employed: {e.yearsOnStaff}</div>
-        <div><Morale e={e} /></div>
+            <div>Age: {e.age}</div>
+            <div>Employed: {e.yearsOnStaff}</div>
+            <div><Morale e={e} /></div>
 
-        {e.hasKids && <div>Has kids</div>}
-        {(e.isSick || e.hasVirus) && <div style={{ fontWeight: 800 }}>Is Sick</div>}
-        {e.hasVirus && <div style={{ color: "red", fontWeight: 800 }}>Has Virus</div>}
+            {e.hasKids && <div>Has kids</div>}
+            {(e.isSick || e.hasVirus) && <div style={{ fontWeight: 800 }}>Is Sick</div>}
+            {e.hasVirus && <div style={{ color: "red", fontWeight: 800 }}>Has Virus</div>}
 
 
-        <label>
-            Status:
+            <label>
+                Status:
             <select
-                value={e.status}
-                disabled={e.status == "fired" || e.status == "quit" || !setEmployee}
-                onChange={ev => setEmployee?.({ ...props.e, status: ev.target.value as EmploymentStatus }, props.i)}
-            >
-                <option value="fulltime">Full time</option>
-                <option value="parttime">Part time</option>
-                <option value="paidleave">Paid Leave</option>
-                <option value="unpaidleave">Unpaid Leave</option>
-                <option value="fired">Fire</option>
-                <option disabled value="quit">Quit</option>
-            </select>
-        </label>
-
-        <br />
-        <br />
+                    value={e.status}
+                    disabled={e.status == "fired" || e.status == "quit" || !setEmployee}
+                    onChange={ev => setEmployee?.({ ...props.e, status: ev.target.value as EmploymentStatus }, props.i)}
+                >
+                    <option value="fulltime">Full time</option>
+                    <option value="parttime">Part time</option>
+                    <option value="paidleave">Paid Leave</option>
+                    <option value="unpaidleave">Unpaid Leave</option>
+                    <option value="fired">Fire</option>
+                    <option disabled value="quit">Quit</option>
+                </select>
+            </label>
+        </div>
     </div>;
 }
 
