@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/quarantine-trail/static/css/main.37274586.chunk.css",
-    "main.js": "/quarantine-trail/static/js/main.184e02fb.chunk.js",
-    "main.js.map": "/quarantine-trail/static/js/main.184e02fb.chunk.js.map",
+    "main.js": "/quarantine-trail/static/js/main.f473f89f.chunk.js",
+    "main.js.map": "/quarantine-trail/static/js/main.f473f89f.chunk.js.map",
     "runtime-main.js": "/quarantine-trail/static/js/runtime-main.a36e4c1d.js",
     "runtime-main.js.map": "/quarantine-trail/static/js/runtime-main.a36e4c1d.js.map",
-    "static/js/2.b4a57d6a.chunk.js": "/quarantine-trail/static/js/2.b4a57d6a.chunk.js",
-    "static/js/2.b4a57d6a.chunk.js.map": "/quarantine-trail/static/js/2.b4a57d6a.chunk.js.map",
+    "static/js/2.4c7786e0.chunk.js": "/quarantine-trail/static/js/2.4c7786e0.chunk.js",
+    "static/js/2.4c7786e0.chunk.js.map": "/quarantine-trail/static/js/2.4c7786e0.chunk.js.map",
     "index.html": "/quarantine-trail/index.html",
-    "precache-manifest.08282edba0465162f04bd57d6621850c.js": "/quarantine-trail/precache-manifest.08282edba0465162f04bd57d6621850c.js",
+    "precache-manifest.b8dd4c497f68ef1345e1a5346d70ec11.js": "/quarantine-trail/precache-manifest.b8dd4c497f68ef1345e1a5346d70ec11.js",
     "service-worker.js": "/quarantine-trail/service-worker.js",
     "static/css/main.37274586.chunk.css.map": "/quarantine-trail/static/css/main.37274586.chunk.css.map",
-    "static/js/2.b4a57d6a.chunk.js.LICENSE.txt": "/quarantine-trail/static/js/2.b4a57d6a.chunk.js.LICENSE.txt",
+    "static/js/2.4c7786e0.chunk.js.LICENSE.txt": "/quarantine-trail/static/js/2.4c7786e0.chunk.js.LICENSE.txt",
     "static/media/QT Intro Theme.wav": "/quarantine-trail/static/media/QT Intro Theme.3685d718.wav",
     "static/media/cleanbad.png": "/quarantine-trail/static/media/cleanbad.200e8af1.png",
     "static/media/cleangreat.png": "/quarantine-trail/static/media/cleangreat.07c0ba58.png",
@@ -21,6 +21,7 @@
     "static/media/longshift.png": "/quarantine-trail/static/media/longshift.2df3933a.png",
     "static/media/paybad.png": "/quarantine-trail/static/media/paybad.fd298798.png",
     "static/media/regularshift.png": "/quarantine-trail/static/media/regularshift.16d28253.png",
+    "static/media/shitnews.png": "/quarantine-trail/static/media/shitnews.4bfaae77.png",
     "static/media/shortshift.png": "/quarantine-trail/static/media/shortshift.eafff0a1.png",
     "static/media/supplies.png": "/quarantine-trail/static/media/supplies.1521c45c.png",
     "static/media/virus1.bmp": "/quarantine-trail/static/media/virus1.89a40b1c.bmp",
@@ -29,8 +30,8 @@
   },
   "entrypoints": [
     "static/js/runtime-main.a36e4c1d.js",
-    "static/js/2.b4a57d6a.chunk.js",
+    "static/js/2.4c7786e0.chunk.js",
     "static/css/main.37274586.chunk.css",
-    "static/js/main.184e02fb.chunk.js"
+    "static/js/main.f473f89f.chunk.js"
   ]
 }

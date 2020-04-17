@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "fcf80e06eb8beda27d32c6472872224b",
+    "revision": "766299fcf1787f6a0744e65a54827719",
     "url": "/quarantine-trail/index.html"
   },
   {
-    "revision": "22431ac62b84d7894b85",
+    "revision": "25a4cb6cc7c2f171c6dc",
     "url": "/quarantine-trail/static/css/main.37274586.chunk.css"
   },
   {
-    "revision": "a72d62c470db9f18e1a1",
-    "url": "/quarantine-trail/static/js/2.b4a57d6a.chunk.js"
+    "revision": "0f4a7c63c4f6aebafee5",
+    "url": "/quarantine-trail/static/js/2.4c7786e0.chunk.js"
   },
   {
     "revision": "e88a3e95b5364d46e95b35ae8c0dc27d",
-    "url": "/quarantine-trail/static/js/2.b4a57d6a.chunk.js.LICENSE.txt"
+    "url": "/quarantine-trail/static/js/2.4c7786e0.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "22431ac62b84d7894b85",
-    "url": "/quarantine-trail/static/js/main.184e02fb.chunk.js"
+    "revision": "25a4cb6cc7c2f171c6dc",
+    "url": "/quarantine-trail/static/js/main.f473f89f.chunk.js"
   },
   {
     "revision": "e6273734f052dc856e75",
@@ -58,6 +58,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "16d28253314830a21b6b93f0e83050cb",
     "url": "/quarantine-trail/static/media/regularshift.16d28253.png"
+  },
+  {
+    "revision": "4bfaae778bb3265b20142b43a4dc9a93",
+    "url": "/quarantine-trail/static/media/shitnews.4bfaae77.png"
   },
   {
     "revision": "eafff0a1383d1f986f0e9f22789c6d35",
