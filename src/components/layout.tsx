@@ -105,12 +105,17 @@ const Randomize = (base: number, variation: number): number => {
     return Math.round(base - variation + (Math.random() * 2 * variation));
 }
 
+var month = 0;
+var customers = 0;
+
 export const Layout: React.FC = props => {
     const [paused, setPaused] = React.useState(false);
     const Pause = React.useCallback(() => setPaused(true), [setPaused]);
 
     const [view, setView] = useStateAndView<View>("Store", Pause);
     const ResetView = React.useCallback(() => setView("Store"), [setView]);
+
+    const UnPause = React.useCallback(() => {ResetView(); setPaused(false); }, [setPaused, ResetView]);
 
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView);
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView);
@@ -121,8 +126,10 @@ export const Layout: React.FC = props => {
         infectRate: "Festival" | "Normal" | "Stay at Home" | "Shelter in Place" | "Forced Quarantine";
 
         date: Date,
+        uninfected: number, // total pool that can get sick
         infected: number,
         deceased: number,
+        recovered: number,
 
         // business
         money: number,
@@ -132,15 +139,17 @@ export const Layout: React.FC = props => {
         infectRate: "Normal",
 
         date: new Date("02/02/2020"),
+        uninfected: 2000000,
         infected: 1,
         deceased: 0,
+        recovered: 0,
 
         money: 1600,
         debt: 10000,
         employees: []
     });
 
-    const { infectRate, date, infected, deceased, money, debt, employees } = game;
+    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees } = game;
 
     const [log, setLog] = React.useState<string[]>([]);
 
@@ -178,6 +187,8 @@ export const Layout: React.FC = props => {
                     sales += Randomize(dayTicket[date.getDay()], .15);
                 }
 
+                customers = transactions / 6;
+
                 //console.log("sales!", `${transactions} customers`, `$${sales}`);
 
                 // do costs like employees and stuff
@@ -209,7 +220,6 @@ export const Layout: React.FC = props => {
 
                 const cost = hours * employeeWage * 5; //5 employees
 
-
                 // RENT
                 let rentPayment = 0;
                 const costperfoot = 2.33;
@@ -236,12 +246,22 @@ export const Layout: React.FC = props => {
                     console.log("DEBT!", debtPayment);
                 }
 
+                let monthylpayments = rentPayment + utiltiiesPayment + debtPayment;
+
                 //TODO PURCHASE FOOD as supplies! compare BULK prices vs spoilage and stuff
                 // for now lets say ~30% of the sale is food cost
                 let foodCost = Math.round(sales * .2);
 
                 //console.log("Wages", payQ, hourQ, `$${cost}`);
-                console.log("Profit", `$${sales - cost - foodCost}`, sales, cost, foodCost);
+                const profit = sales - cost - foodCost;
+                //console.log("Profit", `$${profit}`, sales, cost, foodCost);
+                
+                month += profit;
+                if(date.getDate() == 1){
+                    debtPayment = debt * monthlyInterest;
+                    console.log("Month in review", `Net ${month - monthylpayments}`, `Profit $${month}`, `Costs ${monthylpayments}`, infectRate);
+                    month = 0;
+                }
 
                 // increment virus
                 // 10% seems about reasonable
@@ -251,8 +271,8 @@ export const Layout: React.FC = props => {
                 const FestivalGrowth = .3;
                 const NormalGrowth = .15;
                 const StayHomeGrowth = .125;
-                const ShelterGrowth = .075;
-                const ForcedQuarantineGrowth = .025;
+                const ShelterGrowth = .05;
+                const ForcedQuarantineGrowth = .012;
                 switch (infectRate) {
                     case "Festival":
                         growthRate = FestivalGrowth;
@@ -271,13 +291,25 @@ export const Layout: React.FC = props => {
                         break;
                 }
 
-                const deaths = Math.round(infected * .01 * Math.random());
-                const decrease = Math.round((infected / 21) * Math.random());
-                const increase = Math.round((infected * growthRate) + (Math.random() * 2));
+                const deaths = Math.round((infected * .007 * Math.random()) + Math.random());
+                const recoveries = Math.round((infected / 21) * Math.random());
+
+                const increase = Math.min(uninfected, Math.round((infected * growthRate) + (Math.random() * 2)));
                 //console.log("infections", increase, infected + increase);
 
                 let newInfectRate = infectRate
-                if (increase > 100) {
+                if(increase > 1000){
+                    // chance to go to other stages
+                    if (growthRate > ShelterGrowth && Math.random() < .1) {
+                        console.log("going to shelter in place!")
+                        newInfectRate = "Shelter in Place";
+                    }
+                    else if (Math.random() < .01) {
+                        console.log("going to forced quarantine!")
+                        newInfectRate = "Forced Quarantine";
+                    }
+                }
+                else if (increase > 100) {
                     // chance to go to other stages
                     if (growthRate > StayHomeGrowth && Math.random() < .1) {
                         console.log("going to stay at home!")
@@ -306,7 +338,9 @@ export const Layout: React.FC = props => {
                 setGame({
                     ...game,
                     date: newDate,
-                    infected: infected + increase - decrease - deaths,
+                    uninfected: uninfected - increase,
+                    recovered: recovered + recoveries,
+                    infected: infected + increase - (recoveries + deaths),
                     deceased: deceased + deaths,
                     infectRate: newInfectRate,
 
@@ -316,7 +350,7 @@ export const Layout: React.FC = props => {
         }, isDev ? 500 : 4000);
     }, [paused, game])
 
-    let centerMenu = <StoreDisplay customers={40} height={220} width={280} />;
+    let centerMenu = <StoreDisplay customers={customers} height={220} width={280} />;
     switch (view) {
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
@@ -394,11 +428,13 @@ export const Layout: React.FC = props => {
 
                 <img src={Placeholder} />
 
-                <div style={{ ...headerStyle, marginTop: 10 }}>Virus</div>
+                <div style={{ ...headerStyle }}>Virus</div>
                 <div style={{ ...bodyStyle }}>
                     <BodyRow left="Status:" right={infectRate} />
                     <BodyRow left="Infected:" right={infected} />
                     <BodyRow left="Deceased:" right={deceased} />
+                    <BodyRow left="Recovered:" right={recovered} />
+                    <BodyRow left="Uninfected:" right={uninfected} />
                 </div>
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
@@ -410,12 +446,12 @@ export const Layout: React.FC = props => {
                     <BodyRow left="Supplies:" right="12" />
                     <BodyRow left="Health:" right="Fair" />
                     <br />
-                    <BodyRow left="Store:" right="Open" />
+                    <BodyRow left="Store:" right={paused ? <span style={{color: "red"}}>Closed</span> : "Open"} />
                 </div>
             </div>
             <div style={{ ...basicBoxStyle }}>
                 <div style={{ padding: 5, margin: 6 }}>
-                    <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={() => setPaused(!paused)}>{paused ? "Continue" : "Time out"}</button></span>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={paused ? UnPause : Pause}>{paused ? "Continue" : "Time out"}</button></span>
                 </div>
                 <div style={{ padding: 5, margin: 6 }}>
                     <span style={buttonWrapperStyle}><button style={buttonStyle} disabled>Options</button></span>

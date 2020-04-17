@@ -1,7 +1,7 @@
 import React from 'react';
 
 export function InRange(low: number, high: number): number {
-    return Math.floor((Math.random() * (high - low)) + low);
+    return Math.round((Math.random() * (high - low)) + low);
 }
 
 export function PickRandom<T>(input: T[]) {

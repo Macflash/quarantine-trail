@@ -1,13 +1,16 @@
 
 import React from 'react';
-import Person1 from '../images/person1.png';
-import Person2 from '../images/person2.png';
-import { InRange } from '../utils';
-import { BusinessView } from '../views/business';
+import { InRange, PickRandom } from '../utils';
+
+const people: any[] = [ ];
+for(var i =1; i <= 4; i++){
+    people.push(require(`../images/person${i}.png`));
+}
 
 export const Person: React.FC<{ top: number, left: number }> = props => {
     const { top, left } = props;
-    return <div style={{ position: "absolute", height: 50, width: 30, top, left, background: `url(${Person1})`, backgroundBlendMode: "overlay", mixBlendMode: "multiply" }}>
+    let image = PickRandom(people);
+    return <div style={{ position: "absolute", height: 50, width: 30, top, left, background: `url(${image})` }}>
     </div>
 }
 
