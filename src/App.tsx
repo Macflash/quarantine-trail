@@ -30,29 +30,20 @@ const enableDevMode = true;
 export const isDev = window.location.href.indexOf("localhost") >= 0  && enableDevMode;
 
 function App() {
-  const [infected, addInfected] = useHistory([0]);
-  const [business, setBusiness] = React.useState<Business | null>(null)
-  const [city, setCity] = React.useState<City>({
-    name: "Seattle",
-    day: 1,
-    infected: 10,
-    deceased: 0,
-    interaction: 100,
-    population: 2000000,
-    protection: 0,
-    recovered: 0,
-    testedPositive: 0,
-  });
+  const [width, setWidth] = React.useState(window.innerWidth);
+  let scale = width / 620;
+  React.useEffect(()=>{
+    setInterval(()=> {
+      console.log(window.innerWidth);
+      var w = window.innerWidth;
+      scale = width / 620;
+      if(w != width){
+        setWidth(w);
+      }
+    }, 1000);
+  }, []);
 
-  const advanceDay = () => {
-    const newCity = AdvanceCity(city)
-    setCity(newCity);
-    addInfected(newCity.testedPositive);
-
-    if (business) {
-      setBusiness(advanceBusiness(business, city));
-    }
-  }
+  console.log(scale);
 
   type Stage = "Menu" | "Intro" | "PickNames" | "Game";
 
@@ -73,7 +64,7 @@ function App() {
   }
 
   return (
-    <div className="wrapper" style={{ backgroundColor: ColorOrange, padding: 18, width: 620, height: 460, border: OuterBorder }}>
+    <div className="wrapper" style={{ backgroundColor: ColorOrange, padding: 18, width: 620, height: 460, border: OuterBorder, transform: `scale(${Math.min(scale, 1)},${Math.min(scale, 1)})` }}>
       {layout}
     </div>
   );
@@ -125,9 +116,11 @@ const Menu: React.FC<{ onClick: () => void }> = props => {
   const intro_theme = require("./sounds/QT Intro Theme.wav");
 
   React.useEffect(() => {
-    var audio = new Audio(intro_theme);
-    audio.volume = .25;
-    audio.play();
+    setTimeout(() => {
+      var audio = new Audio(intro_theme);
+      audio.volume = .25;
+      audio.play();
+    }, 2000);
   }, []);
 
   return <div style={{ backgroundColor: "white", border: InnerBorder, padding: 20, position: "relative" }}>

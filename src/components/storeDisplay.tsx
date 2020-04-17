@@ -19,7 +19,7 @@ export const StoreDisplay: React.FC<{ customers: number, height?: number, width?
     const height = props.height ?? 250;
     const width = props.width ?? 800;
     for (let i = 0; i < props.customers; i++) {
-        c.push(<Person top={InRange(0, height - 50)} left={InRange(0, width - 30)} />)
+        c.push(<Person key={i} top={InRange(0, height - 50)} left={InRange(0, width - 30)} />)
     }
 
     return <div style={{ textAlign: "center", display: "flex", justifyContent: "center" }}>

@@ -426,15 +426,15 @@ export const Layout: React.FC = props => {
                 <div style={{ ...headerStyle }}>Conditions</div>
                 <div style={{ fontSize: 12, fontWeight: 600 }}>{date.toDateString()}</div>
 
-                <img src={Placeholder} />
+                {isDev ? null: <img src={Placeholder} />}
 
                 <div style={{ ...headerStyle }}>Virus</div>
                 <div style={{ ...bodyStyle }}>
                     <BodyRow left="Status:" right={infectRate} />
                     <BodyRow left="Infected:" right={infected} />
                     <BodyRow left="Deceased:" right={deceased} />
-                    <BodyRow left="Recovered:" right={recovered} />
-                    <BodyRow left="Uninfected:" right={uninfected} />
+                    {isDev ? <BodyRow left="Recovered:" right={recovered} /> : null}
+                    {isDev ? <BodyRow left="Uninfected:" right={uninfected} /> : null}
                 </div>
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
