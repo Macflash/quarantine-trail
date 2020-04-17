@@ -15,6 +15,14 @@ import PayBad from '../images/paybad.png';
 import PayOk from '../images/payok.png';
 import PayGreat from '../images/paygreat.png';
 
+import ShortShift from '../images/shortshift.png';
+import RegularShift from '../images/regularshift.png';
+import LongShift from '../images/longshift.png';
+
+import CleanGreat from '../images/cleangreat.png';
+import CleanOk from '../images/cleanok.png';
+import CleanBad from '../images/cleanbad.png';
+
 import { StoreDisplay } from './storeDisplay';
 
 export const ColorYellow = "rgb(255,247,138)";
@@ -37,7 +45,9 @@ const basicBoxStyle = {
 
 export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Hours" | "Hunt";
 
-
+export type PayQuality = "Double Overtime" | "Overtime" | "Minimum Wage";
+export type HourQuality = "Short Shifts" | "Normal Shifts" | "Grueling shifts";
+export type CleaningQuality = "Pristine" | "Ok" | "Dirty";
 
 export const Layout: React.FC = props => {
     const [view, setView] = React.useState<View>("Store");
@@ -45,15 +55,35 @@ export const Layout: React.FC = props => {
     let centerMenu = <StoreDisplay customers={40} height={220} width={280} />;
     switch (view) {
         case "Pay":
-            centerMenu = <CenterMenu
+            centerMenu = <CenterMenu<PayQuality>
                 title="How much do you want to pay your employees?"
                 items={[
                     { name: "Double Overtime", image: PayGreat },
                     { name: "Overtime", image: PayOk },
-                    { name: "Bad", image: PayBad },
+                    { name: "Minimum Wage", image: PayBad },
                 ]}
             />;
             break;
+        case "Hours":
+            centerMenu = <CenterMenu<HourQuality>
+                title="How long should your employees work each day?"
+                items={[
+                    { name: "Short Shifts", image: ShortShift },
+                    { name: "Normal Shifts", image: RegularShift },
+                    { name: "Grueling shifts", image: LongShift },
+                ]}
+            />;
+            break;
+            case "Cleaning":
+                centerMenu = <CenterMenu<CleaningQuality>
+                    title="How clean should you keep the store?"
+                    items={[
+                        { name: "Pristine", image: CleanGreat },
+                        { name: "Ok", image: CleanOk },
+                        { name: "Dirty", image: CleanBad },
+                    ]}
+                />;
+                break;
     }
 
     return <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", backgroundColor: ColorBrown, height: "100%", padding: margin, border: MiniBorder }}>
@@ -64,8 +94,8 @@ export const Layout: React.FC = props => {
             { image: Pay, name: "Pay" },
             { image: Graph, name: "Chart" },
         ]} />
-        <div style={{ flex: "auto", display: "flex", flexDirection: "column" }}>
-            <div style={{ ...basicBoxStyle }}>
+        <div style={{ width: 290, display: "flex", flexDirection: "column" }}>
+            <div style={{ ...basicBoxStyle, height: 240 }}>
                 {/* TODO: Add main view here! */}
                 {centerMenu}
             </div>
@@ -114,16 +144,18 @@ export function CenterMenuItem<T>(props: { name: T, image?: string, onClick?: ()
         <MenuCircle image={props.image} />
         {props.name ?
             <div>
-                {props.name ? <div style={{ margin: 12 }}>{props.name}</div> : null}
+                {props.name ? <div style={{ margin: "6px 12px" }}>{props.name}</div> : null}
             </div>
             : null}
     </div>;
 }
 
 export function CenterMenu<T>(props: { title: string, items?: { name: T, image?: string }[] }) {
-    return <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+    return <div style={{width:280}}>
+        <div style={{textAlign: "left", margin: "0 10px", fontSize: 14}}>{props.title}</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
         {props.items?.map(item => <CenterMenuItem {...item} />)}
         {/* TODO: Add menu items here! */}
-    </div>;
+    </div></div>;
 }
 
