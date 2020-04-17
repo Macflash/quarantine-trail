@@ -51,7 +51,6 @@ const buttonStyle: React.CSSProperties = {
 const buttonWrapperStyle: React.CSSProperties = {
     width: "100%",
     display: "inline-block",
-    //padding: 2,
     backgroundColor: ColorYellow,
     border: MiniBorder,
     borderRadius: 5
@@ -63,7 +62,8 @@ const headerStyle: React.CSSProperties = {
 }
 
 const bodyStyle: React.CSSProperties = {
-    fontSize: 11,
+    fontWeight: 700,
+    fontSize: 10,
     textAlign: "left",
     margin: "0 10px"
 }
@@ -139,7 +139,7 @@ export const Layout: React.FC = props => {
                 <div>Welcome to the bank</div>
                 <div>You owe $X</div>
                 <div>
-                    <button>Borrow $1000</button>
+                    <button style={{...buttonStyle, width: 150}}>Borrow $1000</button>
                 </div>
             </div>;
             break;
@@ -171,20 +171,21 @@ export const Layout: React.FC = props => {
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Virus</div>
                 <div style={{ ...bodyStyle }}>
-                    <div>Positive: 100</div>
-                    <div>Deceased: 12</div>
+                <BodyRow left="Positive:" right="100" />
+                    <BodyRow left="Positive:" right="100" />
+                    <BodyRow left="Deceased:" right="12" />
                 </div>
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
                 <div style={{ ...bodyStyle }}>
-                    <div>Money: $1600</div>
-                    <div>Pay: {payQ}</div>
-                    <div>Cleaning: {cleanQ}</div>
-                    <div>Hours: {hourQ}</div>
-                    <div>Suplies Left: 12</div>
-                    <div>Health: Fair</div>
+                <BodyRow left="Money:" right="$1600" />
+                    <BodyRow left="Pay:" right={payQ} />
+                    <BodyRow left="Cleaning:" right={cleanQ} />
+                    <BodyRow left="Hours:" right={hourQ} />
+                    <BodyRow left="Supplies:" right="12" />
+                    <BodyRow left="Health:" right="Fair" />
                     <br />
-                    <div>Store: Open</div>
+                    <BodyRow left="Store:" right="Open" />
                 </div>
             </div>
             <div style={{ ...basicBoxStyle }}>
@@ -204,6 +205,13 @@ export const Layout: React.FC = props => {
             { image: Hours, name: "Hours" },
             { image: Finances, name: "Bank" },
         ]} />
+    </div>;
+}
+
+export const BodyRow: React.FC<{left: string, right: string}> = props => {
+    return <div style={{display: "flex", justifyContent: "space-between"}}>
+        <div>{props.left}</div>
+        <div>{props.right}</div>
     </div>;
 }
 
