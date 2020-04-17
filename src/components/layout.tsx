@@ -30,6 +30,7 @@ import Tweet from '../images/shitnews.png';
 
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
+import { isDev } from '../App';
 
 const intro_theme = require("../sounds/QT Intro Theme.wav");
 
@@ -218,7 +219,7 @@ export const Layout: React.FC = props => {
                     infectRate: newInfectRate,
                 });
             }
-        }, 500);
+        }, isDev ? 500 : 4000);
     }, [paused, game])
 
     let centerMenu = <StoreDisplay customers={40} height={220} width={280} />;

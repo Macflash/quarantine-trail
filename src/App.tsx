@@ -26,6 +26,9 @@ const textBlockStyle: React.CSSProperties = {
   fontSize: 13
 }
 
+const enableDevMode = true;
+export const isDev = window.location.href.indexOf("localhost") >= 0  && enableDevMode;
+
 function App() {
   const [infected, addInfected] = useHistory([0]);
   const [business, setBusiness] = React.useState<Business | null>(null)
@@ -53,8 +56,7 @@ function App() {
 
   type Stage = "Menu" | "Intro" | "PickNames" | "Game";
 
-  const fastStart = true;
-  const [stage, setStage] = React.useState<Stage>(window.location.href.indexOf("localhost") >= 0  && fastStart ? "Game" : "Menu");
+  const [stage, setStage] = React.useState<Stage>(isDev ? "Game" : "Menu");
 
   let layout = <Layout />;
 
