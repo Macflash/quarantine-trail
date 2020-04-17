@@ -39,7 +39,9 @@ export const OuterBorder = `10px ridge ${ColorBrown}`;
 export const InnerBorder = `5px solid ${ColorBrown}`;
 export const MiniBorder = `1px solid ${ColorDarkBrown}`;
 
-const buttonStyle: React.CSSProperties = {
+export const buttonStyle: React.CSSProperties = {
+    fontSize: 14,
+    fontWeight: 700,
     width: "calc(100% - 4px)",
     backgroundColor: ColorYellow,
     border: InnerBorder,
@@ -48,7 +50,7 @@ const buttonStyle: React.CSSProperties = {
     cursor: "pointer",
 }
 
-const buttonWrapperStyle: React.CSSProperties = {
+export const buttonWrapperStyle: React.CSSProperties = {
     width: "100%",
     display: "inline-block",
     backgroundColor: ColorYellow,
@@ -56,12 +58,12 @@ const buttonWrapperStyle: React.CSSProperties = {
     borderRadius: 5
 }
 
-const headerStyle: React.CSSProperties = {
+export const headerStyle: React.CSSProperties = {
     fontWeight: 600,
     fontSize: 18
 }
 
-const bodyStyle: React.CSSProperties = {
+export const bodyStyle: React.CSSProperties = {
     fontWeight: 700,
     fontSize: 10,
     textAlign: "left",
@@ -71,7 +73,7 @@ const bodyStyle: React.CSSProperties = {
 const spacing = 5;
 const margin = spacing / 2;
 
-const basicBoxStyle = {
+export const basicBoxStyle = {
     backgroundColor: ColorYellow,
     margin,
     border: MiniBorder,
@@ -189,7 +191,7 @@ export const Layout: React.FC = props => {
                 </div>
             </div>
             <div style={{ ...basicBoxStyle }}>
-                <div style={{ padding: 5, margin: 6, marginBottom: 12 }}>
+                <div style={{ padding: 5, margin: 6 }}>
                     <span style={buttonWrapperStyle}><button style={buttonStyle}>Continue</button></span>
                 </div>
                 <div style={{padding: 5, margin: 6 }}>
@@ -216,13 +218,13 @@ export const BodyRow: React.FC<{left: string, right: string}> = props => {
 }
 
 export const MenuCircle: React.FC<{ image?: string }> = props => {
-    return <div style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black" }}>
+    return <div className="menuCircle" style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black", cursor: "pointer" }}>
         {props.image ? <img src={props.image} style={{ marginTop: 5 }} /> : null}
     </div>;
 }
 
 export const MenuItem: React.FC<{ name?: View, image?: string, onClick?: () => void }> = props => {
-    return <div style={{ margin: 9, textAlign: "center", alignItems: "center", display: "flex", flexDirection: "column", cursor: "pointer" }} onClick={props.onClick} tabIndex={0}>
+    return <div style={{ margin: 9, textAlign: "center", alignItems: "center", display: "flex", flexDirection: "column", cursor: "pointer" }} onClick={props.onClick}>
         <MenuCircle image={props.image} />
         {props.name ?
             <div>
@@ -241,7 +243,7 @@ export const VerticalMenu: React.FC<{ items?: { name: View, image?: string }[], 
 }
 
 export function CenterMenuItem<T>(props: { name: T, image?: string, onClick?: () => void }) {
-    return <div style={{ margin: 9, textAlign: "center", alignItems: "center", display: "flex", flexDirection: "row", cursor: "pointer" }} onClick={props.onClick} tabIndex={0}>
+    return <div style={{ margin: 9, textAlign: "center", alignItems: "center", display: "flex", flexDirection: "row", cursor: "pointer" }} onClick={props.onClick}>
         <MenuCircle image={props.image} />
         {props.name ?
             <div>
