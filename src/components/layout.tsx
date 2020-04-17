@@ -135,9 +135,9 @@ export const Layout: React.FC = props => {
             centerMenu = <BarDisplay values={[1, 3, 6, 13]} />;
             break;
         case "Bank":
-            centerMenu = <div>
-                <div>Welcome to the bank</div>
-                <div>You owe $X</div>
+            centerMenu = <div style={{padding: 5}}>
+                <div style={{textAlign: "left"}}>Welcome to the bank</div>
+                <div style={{textAlign: "left"}}>You owe $0</div>
                 <div>
                     <button style={{...buttonStyle, width: 150}}>Borrow $1000</button>
                 </div>
@@ -165,7 +165,7 @@ export const Layout: React.FC = props => {
         <div style={{ display: "flex", flexDirection: "column", width: 140 }}>
             <div style={{ ...basicBoxStyle, flex: "auto", textAlign: "center" }}>
                 <div style={{ ...headerStyle }}>Conditions</div>
-                <div style={{ fontSize: 12 }}>April 3, 2020</div>
+                <div style={{ fontSize: 12, fontWeight: 600 }}>April 3, 2020</div>
 
                 <img src={Placeholder} />
 

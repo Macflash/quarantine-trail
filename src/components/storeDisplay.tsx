@@ -19,8 +19,9 @@ export const StoreDisplay: React.FC<{ customers: number, height?: number, width?
         c.push(<Person top={InRange(0, height - 50)} left={InRange(0, width - 30)} />)
     }
 
-    return <div style={{ textAlign: "center", display: "flex", justifyContent: "center" }}><div style={{ height, width, position: "relative", border: "3px solid grey" }}>
-        {c}
-    </div>
+    return <div style={{ textAlign: "center", display: "flex", justifyContent: "center" }}>
+        <div style={{ height, width, position: "relative" }}>
+            {c}
+        </div>
     </div>;
 }
