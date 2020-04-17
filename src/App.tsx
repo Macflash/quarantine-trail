@@ -11,6 +11,10 @@ import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBord
 import Help from './images/help.png';
 import Eagle from './images/eagle.png';
 import EagleR from './images/eagle_r.png';
+import Banner from './images/quarantine banner.png';
+import Virus1 from './images/virus1.bmp';
+import Virus2 from './images/virus2.bmp';
+import Virus3 from './images/virus3.bmp';
 
 const confirmedCases = [1, 3, 6, 13, 18, 28, 39, 70, 80, 102, 136, 162, 267, 366, 457, 568, 642, 769, 904, 1012, 1187, 1376, 1524, 1793, 1996, 2469, 2580, 3207, 3723, 4310, 4896];
 
@@ -41,7 +45,7 @@ function App() {
 
   type Stage = "Menu" | "Intro" | "PickNames" | "Game";
 
-  const [stage, setStage] = React.useState("Intro");
+  const [stage, setStage] = React.useState("Menu");
 
   let layout = <Layout />;
 
@@ -51,6 +55,10 @@ function App() {
     textAlign: "left",
     lineHeight: 2,
     fontSize: 13
+  }
+
+  if (stage == "Menu") {
+    layout = <Menu onClick={() => setStage("Intro")} />
   }
 
   if (stage == "Intro") {
@@ -83,43 +91,43 @@ function App() {
       </div>
 
       {/** Body */}
-      <div style={{display: "flex", justifyContent: "space-around", margin: 48}}>
+      <div style={{ display: "flex", justifyContent: "space-around", margin: 48 }}>
 
         {/** Occupation */}
-        <div style={{border: MiniBorder, width: "50%", position: "relative", textAlign: "center"}}>
-          <div style={{position: "absolute", top: -16, textAlign: "center", left: 0, right: 0}}>
-            <div style={{display: "inline-block", backgroundColor: ColorYellow, padding: 5, }}>
+        <div style={{ border: MiniBorder, width: "50%", position: "relative", textAlign: "center" }}>
+          <div style={{ position: "absolute", top: -16, textAlign: "center", left: 0, right: 0 }}>
+            <div style={{ display: "inline-block", backgroundColor: ColorYellow, padding: 5, }}>
               Occupation
               </div>
-            </div>
-          <div style={{...textBlockStyle, margin: 5}}>
-            <div><label><input type="radio"/> Grocer</label></div>
-            <div><label><input type="radio"/> Restaurant</label></div>
-            <div><label><input type="radio" disabled/> Banker</label></div>
-            <div><label><input type="radio" disabled/> Doctor</label></div>
-            <div><label><input type="radio" disabled/> Farmer</label></div>
-            <div><label><input type="radio" disabled/> Merchant</label></div>
-            <div><label><input type="radio" disabled/> Saddlemaker</label></div>
-            <div><label><input type="radio" disabled/> Teacher</label></div>
           </div>
-          <div style={{position: "absolute", top:0, bottom:0, right: 16, display: "flex", flexDirection: "column", justifyContent: "center"}}>
+          <div style={{ ...textBlockStyle, margin: 5 }}>
+            <div><label><input type="radio" /> Grocer</label></div>
+            <div><label><input type="radio" /> Restaurant</label></div>
+            <div><label><input type="radio" disabled /> Banker</label></div>
+            <div><label><input type="radio" disabled /> Doctor</label></div>
+            <div><label><input type="radio" disabled /> Farmer</label></div>
+            <div><label><input type="radio" disabled /> Merchant</label></div>
+            <div><label><input type="radio" disabled /> Saddlemaker</label></div>
+            <div><label><input type="radio" disabled /> Teacher</label></div>
+          </div>
+          <div style={{ position: "absolute", top: 0, bottom: 0, right: 16, display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <MenuCircle image={Help} />
           </div>
         </div>
 
         {/** Employee names */}
-        <div style={{width: "50%"}}>
-            <div>The employees in your store:</div>
-            <div><input style={{backgroundColor: ColorYellow, border: MiniBorder}} /></div>
-            <div><input style={{backgroundColor: ColorYellow, border: MiniBorder}} /></div>
-            <div><input style={{backgroundColor: ColorYellow, border: MiniBorder}} /></div>
-            <div><input style={{backgroundColor: ColorYellow, border: MiniBorder}} /></div>
-            <div><input style={{backgroundColor: ColorYellow, border: MiniBorder}} /></div>
-            <div><input style={{backgroundColor: ColorYellow, border: MiniBorder}} /></div>
+        <div style={{ width: "50%" }}>
+          <div>The employees in your store:</div>
+          <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+          <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+          <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+          <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+          <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+          <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
 
-            <div style={{marginTop: 32}}>
-              <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={() => setStage("Game")} >OK</button>
-            </div>
+          <div style={{ marginTop: 32 }}>
+            <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={() => setStage("Game")} >OK</button>
+          </div>
         </div>
 
       </div>
@@ -159,3 +167,40 @@ You run a small business, you will need to manage your store, employees and hygi
 <StoreDisplay customers={(business?.customers ?? 0) / (business?.openHours ?? 1)} />
 </div>
 */
+
+const Menu: React.FC<{onClick: ()=>void}> = props => {
+  const [img, setImage] = React.useState(Virus1);
+  React.useEffect(() => {
+    setTimeout(() => {
+      if (img == Virus1) {
+        setImage(Virus2);
+      }
+      else if (img == Virus2) {
+        setImage(Virus3);
+      }
+      else if (img == Virus3) {
+        setImage(Virus1);
+      }
+    }, (300));
+  }, [img]);
+  
+  
+  const intro_theme = require("./sounds/QT Intro Theme.wav");
+
+  React.useEffect(() => {
+    var audio = new Audio(intro_theme);
+    audio.volume = .25;
+    audio.play();
+}, []);
+
+  return <div style={{ backgroundColor: "white", border: InnerBorder, padding: 20, position: "relative" }}>
+    <div style={{position: "absolute", top: 32, left: 0, right:0, textAlign: "center"}}><img src={Banner} /></div>
+    <img style={{ border: InnerBorder }} src={img} width="100%" />
+    <div style={{ position: "absolute", bottom: 40, left: 30, right: 20, justifyContent: "space-around", display: "flex" }}>
+      <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }}>Introduction</button>
+      <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }}>Options</button>
+      <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }}>Quit</button>
+      <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={props.onClick}>Travel the Trail</button>
+    </div>
+  </div>;
+}
