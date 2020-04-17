@@ -53,7 +53,8 @@ function App() {
 
   type Stage = "Menu" | "Intro" | "PickNames" | "Game";
 
-  const [stage, setStage] = React.useState<Stage>("Menu");
+  const fastStart = true;
+  const [stage, setStage] = React.useState<Stage>(window.location.href.indexOf("localhost") >= 0  && fastStart ? "Game" : "Menu");
 
   let layout = <Layout />;
 

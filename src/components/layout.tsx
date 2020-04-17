@@ -25,6 +25,9 @@ import CleanGreat from '../images/cleangreat.png';
 import CleanOk from '../images/cleanok.png';
 import CleanBad from '../images/cleanbad.png';
 
+import Tweet from '../images/shitnews.png';
+
+
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
 
@@ -85,18 +88,51 @@ export type PayQuality = "Double Overtime" | "Overtime" | "Minimum Wage";
 export type HourQuality = "Short Shifts" | "Normal Shifts" | "Grueling shifts";
 export type CleaningQuality = "Pristine" | "Ok" | "Dirty";
 
+export type Callback = () => void;
+export type Setter<T> = (newValue: T) => void;
+
+function useStateAndView<T>(defaultValue: T, onChange?: () => void): [T, Setter<T>] {
+    const [state, setState] = React.useState<T>(defaultValue);
+
+    const changeState = React.useCallback((newValue: T) => {
+        setState(newValue);
+        onChange?.();
+    }, [setState, onChange]);
+
+    return [state, changeState];
+}
+
 export const Layout: React.FC = props => {
-    const [payQ, setPayQ] = React.useState<PayQuality>("Overtime");
-    const [hourQ, setHourQ] = React.useState<HourQuality>("Normal Shifts");
-    const [cleanQ, setCleanQ] = React.useState<CleaningQuality>("Dirty");
+    const [paused, setPaused] = React.useState(true);
+    const Pause = React.useCallback(() => setPaused(true), [setPaused]);
+
+    const [view, setView] = useStateAndView<View>("Store", Pause);
+    const ResetView = React.useCallback(() => setView("Store"), [setView]);
+
+    const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView);
+    const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView);
+    const [cleanQ, setCleanQ] = useStateAndView<CleaningQuality>("Dirty", ResetView);
+
+    const [date, setDate] = React.useState<Date>(new Date("01/01/2020"));
+
+    const [log, setLog] = React.useState<string[]>([]);
+
+    React.useEffect(() => {
+        // advance the days!
+        if (!paused) {
+            setTimeout(() => {
+                let newDate = new Date(date);
+                newDate.setDate(newDate.getDate() + 1);
+                setDate(newDate);
+            }, 4000);
+        }
+    }, [paused, date])
 
     React.useEffect(() => {
         var audio = new Audio(intro_theme);
         audio.volume = .25;
         audio.play();
     }, []);
-
-    const [view, setView] = React.useState<View>("Store");
 
     let centerMenu = <StoreDisplay customers={40} height={220} width={280} />;
     switch (view) {
@@ -137,13 +173,16 @@ export const Layout: React.FC = props => {
             centerMenu = <BarDisplay values={[1, 3, 6, 13]} />;
             break;
         case "Bank":
-            centerMenu = <div style={{padding: 5}}>
-                <div style={{textAlign: "left"}}>Welcome to the bank</div>
-                <div style={{textAlign: "left"}}>You owe $0</div>
+            centerMenu = <div style={{ padding: 5 }}>
+                <div style={{ textAlign: "left" }}>Welcome to the bank</div>
+                <div style={{ textAlign: "left" }}>You owe $0</div>
                 <div>
-                    <button style={{...buttonStyle, width: 150}}>Borrow $1000</button>
+                    <button style={{ ...buttonStyle, width: 150 }}>Borrow $1000</button>
                 </div>
             </div>;
+            break;
+        case "News":
+            centerMenu = <img width="100%" src={Tweet} />;
             break;
     }
 
@@ -167,20 +206,20 @@ export const Layout: React.FC = props => {
         <div style={{ display: "flex", flexDirection: "column", width: 140 }}>
             <div style={{ ...basicBoxStyle, flex: "auto", textAlign: "center" }}>
                 <div style={{ ...headerStyle }}>Conditions</div>
-                <div style={{ fontSize: 12, fontWeight: 600 }}>April 3, 2020</div>
+                <div style={{ fontSize: 12, fontWeight: 600 }}>{date.toDateString()}</div>
 
                 <img src={Placeholder} />
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Virus</div>
                 <div style={{ ...bodyStyle }}>
-                <BodyRow left="Positive:" right="100" />
+                    <BodyRow left="Positive:" right="100" />
                     <BodyRow left="Positive:" right="100" />
                     <BodyRow left="Deceased:" right="12" />
                 </div>
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
                 <div style={{ ...bodyStyle }}>
-                <BodyRow left="Money:" right="$1600" />
+                    <BodyRow left="Money:" right="$1600" />
                     <BodyRow left="Pay:" right={payQ} />
                     <BodyRow left="Cleaning:" right={cleanQ} />
                     <BodyRow left="Hours:" right={hourQ} />
@@ -192,10 +231,10 @@ export const Layout: React.FC = props => {
             </div>
             <div style={{ ...basicBoxStyle }}>
                 <div style={{ padding: 5, margin: 6 }}>
-                    <span style={buttonWrapperStyle}><button style={buttonStyle}>Continue</button></span>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={() => setPaused(!paused)}>{paused ? "Continue" : "Time out"}</button></span>
                 </div>
-                <div style={{padding: 5, margin: 6 }}>
-                    <span style={buttonWrapperStyle}><button style={buttonStyle}>Options</button></span>
+                <div style={{ padding: 5, margin: 6 }}>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle} disabled>Options</button></span>
                 </div>
             </div>
         </div>
@@ -210,8 +249,8 @@ export const Layout: React.FC = props => {
     </div>;
 }
 
-export const BodyRow: React.FC<{left: string, right: string}> = props => {
-    return <div style={{display: "flex", justifyContent: "space-between"}}>
+export const BodyRow: React.FC<{ left: string, right: string }> = props => {
+    return <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div>{props.left}</div>
         <div>{props.right}</div>
     </div>;
