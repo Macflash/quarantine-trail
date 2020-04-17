@@ -11,10 +11,10 @@ export const Person: React.FC<{ top: number, left: number }> = props => {
     </div>
 }
 
-export const StoreDisplay: React.FC<{ customers: number }> = props => {
+export const StoreDisplay: React.FC<{ customers: number, height?: number, width?: number }> = props => {
     const c = [];
-    const height = 250;
-    const width = 800;
+    const height = props.height ?? 250;
+    const width = props.width ?? 800;
     for (let i = 0; i < props.customers; i++) {
         c.push(<Person top={InRange(0, height - 50)} left={InRange(0, width - 30)} />)
     }
