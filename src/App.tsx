@@ -75,10 +75,10 @@ function App() {
   }
 
   if (stage == "PickNames") {
-    layout = <div style={{ ...basicBoxStyle, border: InnerBorder, height: "100%", display: "flex", flexDirection: "column" }}>
+    layout = <div style={{ ...basicBoxStyle, border: InnerBorder, height: "100%", display: "flex", flexDirection: "column", fontWeight: 700, }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <img src={Eagle} width="30%" />
+        <img src={Eagle} width="25%" />
         <div style={{ textAlign: "right" }}>
           <div>
             Your Name: <input style={{ backgroundColor: ColorYellow, border: MiniBorder }} />
@@ -87,14 +87,14 @@ function App() {
             Business: <input style={{ backgroundColor: ColorYellow, border: MiniBorder }} />
           </div>
         </div>
-        <img src={EagleR} width="30%" />
+        <img src={EagleR} width="25%" />
       </div>
 
       {/** Body */}
-      <div style={{ display: "flex", justifyContent: "space-around", margin: 48 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", margin: "48px 32px" }}>
 
         {/** Occupation */}
-        <div style={{ border: MiniBorder, width: "50%", position: "relative", textAlign: "center" }}>
+        <div style={{ border: MiniBorder, width: "40%", position: "relative", textAlign: "center" }}>
           <div style={{ position: "absolute", top: -16, textAlign: "center", left: 0, right: 0 }}>
             <div style={{ display: "inline-block", backgroundColor: ColorYellow, padding: 5, }}>
               Occupation
