@@ -1,0 +1,36 @@
+{
+  "files": {
+    "main.css": "/github.io/quarantine-trail/static/css/main.37274586.chunk.css",
+    "main.js": "/github.io/quarantine-trail/static/js/main.6e297d35.chunk.js",
+    "main.js.map": "/github.io/quarantine-trail/static/js/main.6e297d35.chunk.js.map",
+    "runtime-main.js": "/github.io/quarantine-trail/static/js/runtime-main.f162d369.js",
+    "runtime-main.js.map": "/github.io/quarantine-trail/static/js/runtime-main.f162d369.js.map",
+    "static/js/2.b4a57d6a.chunk.js": "/github.io/quarantine-trail/static/js/2.b4a57d6a.chunk.js",
+    "static/js/2.b4a57d6a.chunk.js.map": "/github.io/quarantine-trail/static/js/2.b4a57d6a.chunk.js.map",
+    "index.html": "/github.io/quarantine-trail/index.html",
+    "precache-manifest.57c9982ac32dcdcb42b4c45a56ae9c37.js": "/github.io/quarantine-trail/precache-manifest.57c9982ac32dcdcb42b4c45a56ae9c37.js",
+    "service-worker.js": "/github.io/quarantine-trail/service-worker.js",
+    "static/css/main.37274586.chunk.css.map": "/github.io/quarantine-trail/static/css/main.37274586.chunk.css.map",
+    "static/js/2.b4a57d6a.chunk.js.LICENSE.txt": "/github.io/quarantine-trail/static/js/2.b4a57d6a.chunk.js.LICENSE.txt",
+    "static/media/QT Intro Theme.wav": "/github.io/quarantine-trail/static/media/QT Intro Theme.3685d718.wav",
+    "static/media/cleanbad.png": "/github.io/quarantine-trail/static/media/cleanbad.200e8af1.png",
+    "static/media/cleangreat.png": "/github.io/quarantine-trail/static/media/cleangreat.07c0ba58.png",
+    "static/media/cleanok.png": "/github.io/quarantine-trail/static/media/cleanok.514497c2.png",
+    "static/media/graph.png": "/github.io/quarantine-trail/static/media/graph.e774b7c6.png",
+    "static/media/help.png": "/github.io/quarantine-trail/static/media/help.392a8b16.png",
+    "static/media/longshift.png": "/github.io/quarantine-trail/static/media/longshift.2df3933a.png",
+    "static/media/paybad.png": "/github.io/quarantine-trail/static/media/paybad.fd298798.png",
+    "static/media/regularshift.png": "/github.io/quarantine-trail/static/media/regularshift.16d28253.png",
+    "static/media/shortshift.png": "/github.io/quarantine-trail/static/media/shortshift.eafff0a1.png",
+    "static/media/supplies.png": "/github.io/quarantine-trail/static/media/supplies.1521c45c.png",
+    "static/media/virus1.bmp": "/github.io/quarantine-trail/static/media/virus1.89a40b1c.bmp",
+    "static/media/virus2.bmp": "/github.io/quarantine-trail/static/media/virus2.e6de495f.bmp",
+    "static/media/virus3.bmp": "/github.io/quarantine-trail/static/media/virus3.366f569b.bmp"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f162d369.js",
+    "static/js/2.b4a57d6a.chunk.js",
+    "static/css/main.37274586.chunk.css",
+    "static/js/main.6e297d35.chunk.js"
+  ]
+}
