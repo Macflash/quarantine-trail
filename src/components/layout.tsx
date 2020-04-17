@@ -9,7 +9,9 @@ import Status from '../images/status.png';
 import Hours from '../images/hours.png';
 import Finances from '../images/finances.png';
 import Cleaning from '../images/cleaning.png';
+import Supplies from '../images/supplies.png';
 import Hunt from '../images/hunt.png';
+import Placeholder from '../images/status placeholder.png';
 
 import PayBad from '../images/paybad.png';
 import PayOk from '../images/payok.png';
@@ -24,6 +26,9 @@ import CleanOk from '../images/cleanok.png';
 import CleanBad from '../images/cleanbad.png';
 
 import { StoreDisplay } from './storeDisplay';
+import { BarDisplay } from './barDisplay';
+
+const intro_theme = require("../sounds/QT Intro Theme.wav");
 
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
@@ -33,6 +38,35 @@ export const ColorDarkBrown = "rgb(69,20,0)";
 export const OuterBorder = `10px ridge ${ColorBrown}`;
 export const InnerBorder = `5px solid ${ColorBrown}`;
 export const MiniBorder = `1px solid ${ColorDarkBrown}`;
+
+const buttonStyle: React.CSSProperties = {
+    width: "calc(100% - 4px)",
+    backgroundColor: ColorYellow,
+    border: InnerBorder,
+    borderRadius: 5,
+    margin: 2,
+    cursor: "pointer",
+}
+
+const buttonWrapperStyle: React.CSSProperties = {
+    width: "100%",
+    display: "inline-block",
+    //padding: 2,
+    backgroundColor: ColorYellow,
+    border: MiniBorder,
+    borderRadius: 5
+}
+
+const headerStyle: React.CSSProperties = {
+    fontWeight: 600,
+    fontSize: 18
+}
+
+const bodyStyle: React.CSSProperties = {
+    fontSize: 11,
+    textAlign: "left",
+    margin: "0 10px"
+}
 
 const spacing = 5;
 const margin = spacing / 2;
@@ -50,12 +84,23 @@ export type HourQuality = "Short Shifts" | "Normal Shifts" | "Grueling shifts";
 export type CleaningQuality = "Pristine" | "Ok" | "Dirty";
 
 export const Layout: React.FC = props => {
+    const [payQ, setPayQ] = React.useState<PayQuality>("Overtime");
+    const [hourQ, setHourQ] = React.useState<HourQuality>("Normal Shifts");
+    const [cleanQ, setCleanQ] = React.useState<CleaningQuality>("Dirty");
+
+    React.useEffect(() => {
+        var audio = new Audio(intro_theme);
+        audio.volume = .25;
+        audio.play();
+    }, []);
+
     const [view, setView] = React.useState<View>("Store");
 
     let centerMenu = <StoreDisplay customers={40} height={220} width={280} />;
     switch (view) {
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
+                setValue={setPayQ}
                 title="How much do you want to pay your employees?"
                 items={[
                     { name: "Double Overtime", image: PayGreat },
@@ -66,6 +111,7 @@ export const Layout: React.FC = props => {
             break;
         case "Hours":
             centerMenu = <CenterMenu<HourQuality>
+                setValue={setHourQ}
                 title="How long should your employees work each day?"
                 items={[
                     { name: "Short Shifts", image: ShortShift },
@@ -74,21 +120,34 @@ export const Layout: React.FC = props => {
                 ]}
             />;
             break;
-            case "Cleaning":
-                centerMenu = <CenterMenu<CleaningQuality>
-                    title="How clean should you keep the store?"
-                    items={[
-                        { name: "Pristine", image: CleanGreat },
-                        { name: "Ok", image: CleanOk },
-                        { name: "Dirty", image: CleanBad },
-                    ]}
-                />;
-                break;
+        case "Cleaning":
+            centerMenu = <CenterMenu<CleaningQuality>
+                setValue={setCleanQ}
+                title="How clean should your employees keep the store?"
+                items={[
+                    { name: "Pristine", image: CleanGreat },
+                    { name: "Ok", image: CleanOk },
+                    { name: "Dirty", image: CleanBad },
+                ]}
+            />;
+            break;
+        case "Chart":
+            centerMenu = <BarDisplay values={[1, 3, 6, 13]} />;
+            break;
+        case "Bank":
+            centerMenu = <div>
+                <div>Welcome to the bank</div>
+                <div>You owe $X</div>
+                <div>
+                    <button>Borrow $1000</button>
+                </div>
+            </div>;
+            break;
     }
 
     return <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", backgroundColor: ColorBrown, height: "100%", padding: margin, border: MiniBorder }}>
         <VerticalMenu setView={setView} items={[
-            { name: "Store" },
+            { image: Buy, name: "Store" },
             { image: Help, name: "Guide" },
             { image: Status, name: "Status" },
             { image: Pay, name: "Pay" },
@@ -96,16 +155,50 @@ export const Layout: React.FC = props => {
         ]} />
         <div style={{ width: 290, display: "flex", flexDirection: "column" }}>
             <div style={{ ...basicBoxStyle, height: 240 }}>
-                {/* TODO: Add main view here! */}
                 {centerMenu}
             </div>
             <div style={{ ...basicBoxStyle, flex: "auto" }}>
                 {/* TODO: Add Log here! */}
             </div>
         </div>
-        <div style={{ ...basicBoxStyle, width: 140 }}></div>
+
+        <div style={{ display: "flex", flexDirection: "column", width: 140 }}>
+            <div style={{ ...basicBoxStyle, flex: "auto", textAlign: "center" }}>
+                <div style={{ ...headerStyle }}>Conditions</div>
+                <div style={{ fontSize: 12 }}>April 3, 2020</div>
+
+                <img src={Placeholder} />
+
+                <div style={{ ...headerStyle, marginTop: 10 }}>Virus</div>
+                <div style={{ ...bodyStyle }}>
+                    <div>Positive: 100</div>
+                    <div>Deceased: 12</div>
+                </div>
+
+                <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
+                <div style={{ ...bodyStyle }}>
+                    <div>Money: $1600</div>
+                    <div>Pay: {payQ}</div>
+                    <div>Cleaning: {cleanQ}</div>
+                    <div>Hours: {hourQ}</div>
+                    <div>Suplies Left: 12</div>
+                    <div>Health: Fair</div>
+                    <br />
+                    <div>Store: Open</div>
+                </div>
+            </div>
+            <div style={{ ...basicBoxStyle }}>
+                <div style={{ padding: 5, margin: 6, marginBottom: 12 }}>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle}>Continue</button></span>
+                </div>
+                <div style={{padding: 5, margin: 6 }}>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle}>Options</button></span>
+                </div>
+            </div>
+        </div>
+
         <VerticalMenu setView={setView} items={[
-            { image: Buy, name: "Supplies" },
+            { image: Supplies, name: "Supplies" },
             { image: News, name: "News" },
             { image: Cleaning, name: "Cleaning" },
             { image: Hours, name: "Hours" },
@@ -116,8 +209,8 @@ export const Layout: React.FC = props => {
 
 export const MenuCircle: React.FC<{ image?: string }> = props => {
     return <div style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black" }}>
-    {props.image ? <img src={props.image} style={{ marginTop: 5 }} /> : null}
-</div>;
+        {props.image ? <img src={props.image} style={{ marginTop: 5 }} /> : null}
+    </div>;
 }
 
 export const MenuItem: React.FC<{ name?: View, image?: string, onClick?: () => void }> = props => {
@@ -150,12 +243,12 @@ export function CenterMenuItem<T>(props: { name: T, image?: string, onClick?: ()
     </div>;
 }
 
-export function CenterMenu<T>(props: { title: string, items?: { name: T, image?: string }[] }) {
-    return <div style={{width:280}}>
-        <div style={{textAlign: "left", margin: "0 10px", fontSize: 14}}>{props.title}</div>
+export function CenterMenu<T>(props: { title: string, items?: { name: T, image?: string }[], setValue: (newValue: T) => void }) {
+    return <div style={{ width: 280 }}>
+        <div style={{ textAlign: "left", margin: "0 10px", fontSize: 14 }}>{props.title}</div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-        {props.items?.map(item => <CenterMenuItem {...item} />)}
-        {/* TODO: Add menu items here! */}
-    </div></div>;
+            {props.items?.map(item => <CenterMenuItem {...item} onClick={() => { props.setValue(item.name) }} />)}
+            {/* TODO: Add menu items here! */}
+        </div>
+    </div>;
 }
-
