@@ -103,7 +103,7 @@ function useStateAndView<T>(defaultValue: T, onChange?: () => void): [T, Setter<
 }
 
 export const Layout: React.FC = props => {
-    const [paused, setPaused] = React.useState(true);
+    const [paused, setPaused] = React.useState(false);
     const Pause = React.useCallback(() => setPaused(true), [setPaused]);
 
     const [view, setView] = useStateAndView<View>("Store", Pause);
@@ -113,26 +113,113 @@ export const Layout: React.FC = props => {
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView);
     const [cleanQ, setCleanQ] = useStateAndView<CleaningQuality>("Dirty", ResetView);
 
-    const [date, setDate] = React.useState<Date>(new Date("01/01/2020"));
+    const [game, setGame] = React.useState<{
+        /** High = sumemr unrestricted (15%), Normal is about 10%, low is 5%, very low is 2.5%, forced quarantine is 1% */
+        infectRate: "Festival" | "Normal" | "Stay at Home" | "Shelter in Place" | "Forced Quarantine";
+
+        date: Date,
+        infected: number,
+        deceased: number,
+
+        // business
+        money: number,
+        debt: number,
+        employees: any[],
+    }>({
+        infectRate: "Normal",
+
+        date: new Date("02/02/2020"),
+        infected: 1,
+        deceased: 0,
+
+        money: 1600,
+        debt: 10000,
+        employees: []
+    });
+
+    const { infectRate, date, infected, deceased } = game;
 
     const [log, setLog] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         // advance the days!
-        if (!paused) {
-            setTimeout(() => {
+        setTimeout(() => {
+            console.log("running")
+            if (!paused) {
+                // increment date
                 let newDate = new Date(date);
                 newDate.setDate(newDate.getDate() + 1);
-                setDate(newDate);
-            }, 4000);
-        }
-    }, [paused, date])
 
-    React.useEffect(() => {
-        var audio = new Audio(intro_theme);
-        audio.volume = .25;
-        audio.play();
-    }, []);
+                // increment virus
+                // 10% seems about reasonable
+                // slightly slow at first, slightly fast later
+                // we can adjust this as the town either imposes quarantine or not
+                let growthRate = .1;
+                const FestivalGrowth = .3;
+                const NormalGrowth = .15;
+                const StayHomeGrowth = .125;
+                const ShelterGrowth = .075;
+                const ForcedQuarantineGrowth = .025;
+                switch (infectRate) {
+                    case "Festival":
+                        growthRate = FestivalGrowth;
+                        break;
+                    case "Normal":
+                        growthRate = NormalGrowth;
+                        break;
+                    case "Stay at Home":
+                        growthRate = StayHomeGrowth;
+                        break;
+                    case "Shelter in Place":
+                        growthRate = ShelterGrowth;
+                        break;
+                    case "Forced Quarantine":
+                        growthRate = ForcedQuarantineGrowth;
+                        break;
+                }
+
+                const deaths = Math.round(infected * .01 * Math.random());
+                const decrease = Math.round((infected / 21) * Math.random());
+                const increase = Math.round((infected * growthRate) + (Math.random() * 2));
+                console.log("infections", increase, infected + increase);
+
+                let newInfectRate = infectRate
+                if(increase > 100){
+                    // chance to go to other stages
+                    if(growthRate > StayHomeGrowth && Math.random() < .1){
+                        console.log("going to stay at home!")
+                        newInfectRate = "Stay at Home";
+                    }
+                    else if(Math.random() < .01){
+                        console.log("going to shelter in place!")
+                        newInfectRate = "Shelter in Place";
+                    }
+                }
+                else if(increase > 10){
+                    // chance to go to other stages
+                    if(growthRate > StayHomeGrowth && Math.random() < .05){
+                        console.log("going to stay at home!")
+                        newInfectRate = "Stay at Home";
+                    }
+                }
+                else {
+                    if(growthRate < NormalGrowth && Math.random() < .1){
+                        
+                        console.log("going to normal!")
+                        newInfectRate = "Normal";
+                    }
+                }
+
+                setGame({
+                    ...game,
+                    date: newDate,
+                    infected: infected + increase - decrease - deaths,
+                    deceased: deceased + deaths,
+                    infectRate: newInfectRate,
+                });
+            }
+        }, 500);
+    }, [paused, game])
 
     let centerMenu = <StoreDisplay customers={40} height={220} width={280} />;
     switch (view) {
@@ -212,9 +299,9 @@ export const Layout: React.FC = props => {
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Virus</div>
                 <div style={{ ...bodyStyle }}>
-                    <BodyRow left="Positive:" right="100" />
-                    <BodyRow left="Positive:" right="100" />
-                    <BodyRow left="Deceased:" right="12" />
+                    <BodyRow left="Status:" right={infectRate} />
+                    <BodyRow left="Infected:" right={infected} />
+                    <BodyRow left="Deceased:" right={deceased} />
                 </div>
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
@@ -249,7 +336,7 @@ export const Layout: React.FC = props => {
     </div>;
 }
 
-export const BodyRow: React.FC<{ left: string, right: string }> = props => {
+export const BodyRow: React.FC<{ left: React.ReactNode, right: React.ReactNode }> = props => {
     return <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div>{props.left}</div>
         <div>{props.right}</div>
@@ -276,7 +363,7 @@ export const MenuItem: React.FC<{ name?: View, image?: string, onClick?: () => v
 
 export const VerticalMenu: React.FC<{ items?: { name: View, image?: string }[], setView: (newView: View) => void }> = props => {
     return <div style={{ ...basicBoxStyle, width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        {props.items?.map(item => <MenuItem {...item} onClick={() => { props.setView(item.name) }} />)}
+        {props.items?.map((item, index) => <MenuItem key={index} {...item} onClick={() => { props.setView(item.name) }} />)}
         {/* TODO: Add menu items here! */}
     </div>;
 }
