@@ -32,8 +32,6 @@ import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
 import { isDev } from '../App';
 
-const intro_theme = require("../sounds/QT Intro Theme.wav");
-
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
 export const ColorBrown = "rgb(178,101,8)";
@@ -103,6 +101,10 @@ function useStateAndView<T>(defaultValue: T, onChange?: () => void): [T, Setter<
     return [state, changeState];
 }
 
+const Randomize = (base: number, variation: number): number => {
+    return Math.round(base - variation + (Math.random() * 2 * variation));
+}
+
 export const Layout: React.FC = props => {
     const [paused, setPaused] = React.useState(false);
     const Pause = React.useCallback(() => setPaused(true), [setPaused]);
@@ -138,18 +140,108 @@ export const Layout: React.FC = props => {
         employees: []
     });
 
-    const { infectRate, date, infected, deceased } = game;
+    const { infectRate, date, infected, deceased, money, debt, employees } = game;
 
     const [log, setLog] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         // advance the days!
         setTimeout(() => {
-            console.log("running")
+            //console.log("running")
             if (!paused) {
                 // increment date
                 let newDate = new Date(date);
                 newDate.setDate(newDate.getDate() + 1);
+
+                // do sales and costs and stuff
+                //const daySales = [15, 10, 11, 12, 13, 17, 20];
+                const dayNum = [52, 43, 45, 46, 48, 57, 58];
+                const dayTicket = [33, 25, 24, 25, 26, 29, 33];
+                const variation = .3;
+
+                const monthsales = [6, 7, 9, 8, 9, 10, 10, 10, 9, 8, 7, 7];
+
+                let transactions = Randomize(dayNum[date.getDay()] * monthsales[date.getMonth()] / 8.333, variation);
+
+                if(infectRate == "Stay at Home"){
+                    transactions *= .75;
+                }
+                if(infectRate == "Shelter in Place"){
+                    transactions *= .67;
+                }
+                if(infectRate == "Forced Quarantine"){
+                    transactions *= .45;
+                }
+
+                let sales = 0;
+                for (var i = 0; i < transactions; i++) {
+                    sales += Randomize(dayTicket[date.getDay()], .15);
+                }
+
+                //console.log("sales!", `${transactions} customers`, `$${sales}`);
+
+                // do costs like employees and stuff
+                let employeeWage = 15;
+                switch (payQ) {
+                    case "Minimum Wage":
+                        employeeWage = 14;
+                        break;
+                    case "Overtime":
+                        employeeWage = 18;
+                        break;
+                    case "Double Overtime":
+                        employeeWage = 23;
+                        break;
+                }
+
+                let hours = 8;
+                switch (hourQ) {
+                    case "Short Shifts":
+                        hours = 12;
+                        break;
+                    case "Normal Shifts":
+                        hours = 9;
+                        break;
+                    case "Grueling shifts":
+                        hours = 7;
+                        break;
+                }
+
+                const cost = hours * employeeWage * 5; //5 employees
+
+
+                // RENT
+                let rentPayment = 0;
+                const costperfoot = 2.33;
+                const sqfoot = 2500;
+                if(date.getDate() == 1){
+                    rentPayment = costperfoot * sqfoot;
+                    console.log("RENT!", rentPayment);
+                }
+
+                // Utilities
+                let utiltiiesPayment = 0;
+                const electricityPerFoot = 2.9 / 12;
+                const gasPerfoot = .85 / 12;
+                if(date.getDate() == 1){
+                    utiltiiesPayment = sqfoot * (gasPerfoot + electricityPerFoot) + 150;
+                    console.log("utilities!", utiltiiesPayment);
+                }
+
+                // DEBT
+                let debtPayment = 0;
+                const monthlyInterest = .007;
+                if(date.getDate() == 1){
+                    debtPayment = debt * monthlyInterest;
+                    console.log("DEBT!", debtPayment);
+                }
+
+                //TODO PURCHASE FOOD as supplies! compare BULK prices vs spoilage and stuff
+                // for now lets say ~30% of the sale is food cost
+                let foodCost = Math.round(sales * .2);
+
+                //console.log("Wages", payQ, hourQ, `$${cost}`);
+                console.log("Profit", `$${sales - cost - foodCost}`, sales, cost, foodCost);
 
                 // increment virus
                 // 10% seems about reasonable
@@ -182,30 +274,30 @@ export const Layout: React.FC = props => {
                 const deaths = Math.round(infected * .01 * Math.random());
                 const decrease = Math.round((infected / 21) * Math.random());
                 const increase = Math.round((infected * growthRate) + (Math.random() * 2));
-                console.log("infections", increase, infected + increase);
+                //console.log("infections", increase, infected + increase);
 
                 let newInfectRate = infectRate
-                if(increase > 100){
+                if (increase > 100) {
                     // chance to go to other stages
-                    if(growthRate > StayHomeGrowth && Math.random() < .1){
+                    if (growthRate > StayHomeGrowth && Math.random() < .1) {
                         console.log("going to stay at home!")
                         newInfectRate = "Stay at Home";
                     }
-                    else if(Math.random() < .01){
+                    else if (Math.random() < .01) {
                         console.log("going to shelter in place!")
                         newInfectRate = "Shelter in Place";
                     }
                 }
-                else if(increase > 10){
+                else if (increase > 10) {
                     // chance to go to other stages
-                    if(growthRate > StayHomeGrowth && Math.random() < .05){
+                    if (growthRate > StayHomeGrowth && Math.random() < .05) {
                         console.log("going to stay at home!")
                         newInfectRate = "Stay at Home";
                     }
                 }
                 else {
-                    if(growthRate < NormalGrowth && Math.random() < .1){
-                        
+                    if (growthRate < NormalGrowth && Math.random() < .1) {
+
                         console.log("going to normal!")
                         newInfectRate = "Normal";
                     }
@@ -217,6 +309,8 @@ export const Layout: React.FC = props => {
                     infected: infected + increase - decrease - deaths,
                     deceased: deceased + deaths,
                     infectRate: newInfectRate,
+
+                    money: money + (sales - cost) - (rentPayment + debtPayment + foodCost),
                 });
             }
         }, isDev ? 500 : 4000);
@@ -261,11 +355,13 @@ export const Layout: React.FC = props => {
             centerMenu = <BarDisplay values={[1, 3, 6, 13]} />;
             break;
         case "Bank":
+            const paymentAmount = Math.min(1000, debt);
             centerMenu = <div style={{ padding: 5 }}>
                 <div style={{ textAlign: "left" }}>Welcome to the bank</div>
-                <div style={{ textAlign: "left" }}>You owe $0</div>
+                <div style={{ textAlign: "left" }}>You owe ${debt}</div>
                 <div>
-                    <button style={{ ...buttonStyle, width: 150 }}>Borrow $1000</button>
+                    <button style={{ ...buttonStyle, width: 150 }} onClick={()=>setGame({...game, debt: debt + 1000})}>Borrow $1000</button>
+                    <button style={{ ...buttonStyle, width: 150 }}onClick={()=>setGame({...game, debt: debt - paymentAmount, money: money - paymentAmount})} disabled={debt <= 0 || money < paymentAmount}>Pay ${paymentAmount}</button>
                 </div>
             </div>;
             break;
@@ -307,7 +403,7 @@ export const Layout: React.FC = props => {
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
                 <div style={{ ...bodyStyle }}>
-                    <BodyRow left="Money:" right="$1600" />
+                    <BodyRow left="Money:" right={`$${money}`} />
                     <BodyRow left="Pay:" right={payQ} />
                     <BodyRow left="Cleaning:" right={cleanQ} />
                     <BodyRow left="Hours:" right={hourQ} />

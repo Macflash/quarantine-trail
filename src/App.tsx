@@ -60,7 +60,6 @@ function App() {
 
   let layout = <Layout />;
 
-
   if (stage == "Menu") {
     layout = <Menu onClick={() => setStage("Intro")} />;
   }
