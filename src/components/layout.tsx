@@ -43,8 +43,11 @@ export const OuterBorder = `10px ridge ${ColorBrown}`;
 export const InnerBorder = `5px solid ${ColorBrown}`;
 export const MiniBorder = `1px solid ${ColorDarkBrown}`;
 
+export type Lookup<T extends string> = { [P in T]: number };
+export type ReverseLookup<T extends string> = { [x: number]: T };
+
 export const bodyText: React.CSSProperties = {
-    fontSize: 12, fontWeight: 700 
+    fontSize: 12, fontWeight: 700
 }
 
 export const buttonStyle: React.CSSProperties = {
@@ -90,16 +93,79 @@ export const basicBoxStyle = {
 export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Hours" | "Hunt";
 
 export type PayQuality = "Double Overtime" | "Overtime" | "Minimum Wage";
+const PayMap: Lookup<PayQuality> = {
+    "Minimum Wage": 14,
+    "Overtime": 18,
+    "Double Overtime": 23,
+};
+
 export type HourQuality = "Short Shifts" | "Normal Shifts" | "Grueling shifts";
-export type CleaningQuality = "Pristine" | "Ok" | "Dirty";
+const HourMap: Lookup<HourQuality> = {
+    "Short Shifts": 12,
+    "Normal Shifts": 9,
+    "Grueling shifts": 7,
+};
 
 export type Callback = () => void;
 export type Setter<T> = (newValue: T) => void;
 
 export type Health = "Good" | "Fair" | "Poor" | "Angry" | "Sick" | "Coronavirus" | "Deceased";
+export const HealthMap: Lookup<Health> = {
+    "Good": 0,
+    "Fair": 1,
+    "Poor": 2,
+    "Angry": 3,
+    "Sick": 4,
+    "Coronavirus": 5,
+    "Deceased": 6,
+};
+export const ReverseHealthMap: ReverseLookup<Health> = {
+    0: "Good",
+    1: "Fair",
+    2: "Poor",
+    3: "Angry",
+    4: "Sick",
+    5: "Coronavirus",
+    6: "Deceased",
+};
+
+export const Health = (currentValue: Health, change: number): Health => {
+    let cur = HealthMap[currentValue];
+    cur -= change;
+    if (cur > 6) { cur = 6; }
+    if (cur < 0) { cur = 0; }
+    return ReverseHealthMap[cur];
+}
+
 export interface Employee {
     name: string,
     status: Health,
+}
+
+export type Cleanliness = "Pristine" | "Fair" | "Poor" | "Dirty" | "Filthy" | "Dangerous!";
+export const CleanMap: Lookup<Cleanliness> = {
+    "Pristine": 0,
+    "Fair": 1,
+    "Poor": 2,
+    "Dirty": 3,
+    "Filthy": 4,
+    "Dangerous!": 5,
+};
+export const ReverseCleanMap: ReverseLookup<Cleanliness> = {
+    0: "Pristine",
+    1: "Fair",
+    2: "Poor",
+    3: "Dirty",
+    4: "Filthy",
+    5: "Dangerous!",
+};
+
+export const Clean = (currentValue: Cleanliness, change: number): Cleanliness => {
+    let cur = CleanMap[currentValue];
+    cur -= change;
+    if (cur > 5) { cur = 5; }
+    if (cur < 0) { cur = 0; }
+    return ReverseCleanMap[cur];
 }
 
 export interface Game {
@@ -119,7 +185,7 @@ export interface Game {
     money: number,
     debt: number,
     employees: Employee[],
-    cleanliness: "Pristine" | "Fair" | "Poor" | "Dirty" | "Filthy" | "Dangerous!",
+    cleanliness: Cleanliness,
     cleaningSupplies: number,
 };
 
@@ -141,8 +207,9 @@ const Randomize = (base: number, variation: number): number => {
 
 var month = 0;
 var customers = 0;
+var infectionGraph = [0];
 
-export const Layout: React.FC = props => {
+export const Layout: React.FC<{gameOver?: Callback}> = props => {
     const [paused, setPaused] = React.useState(false);
     const Pause = React.useCallback(() => setPaused(true), [setPaused]);
 
@@ -153,7 +220,6 @@ export const Layout: React.FC = props => {
 
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
-    const [cleanQ, setCleanQ] = useStateAndView<CleaningQuality>("Dirty", ResetView, val => AddLog(`You decided to clean.`));
 
     const [game, setGame] = React.useState<Game>({
         infectRate: "Normal",
@@ -172,10 +238,15 @@ export const Layout: React.FC = props => {
         employees: StartEmployees,
 
         cleanliness: "Fair",
-        cleaningSupplies: 5,
+        cleaningSupplies: 10,
     });
 
-    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName } = game;
+    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, cleaningSupplies } = game;
+
+    if (employees.filter(e => e.status != "Deceased").length == 0) {
+        alert("Game Over! All your employees died.");
+        props.gameOver?.();
+    }
 
     React.useEffect(() => {
         // advance the days!
@@ -209,11 +280,11 @@ export const Layout: React.FC = props => {
                 // EVENTS!
                 const busyEvent = Math.random() < .035;
                 const slowEvent = Math.random() < .02;
-                if(busyEvent){
+                if (busyEvent) {
                     AddLog("Today was really busy!");
                     transactions *= 1.3;
                 }
-                else if(slowEvent){
+                else if (slowEvent) {
                     AddLog("Today was slow.");
                     transactions /= 1.5;
                 }
@@ -223,39 +294,80 @@ export const Layout: React.FC = props => {
                     sales += Randomize(dayTicket[date.getDay()], .15);
                 }
 
-                if(busyEvent|| slowEvent){
+                if (busyEvent || slowEvent) {
                     AddLog(`You made $${sales}.`);
                 }
 
+                //UPDATE cleanliness
+                // for each customer check if they were sick
+                let newCleanliness = cleanliness;
+                let sickCustomers = 0;
+                //console.lconsole.log("sick customer odds",(2*infected / (uninfected + recovered + infected)));
+                for (var i = 0; i < transactions * 1.5; i++) {
+                    var wasSick = Math.random() < (2 * infected / (uninfected + recovered + infected));
+                    if (wasSick) { sickCustomers++; }
+                }
+
+                //console.log("sick customers", sickCustomers)
+                if (sickCustomers == 0) {
+                    // small chance the store gets dirty
+                    if (Math.random() < .05) {
+                        newCleanliness = Clean(newCleanliness, -1);
+                    }
+                }
+                else if (sickCustomers < 5) {
+                    //alert("sick customer!");
+                    // small chance the store gets dirty
+                    if (Math.random() < .5) {
+                        newCleanliness = Clean(newCleanliness, -1);
+                    }
+                }
+                else if (sickCustomers < 20) {
+                    // small chance the store gets dirty
+                    if (Math.random() < .5) {
+                        newCleanliness = Clean(newCleanliness, -1);
+                    }
+                    else if (Math.random() < .5) {
+                        newCleanliness = Clean(newCleanliness, -2);
+                    }
+                }
+                else if (sickCustomers > 40) {
+                    // small chance the store gets dirty
+                    if (Math.random() < .5) {
+                        newCleanliness = Clean(newCleanliness, -2);
+                    }
+                    else if (Math.random() < .5) {
+                        newCleanliness = Clean(newCleanliness, -3);
+                    }
+                }
+
+                // employee health
+                const newEmployees = employees.map(e => {
+                    if (e.status == "Deceased") { return e; }
+                    // TODO Make this not terrible!
+                    var cVal = CleanMap[cleanliness];
+                    var hVal = HealthMap[e.status];
+                    var combo = (sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6) //* Math.pow(hVal+1, .5) / HourMap[hourQ];
+                    const chance = Math.pow(Math.random(), 1 / combo);
+                    //console.log("chance (sick > .9, heal < .1)", chance, combo);
+                    if (Math.pow(Math.random(), 1 / combo) > .9) {
+                        e.status = Health(e.status, -1);
+                        AddLog(`${e.name} got ${e.status}!`, { color: "red" });
+                    }
+                    else if (Math.pow(Math.random(), 1 / combo) < .1 && e.status != "Good") {
+                        e.status = Health(e.status, 1);
+                        AddLog(`${e.name} healed to ${e.status}!`, { color: "green" });
+                    }
+
+                    return e;
+                });
+
+                // for display only... TODO: make the customer display not terrible
                 customers = transactions / 6;
 
                 // do costs like employees and stuff
-                let employeeWage = 15;
-                switch (payQ) {
-                    case "Minimum Wage":
-                        employeeWage = 14;
-                        break;
-                    case "Overtime":
-                        employeeWage = 18;
-                        break;
-                    case "Double Overtime":
-                        employeeWage = 23;
-                        break;
-                }
-
-                let hours = 8;
-                switch (hourQ) {
-                    case "Short Shifts":
-                        hours = 12;
-                        break;
-                    case "Normal Shifts":
-                        hours = 9;
-                        break;
-                    case "Grueling shifts":
-                        hours = 7;
-                        break;
-                }
-
+                const employeeWage = PayMap[payQ] ?? 15;
+                const hours = HourMap[hourQ] ?? 8;
                 const cost = hours * employeeWage * 5; //5 employees
 
                 // RENT
@@ -264,7 +376,7 @@ export const Layout: React.FC = props => {
                 const sqfoot = 2500;
                 if (date.getDate() == 1) {
                     rentPayment = costperfoot * sqfoot;
-                    console.log("RENT!", rentPayment);
+                    //console.log("RENT!", rentPayment);
                 }
 
                 // Utilities
@@ -273,7 +385,7 @@ export const Layout: React.FC = props => {
                 const gasPerfoot = .85 / 12;
                 if (date.getDate() == 1) {
                     utiltiiesPayment = sqfoot * (gasPerfoot + electricityPerFoot) + 150;
-                    console.log("utilities!", utiltiiesPayment);
+                    //console.log("utilities!", utiltiiesPayment);
                 }
 
                 // DEBT
@@ -281,7 +393,7 @@ export const Layout: React.FC = props => {
                 const monthlyInterest = .007;
                 if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
-                    console.log("DEBT!", debtPayment);
+                    //console.log("DEBT!", debtPayment);
                 }
 
                 let monthylpayments = rentPayment + utiltiiesPayment + debtPayment;
@@ -298,7 +410,7 @@ export const Layout: React.FC = props => {
                 if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
 
-                    AddLog(`${date.toDateString()}`, {marginTop: 8});
+                    AddLog(`${date.toDateString()}`, { marginTop: 8 });
                     AddLog(`You made $${month}.00 in revenue this month.`);
                     AddLog(`Rent: $${rentPayment}`);
                     AddLog(`Utilities: $${utiltiiesPayment}`);
@@ -380,16 +492,21 @@ export const Layout: React.FC = props => {
                     }
                 }
 
+                const newInfected = infected + increase - (recoveries + deaths);
+                infectionGraph.push(newInfected);
                 setGame({
                     ...game,
                     date: newDate,
                     uninfected: uninfected - increase,
                     recovered: recovered + recoveries,
-                    infected: infected + increase - (recoveries + deaths),
+                    infected: newInfected,
                     deceased: deceased + deaths,
                     infectRate: newInfectRate,
 
                     money: money + (sales - cost) - (rentPayment + debtPayment + foodCost),
+
+                    cleanliness: newCleanliness,
+                    employees: newEmployees,
                 });
             }
         }, isDev ? 500 : 4000);
@@ -419,19 +536,8 @@ export const Layout: React.FC = props => {
                 ]}
             />;
             break;
-        case "Cleaning":
-            centerMenu = <CenterMenu<CleaningQuality>
-                setValue={setCleanQ}
-                title="How clean should your employees keep the store?"
-                items={[
-                    { name: "Pristine", image: CleanGreat },
-                    { name: "Ok", image: CleanOk },
-                    { name: "Dirty", image: CleanBad },
-                ]}
-            />;
-            break;
         case "Chart":
-            centerMenu = <BarDisplay values={[1, 3, 6, 13]} />;
+            centerMenu = <BarDisplay values={infectionGraph} />;
             break;
         case "Bank":
             const paymentAmount = Math.min(1000, debt);
@@ -444,31 +550,36 @@ export const Layout: React.FC = props => {
                 </div>
             </div>;
             break;
-            case "Status":
-                centerMenu = <div style={{ padding: 5, ...bodyText, margin: "0 12px" }}>
-                    <div style={{ }}>Status</div>
-                    <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 8}}>
-                        <div style={{textAlign: "left", width: "40", marginRight: 10}}>
-                            <div style={{marginBottom: 12}}>Current Supplies:</div>
-                            <div style={{marginBottom: 7}}>5 masks</div>
-                            <div style={{marginBottom: 7}}>1 set of gloves</div>
-                            <div style={{marginBottom: 7}}>1 paper towel</div>
-                            <div style={{marginBottom: 7}}>30 sprays of disinfectant</div>
-                            <div style={{marginBottom: 7}}>100 pounds of food</div>
-                        </div>
-                        <div style={{textAlign: "right", width: "50%"}}>
-                            <div style={{marginBottom: 12}}>Current Health:</div>
-                            <div style={{marginBottom: 5}}>{yourName} - <span style={{display: "inline-block", width: 45, textAlign: "center"}}>{yourStatus}</span></div>
-                            {employees.map((e,i) => <div key={i} style={{marginBottom: 5}}>{e.name} - <span style={{display: "inline-block", width: 45, textAlign: "center"}}>{e.status}</span></div>)}
-                        </div>
+        case "Status":
+            centerMenu = <div style={{ padding: 5, ...bodyText, margin: "0 12px" }}>
+                <div style={{}}>Status</div>
+                <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
+                    <div style={{ textAlign: "left", width: "40", marginRight: 10 }}>
+                        <div style={{ marginBottom: 12 }}>Current Supplies:</div>
+                        <div style={{ marginBottom: 7 }}>5 masks</div>
+                        <div style={{ marginBottom: 7 }}>1 set of gloves</div>
+                        <div style={{ marginBottom: 7 }}>1 paper towel</div>
+                        <div style={{ marginBottom: 7 }}>30 sprays of disinfectant</div>
+                        <div style={{ marginBottom: 7 }}>100 pounds of food</div>
                     </div>
-                    <div style={{marginTop: 16}}>Business: Restaurant </div>
-                </div>;
-                break;
+                    <div style={{ textAlign: "right", width: "50%" }}>
+                        <div style={{ marginBottom: 12 }}>Current Health:</div>
+                        <div style={{ marginBottom: 5 }}>{yourName} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>{yourStatus}</span></div>
+                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>{e.status}</span></div>)}
+                    </div>
+                </div>
+                <div style={{ marginTop: 16 }}>Business: Restaurant </div>
+            </div>;
+            break;
         case "News":
             centerMenu = <img width="100%" src={Tweet} />;
             break;
     }
+
+    let avgHealth = 0;
+    employees.forEach(e => avgHealth += HealthMap[e.status]);
+    avgHealth /= employees.length;
+    const avgStatus = ReverseHealthMap[Math.round(avgHealth)];
 
     return <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", backgroundColor: ColorBrown, height: "100%", padding: margin, border: MiniBorder }}>
         <VerticalMenu setView={setView} items={[
@@ -506,10 +617,10 @@ export const Layout: React.FC = props => {
                 <div style={{ ...bodyStyle }}>
                     <BodyRow left="Money:" right={`$${money}`} />
                     <BodyRow left="Pay:" right={payQ} />
-                    <BodyRow left="Cleaning:" right={cleanQ} />
+                    <BodyRow left="Cleanliness:" right={cleanliness} />
                     <BodyRow left="Hours:" right={hourQ} />
                     <BodyRow left="Supplies:" right="12" />
-                    <BodyRow left="Health:" right="Fair" />
+                    <BodyRow left="Health:" right={avgStatus} />
                     <br />
                     <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />
                 </div>
@@ -536,21 +647,21 @@ export const Layout: React.FC = props => {
 
 export const LogViewer: React.FC = props => {
     let [logs, setLogs] = React.useState(Logs);
-    React.useEffect(()=>{
-        setInterval(()=>{
-            if(Logs.length > logs.length){
+    React.useEffect(() => {
+        setInterval(() => {
+            if (Logs.length > logs.length) {
                 logs = Logs;
                 setLogs([...Logs]);
             }
         }, 500);
     }, [])
-    
+
     return <div style={{ overflowY: "scroll", ...basicBoxStyle, flex: "auto" }}>
-        {logs.map((log, i) => 
-        <div key={i} 
-        style={{ textAlign: "left", fontSize: 12, fontWeight: 700 ,...log.style}}
-        >{log.message}
-        </div>)}
+        {logs.map((log, i) =>
+            <div key={i}
+                style={{ textAlign: "left", fontSize: 12, fontWeight: 700, ...log.style }}
+            >{log.message}
+            </div>)}
     </div>;
 }
 

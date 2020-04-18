@@ -29,7 +29,7 @@ const textBlockStyle: React.CSSProperties = {
 const enableDevMode = true;
 export const isDev = window.location.href.indexOf("localhost") >= 0  && enableDevMode;
 
-export var yourName = isDev ? "Dev" : "";
+export var yourName = isDev ? "YOU" : "";
 export var businessName = PickRandom(["OK Food!", "Eat 'r Up!", "Burgers and More Things", "Fancy Fish", "Mario's Asian Fusion", "Leftover's Cafe", "Papi Juan's"]);
 
 export var employees: Employee[] = [
@@ -66,7 +66,7 @@ function App() {
 
   const [stage, setStage] = React.useState<Stage>(isDev ? "Game" : "Menu");
 
-  let layout = <Layout />;
+  let layout = <Layout gameOver={()=>setStage("Menu")} />;
 
   if (stage == "Menu") {
     layout = <Menu onClick={() => setStage("Intro")} />;
@@ -91,7 +91,6 @@ function App() {
 }
 
 export default App;
-
 
 /*
 <div className="App" style={{ backgroundColor: ColorYellow, border: InnerBorder, height: "100%" }}>
