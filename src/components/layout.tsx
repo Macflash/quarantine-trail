@@ -30,7 +30,9 @@ import Tweet from '../images/shitnews.png';
 
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
-import { isDev } from '../App';
+import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog } from '../App';
+
+import { employees as StartEmployees } from '../App';
 
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
@@ -40,6 +42,10 @@ export const ColorDarkBrown = "rgb(69,20,0)";
 export const OuterBorder = `10px ridge ${ColorBrown}`;
 export const InnerBorder = `5px solid ${ColorBrown}`;
 export const MiniBorder = `1px solid ${ColorDarkBrown}`;
+
+export const bodyText: React.CSSProperties = {
+    fontSize: 12, fontWeight: 700 
+}
 
 export const buttonStyle: React.CSSProperties = {
     fontSize: 14,
@@ -90,12 +96,40 @@ export type CleaningQuality = "Pristine" | "Ok" | "Dirty";
 export type Callback = () => void;
 export type Setter<T> = (newValue: T) => void;
 
-function useStateAndView<T>(defaultValue: T, onChange?: () => void): [T, Setter<T>] {
+export type Health = "Good" | "Fair" | "Poor" | "Angry" | "Sick" | "Coronavirus" | "Deceased";
+export interface Employee {
+    name: string,
+    status: Health,
+}
+
+export interface Game {
+    // Infection stats
+    /** High = sumemr unrestricted (15%), Normal is about 10%, low is 5%, very low is 2.5%, forced quarantine is 1% */
+    infectRate: "Festival" | "Normal" | "Stay at Home" | "Shelter in Place" | "Forced Quarantine";
+    date: Date,
+    uninfected: number, // total pool that can get sick
+    infected: number,
+    deceased: number,
+    recovered: number,
+
+    // Business Stats
+    yourName: string,
+    yourStatus: Health,
+    businessName: string,
+    money: number,
+    debt: number,
+    employees: Employee[],
+    cleanliness: "Pristine" | "Fair" | "Poor" | "Dirty" | "Filthy" | "Dangerous!",
+    cleaningSupplies: number,
+};
+
+function useStateAndView<T>(defaultValue: T, onChange?: () => void, logger?: (value: T) => void): [T, Setter<T>] {
     const [state, setState] = React.useState<T>(defaultValue);
 
     const changeState = React.useCallback((newValue: T) => {
         setState(newValue);
         onChange?.();
+        logger?.(newValue);
     }, [setState, onChange]);
 
     return [state, changeState];
@@ -115,27 +149,13 @@ export const Layout: React.FC = props => {
     const [view, setView] = useStateAndView<View>("Store", Pause);
     const ResetView = React.useCallback(() => setView("Store"), [setView]);
 
-    const UnPause = React.useCallback(() => {ResetView(); setPaused(false); }, [setPaused, ResetView]);
+    const UnPause = React.useCallback(() => { ResetView(); setPaused(false); }, [setPaused, ResetView]);
 
-    const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView);
-    const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView);
-    const [cleanQ, setCleanQ] = useStateAndView<CleaningQuality>("Dirty", ResetView);
+    const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
+    const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
+    const [cleanQ, setCleanQ] = useStateAndView<CleaningQuality>("Dirty", ResetView, val => AddLog(`You decided to clean.`));
 
-    const [game, setGame] = React.useState<{
-        /** High = sumemr unrestricted (15%), Normal is about 10%, low is 5%, very low is 2.5%, forced quarantine is 1% */
-        infectRate: "Festival" | "Normal" | "Stay at Home" | "Shelter in Place" | "Forced Quarantine";
-
-        date: Date,
-        uninfected: number, // total pool that can get sick
-        infected: number,
-        deceased: number,
-        recovered: number,
-
-        // business
-        money: number,
-        debt: number,
-        employees: any[],
-    }>({
+    const [game, setGame] = React.useState<Game>({
         infectRate: "Normal",
 
         date: new Date("02/02/2020"),
@@ -146,12 +166,16 @@ export const Layout: React.FC = props => {
 
         money: 1600,
         debt: 10000,
-        employees: []
+        yourName: StartingName,
+        yourStatus: "Good",
+        businessName: StartingBusinessName,
+        employees: StartEmployees,
+
+        cleanliness: "Fair",
+        cleaningSupplies: 5,
     });
 
-    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees } = game;
-
-    const [log, setLog] = React.useState<string[]>([]);
+    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName } = game;
 
     React.useEffect(() => {
         // advance the days!
@@ -172,14 +196,26 @@ export const Layout: React.FC = props => {
 
                 let transactions = Randomize(dayNum[date.getDay()] * monthsales[date.getMonth()] / 8.333, variation);
 
-                if(infectRate == "Stay at Home"){
+                if (infectRate == "Stay at Home") {
                     transactions *= .75;
                 }
-                if(infectRate == "Shelter in Place"){
+                if (infectRate == "Shelter in Place") {
                     transactions *= .67;
                 }
-                if(infectRate == "Forced Quarantine"){
+                if (infectRate == "Forced Quarantine") {
                     transactions *= .45;
+                }
+
+                // EVENTS!
+                const busyEvent = Math.random() < .035;
+                const slowEvent = Math.random() < .02;
+                if(busyEvent){
+                    AddLog("Today was really busy!");
+                    transactions *= 1.3;
+                }
+                else if(slowEvent){
+                    AddLog("Today was slow.");
+                    transactions /= 1.5;
                 }
 
                 let sales = 0;
@@ -187,9 +223,11 @@ export const Layout: React.FC = props => {
                     sales += Randomize(dayTicket[date.getDay()], .15);
                 }
 
-                customers = transactions / 6;
+                if(busyEvent|| slowEvent){
+                    AddLog(`You made $${sales}.`);
+                }
 
-                //console.log("sales!", `${transactions} customers`, `$${sales}`);
+                customers = transactions / 6;
 
                 // do costs like employees and stuff
                 let employeeWage = 15;
@@ -224,7 +262,7 @@ export const Layout: React.FC = props => {
                 let rentPayment = 0;
                 const costperfoot = 2.33;
                 const sqfoot = 2500;
-                if(date.getDate() == 1){
+                if (date.getDate() == 1) {
                     rentPayment = costperfoot * sqfoot;
                     console.log("RENT!", rentPayment);
                 }
@@ -233,7 +271,7 @@ export const Layout: React.FC = props => {
                 let utiltiiesPayment = 0;
                 const electricityPerFoot = 2.9 / 12;
                 const gasPerfoot = .85 / 12;
-                if(date.getDate() == 1){
+                if (date.getDate() == 1) {
                     utiltiiesPayment = sqfoot * (gasPerfoot + electricityPerFoot) + 150;
                     console.log("utilities!", utiltiiesPayment);
                 }
@@ -241,7 +279,7 @@ export const Layout: React.FC = props => {
                 // DEBT
                 let debtPayment = 0;
                 const monthlyInterest = .007;
-                if(date.getDate() == 1){
+                if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
                     console.log("DEBT!", debtPayment);
                 }
@@ -255,11 +293,18 @@ export const Layout: React.FC = props => {
                 //console.log("Wages", payQ, hourQ, `$${cost}`);
                 const profit = sales - cost - foodCost;
                 //console.log("Profit", `$${profit}`, sales, cost, foodCost);
-                
+
                 month += profit;
-                if(date.getDate() == 1){
+                if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
-                    console.log("Month in review", `Net ${month - monthylpayments}`, `Profit $${month}`, `Costs ${monthylpayments}`, infectRate);
+
+                    AddLog(`${date.toDateString()}`, {marginTop: 8});
+                    AddLog(`You made $${month}.00 in revenue this month.`);
+                    AddLog(`Rent: $${rentPayment}`);
+                    AddLog(`Utilities: $${utiltiiesPayment}`);
+                    AddLog(`Interest Payments: $${debtPayment}`);
+                    AddLog(`Net: $${month - monthylpayments}`);
+
                     month = 0;
                 }
 
@@ -298,7 +343,7 @@ export const Layout: React.FC = props => {
                 //console.log("infections", increase, infected + increase);
 
                 let newInfectRate = infectRate
-                if(increase > 1000){
+                if (increase > 1000) {
                     // chance to go to other stages
                     if (growthRate > ShelterGrowth && Math.random() < .1) {
                         console.log("going to shelter in place!")
@@ -394,11 +439,32 @@ export const Layout: React.FC = props => {
                 <div style={{ textAlign: "left" }}>Welcome to the bank</div>
                 <div style={{ textAlign: "left" }}>You owe ${debt}</div>
                 <div>
-                    <button style={{ ...buttonStyle, width: 150 }} onClick={()=>setGame({...game, debt: debt + 1000})}>Borrow $1000</button>
-                    <button style={{ ...buttonStyle, width: 150 }}onClick={()=>setGame({...game, debt: debt - paymentAmount, money: money - paymentAmount})} disabled={debt <= 0 || money < paymentAmount}>Pay ${paymentAmount}</button>
+                    <button style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt + 1000 })}>Borrow $1000</button>
+                    <button style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt - paymentAmount, money: money - paymentAmount })} disabled={debt <= 0 || money < paymentAmount}>Pay ${paymentAmount}</button>
                 </div>
             </div>;
             break;
+            case "Status":
+                centerMenu = <div style={{ padding: 5, ...bodyText, margin: "0 12px" }}>
+                    <div style={{ }}>Status</div>
+                    <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 8}}>
+                        <div style={{textAlign: "left", width: "40", marginRight: 10}}>
+                            <div style={{marginBottom: 12}}>Current Supplies:</div>
+                            <div style={{marginBottom: 7}}>5 masks</div>
+                            <div style={{marginBottom: 7}}>1 set of gloves</div>
+                            <div style={{marginBottom: 7}}>1 paper towel</div>
+                            <div style={{marginBottom: 7}}>30 sprays of disinfectant</div>
+                            <div style={{marginBottom: 7}}>100 pounds of food</div>
+                        </div>
+                        <div style={{textAlign: "right", width: "50%"}}>
+                            <div style={{marginBottom: 12}}>Current Health:</div>
+                            <div style={{marginBottom: 5}}>{yourName} - <span style={{display: "inline-block", width: 45, textAlign: "center"}}>{yourStatus}</span></div>
+                            {employees.map((e,i) => <div key={i} style={{marginBottom: 5}}>{e.name} - <span style={{display: "inline-block", width: 45, textAlign: "center"}}>{e.status}</span></div>)}
+                        </div>
+                    </div>
+                    <div style={{marginTop: 16}}>Business: Restaurant </div>
+                </div>;
+                break;
         case "News":
             centerMenu = <img width="100%" src={Tweet} />;
             break;
@@ -416,9 +482,8 @@ export const Layout: React.FC = props => {
             <div style={{ ...basicBoxStyle, height: 240 }}>
                 {centerMenu}
             </div>
-            <div style={{ ...basicBoxStyle, flex: "auto" }}>
-                {/* TODO: Add Log here! */}
-            </div>
+            {/* TODO: Add Log here! */}
+            <LogViewer />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", width: 140 }}>
@@ -426,7 +491,7 @@ export const Layout: React.FC = props => {
                 <div style={{ ...headerStyle }}>Conditions</div>
                 <div style={{ fontSize: 12, fontWeight: 600 }}>{date.toDateString()}</div>
 
-                {isDev ? null: <img src={Placeholder} />}
+                {isDev ? null : <img src={Placeholder} />}
 
                 <div style={{ ...headerStyle }}>Virus</div>
                 <div style={{ ...bodyStyle }}>
@@ -446,7 +511,7 @@ export const Layout: React.FC = props => {
                     <BodyRow left="Supplies:" right="12" />
                     <BodyRow left="Health:" right="Fair" />
                     <br />
-                    <BodyRow left="Store:" right={paused ? <span style={{color: "red"}}>Closed</span> : "Open"} />
+                    <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />
                 </div>
             </div>
             <div style={{ ...basicBoxStyle }}>
@@ -466,6 +531,26 @@ export const Layout: React.FC = props => {
             { image: Hours, name: "Hours" },
             { image: Finances, name: "Bank" },
         ]} />
+    </div>;
+}
+
+export const LogViewer: React.FC = props => {
+    let [logs, setLogs] = React.useState(Logs);
+    React.useEffect(()=>{
+        setInterval(()=>{
+            if(Logs.length > logs.length){
+                logs = Logs;
+                setLogs([...Logs]);
+            }
+        }, 500);
+    }, [])
+    
+    return <div style={{ overflowY: "scroll", ...basicBoxStyle, flex: "auto" }}>
+        {logs.map((log, i) => 
+        <div key={i} 
+        style={{ textAlign: "left", fontSize: 12, fontWeight: 700 ,...log.style}}
+        >{log.message}
+        </div>)}
     </div>;
 }
 

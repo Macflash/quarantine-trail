@@ -3,10 +3,10 @@ import './App.css';
 import { StartGame } from './views/startGame';
 import { Business, BusinessView, advanceBusiness } from './views/business';
 import { City, CityView, AdvanceCity } from './views/city';
-import { useHistory } from './utils';
+import { useHistory, PickRandom } from './utils';
 import { BarDisplay } from './components/barDisplay';
 import { StoreDisplay } from './components/storeDisplay';
-import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBorder, buttonStyle, MiniBorder, ColorYellow, MenuCircle } from './components/layout';
+import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBorder, buttonStyle, MiniBorder, ColorYellow, MenuCircle, Employee } from './components/layout';
 
 import Help from './images/help.png';
 import Eagle from './images/eagle.png';
@@ -29,21 +29,38 @@ const textBlockStyle: React.CSSProperties = {
 const enableDevMode = true;
 export const isDev = window.location.href.indexOf("localhost") >= 0  && enableDevMode;
 
+export var yourName = isDev ? "Dev" : "";
+export var businessName = PickRandom(["OK Food!", "Eat 'r Up!", "Burgers and More Things", "Fancy Fish", "Mario's Asian Fusion", "Leftover's Cafe", "Papi Juan's"]);
+
+export var employees: Employee[] = [
+  { name: PickRandom(["Bert", "Simon", "Sampson"]), status: "Good"},
+  { name: PickRandom(["Mary", "Alice", "Arushi"]), status: "Good"},
+  { name: PickRandom(["Gautham", "Bob", "Mike"]), status: "Good"},
+  { name: PickRandom(["Zach", "Aunya", "Jonathan"]), status: "Good"},
+  { name: PickRandom(["Francesca", "Sam", "Tyler"]), status: "Good"},
+]
+
+export interface ILog {
+  message: string;
+  style?: React.CSSProperties;
+}
+
+export var Logs: ILog[] = [];
+export var AddLog = (message: string, style?: React.CSSProperties) => {
+  Logs.push({message, style});
+}
+
 function App() {
   const [width, setWidth] = React.useState(window.innerWidth);
-  let scale = width / 620;
+  const scale = width / 620;
   React.useEffect(()=>{
-    setInterval(()=> {
-      console.log(window.innerWidth);
+    setTimeout(()=> {
       var w = window.innerWidth;
-      scale = width / 620;
       if(w != width){
         setWidth(w);
       }
     }, 1000);
   }, []);
-
-  console.log(scale);
 
   type Stage = "Menu" | "Intro" | "PickNames" | "Game";
 
@@ -60,7 +77,10 @@ function App() {
   }
 
   if (stage == "PickNames") {
-    layout = <PickNames onClick={() => setStage("Game")} />
+    layout = <PickNames onClick={() => {
+      setStage("Game"); 
+      AddLog("The pandemic has started. You set off with 5 employees, plenty of supplies and $1600.");
+    }} />
   }
 
   return (
@@ -135,6 +155,7 @@ const Menu: React.FC<{ onClick: () => void }> = props => {
   </div>;
 }
 
+
 const Intro: React.FC<{ onClick: () => void }> = props => {
   return <div style={{ ...basicBoxStyle, border: InnerBorder, height: "100%" }}>
     <div style={{ ...headerStyle, marginTop: 12 }}>Welcome to the Quarantine Trail!</div>
@@ -156,10 +177,10 @@ const PickNames: React.FC<{ onClick: () => void }> = props => {
       <img src={Eagle} width="25%" />
       <div style={{ textAlign: "right" }}>
         <div>
-          Your Name: <input style={{ backgroundColor: ColorYellow, border: MiniBorder }} />
+          Your Name: <input defaultValue={yourName} onChange={ev => yourName = ev.target.value} style={{ backgroundColor: ColorYellow, border: MiniBorder }}  />
         </div>
         <div>
-          Business: <input style={{ backgroundColor: ColorYellow, border: MiniBorder }} />
+          Business: <input defaultValue={businessName} onChange={ev => businessName = ev.target.value} style={{ backgroundColor: ColorYellow, border: MiniBorder }} />
         </div>
       </div>
       <img src={EagleR} width="25%" />
@@ -176,8 +197,8 @@ const PickNames: React.FC<{ onClick: () => void }> = props => {
           </div>
         </div>
         <div style={{ ...textBlockStyle, margin: 5 }}>
-          <div><label><input type="radio" /> Grocer</label></div>
-          <div><label><input type="radio" /> Restaurant</label></div>
+          <div><label><input type="radio" checked={true} /> Restaurant</label></div>
+          <div><label><input type="radio" disabled /> Grocer</label></div>
           <div><label><input type="radio" disabled /> Banker</label></div>
           <div><label><input type="radio" disabled /> Doctor</label></div>
           <div><label><input type="radio" disabled /> Farmer</label></div>
@@ -193,12 +214,11 @@ const PickNames: React.FC<{ onClick: () => void }> = props => {
       {/** Employee names */}
       <div style={{ width: "50%" }}>
         <div>The employees in your store:</div>
-        <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
-        <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
-        <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
-        <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
-        <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
-        <div><input style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+        <div><input defaultValue={employees[0].name} onChange={ev => employees[0].name = ev.target.value}  style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+        <div><input defaultValue={employees[1].name} onChange={ev => employees[1].name = ev.target.value}  style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+        <div><input defaultValue={employees[2].name} onChange={ev => employees[2].name = ev.target.value} style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+        <div><input defaultValue={employees[3].name} onChange={ev => employees[3].name = ev.target.value} style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
+        <div><input defaultValue={employees[4].name} onChange={ev => employees[4].name = ev.target.value} style={{ backgroundColor: ColorYellow, border: MiniBorder }} /></div>
 
         <div style={{ marginTop: 32 }}>
           <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={props.onClick} >OK</button>
