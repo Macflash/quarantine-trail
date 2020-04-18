@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "a4233630abb7f1c8fba16abbb11dd6c0",
+    "revision": "949cac3327d94265af03c1b32eda0d9f",
     "url": "/quarantine-trail/index.html"
   },
   {
-    "revision": "3a390a44c73412c62463",
+    "revision": "bb66ee56b42ed3168e56",
     "url": "/quarantine-trail/static/css/main.37274586.chunk.css"
   },
   {
-    "revision": "8b4e1cc80d31365642ea",
-    "url": "/quarantine-trail/static/js/2.b1077bd0.chunk.js"
+    "revision": "32214ddb8490c77ae400",
+    "url": "/quarantine-trail/static/js/2.c425e7d8.chunk.js"
   },
   {
     "revision": "e88a3e95b5364d46e95b35ae8c0dc27d",
-    "url": "/quarantine-trail/static/js/2.b1077bd0.chunk.js.LICENSE.txt"
+    "url": "/quarantine-trail/static/js/2.c425e7d8.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "3a390a44c73412c62463",
-    "url": "/quarantine-trail/static/js/main.50b2fa43.chunk.js"
+    "revision": "bb66ee56b42ed3168e56",
+    "url": "/quarantine-trail/static/js/main.b9837f5b.chunk.js"
   },
   {
     "revision": "e6273734f052dc856e75",
@@ -26,18 +26,6 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "3685d7185b5567941a3187c17501f11d",
     "url": "/quarantine-trail/static/media/QT Intro Theme.3685d718.wav"
-  },
-  {
-    "revision": "200e8af1c550bb0d3cf9ac7bed1ff894",
-    "url": "/quarantine-trail/static/media/cleanbad.200e8af1.png"
-  },
-  {
-    "revision": "07c0ba586327fad6073f993da737ea47",
-    "url": "/quarantine-trail/static/media/cleangreat.07c0ba58.png"
-  },
-  {
-    "revision": "514497c21d1edcf575f59661115da346",
-    "url": "/quarantine-trail/static/media/cleanok.514497c2.png"
   },
   {
     "revision": "e774b7c6518c2931c09ed98f6bc84a98",
