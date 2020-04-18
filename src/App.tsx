@@ -92,29 +92,6 @@ function App() {
 
 export default App;
 
-/*
-<div className="App" style={{ backgroundColor: ColorYellow, border: InnerBorder, height: "100%" }}>
-<h2>Welcome to Quarantine Trail!</h2>
-
-You run a small business, you will need to manage your store, employees and hygiene practices to try and get through the pandemic while providing an essential service to your customers.
-<br />
-<div>{city.testedPositive - confirmedCases[city.day]} diff</div>
-<BarDisplay values={infected} />
-
-<br />
-
-{city != null && business != null ? <CityView c={city} /> : null}
-{business == null ? <StartGame onCreate={setBusiness} /> : <BusinessView b={business} setBusiness={setBusiness} />}
-
-<br />
-<br />
-
-<button onClick={advanceDay}>Run Day</button>
-
-<StoreDisplay customers={(business?.customers ?? 0) / (business?.openHours ?? 1)} />
-</div>
-*/
-
 const Menu: React.FC<{ onClick: () => void }> = props => {
   const [img, setImage] = React.useState(Virus1);
   React.useEffect(() => {
