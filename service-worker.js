@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/quarantine-trail/precache-manifest.8e75cc439e7d28e0f47cf65857e0c1fd.js"
+  "/quarantine-trail/precache-manifest.b724003e7a98cef87f3c8d139af36903.js"
 );
 
 self.addEventListener('message', (event) => {

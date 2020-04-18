@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "1a19d0a1c19a1ab64d809d3979dfd45a",
+    "revision": "a4233630abb7f1c8fba16abbb11dd6c0",
     "url": "/quarantine-trail/index.html"
   },
   {
-    "revision": "81f0d328860b3b3e25cd",
+    "revision": "3a390a44c73412c62463",
     "url": "/quarantine-trail/static/css/main.37274586.chunk.css"
   },
   {
-    "revision": "b55fe033b694cc77ecee",
-    "url": "/quarantine-trail/static/js/2.d781004a.chunk.js"
+    "revision": "8b4e1cc80d31365642ea",
+    "url": "/quarantine-trail/static/js/2.b1077bd0.chunk.js"
   },
   {
     "revision": "e88a3e95b5364d46e95b35ae8c0dc27d",
-    "url": "/quarantine-trail/static/js/2.d781004a.chunk.js.LICENSE.txt"
+    "url": "/quarantine-trail/static/js/2.b1077bd0.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "81f0d328860b3b3e25cd",
-    "url": "/quarantine-trail/static/js/main.2fbe884d.chunk.js"
+    "revision": "3a390a44c73412c62463",
+    "url": "/quarantine-trail/static/js/main.50b2fa43.chunk.js"
   },
   {
     "revision": "e6273734f052dc856e75",
