@@ -35,6 +35,7 @@ import { isDev, yourName as StartingName, businessName as StartingBusinessName, 
 import { employees as StartEmployees } from '../App';
 import { CleaningView } from './cleaning';
 import { SupplyStore } from './supplyStore';
+import { PickRandom } from '../utils';
 
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
@@ -94,11 +95,11 @@ export const basicBoxStyle = {
 
 export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Hours" | "Hunt";
 
-export type PayQuality = "Double Overtime" | "Overtime" | "Minimum Wage";
+export type PayQuality = "Paid Sick Leave" | "Overtime" | "Minimum Wage";
 const PayMap: Lookup<PayQuality> = {
     "Minimum Wage": 14,
     "Overtime": 18,
-    "Double Overtime": 23,
+    "Paid Sick Leave": 22,
 };
 
 export type HourQuality = "Short Shifts" | "Normal Shifts" | "Grueling shifts";
@@ -111,23 +112,23 @@ const HourMap: Lookup<HourQuality> = {
 export type Callback = () => void;
 export type Setter<T> = (newValue: T) => void;
 
-export type Health = "Good" | "Fair" | "Poor" | "Angry" | "Sick" | "Coronavirus" | "Deceased";
+export type Health = "Good" | "Fair" | "Poor" | "Sick" | "Coronavirus" | "Severe Coronavirus" | "Deceased";
 export const HealthMap: Lookup<Health> = {
     "Good": 0,
     "Fair": 1,
     "Poor": 2,
-    "Angry": 3,
-    "Sick": 4,
-    "Coronavirus": 5,
+    "Sick": 3,
+    "Coronavirus": 4,
+    "Severe Coronavirus": 5,
     "Deceased": 6,
 };
 export const ReverseHealthMap: ReverseLookup<Health> = {
     0: "Good",
     1: "Fair",
     2: "Poor",
-    3: "Angry",
-    4: "Sick",
-    5: "Coronavirus",
+    3: "Sick",
+    4: "Coronavirus",
+    5: "Severe Coronavirus",
     6: "Deceased",
 };
 
@@ -139,9 +140,31 @@ export const Health = (currentValue: Health, change: number): Health => {
     return ReverseHealthMap[cur];
 }
 
+export type Mood = "Good" | "Ok" | "Bad";
+export const MoodMap: Lookup<Mood> = {
+    "Good": 0,
+    "Ok": 1,
+    "Bad": 2,
+};
+export const ReverseMoodMap: ReverseLookup<Mood> = {
+    0: "Good",
+    1: "Ok",
+    2: "Bad",
+};
+
+export const Mood = (currentValue: Mood, change: number): Mood => {
+    let cur = MoodMap[currentValue];
+    cur -= change;
+    if (cur > 2) { cur = 2; }
+    if (cur < 0) { cur = 0; }
+    return ReverseMoodMap[cur];
+}
+
 export interface Employee {
     name: string,
     status: Health,
+    /** mood affects job performance */
+    mood: "Good" | "Ok" | "Bad",
 }
 
 export type Cleanliness = "Pristine" | "Fair" | "Poor" | "Dirty" | "Filthy" | "Dangerous!";
@@ -302,23 +325,68 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     transactions /= 1.5;
                 }
 
+                //UPDATE cleanliness
+                // for each customer check if they were sick
+                let youInfected = 0;
+                let newCleanliness = cleanliness;
+                let sickCustomers = 0;
+
                 let sales = 0;
+                let availableEmployees = employees.filter(e => payQ !== "Paid Sick Leave" || HealthMap[e.status] < HealthMap["Sick"]);
+                let youWorked = false;
+                console.log("Available Employees", availableEmployees);
+                if(availableEmployees.length == 0){
+                    //you gotta do it!
+                    youWorked = true;
+                    availableEmployees = [{name: yourName, status: yourStatus, mood: "Ok"}];
+                }
                 for (var i = 0; i < transactions; i++) {
-                    sales += Randomize(dayTicket[date.getDay()], .15);
+                    // pick a random employee to have them interact with!
+                    // if there is PTO then only use NOT sick employees
+                    const server = PickRandom(availableEmployees);
+                    const serverIsSick = HealthMap[server.status] > HealthMap["Sick"];
+
+                    let sickModifier = 1;
+                    if(serverIsSick){
+                        sickModifier = .9;
+                    }
+
+                    var customerIsSick = Math.random() < (2 * infected / (uninfected + recovered + infected));
+                    if(Math.random() < .5){
+                        customerIsSick = customerIsSick || Math.random() < (2 * infected / (uninfected + recovered + infected));
+                    }
+                    // TODO: Factor in masks or gloves here! 
+                    if(serverIsSick && Math.random() < .1){
+                        customerIsSick = true; // You spread it!
+                        youInfected++;
+                    }
+
+                    if(customerIsSick){
+                        sickCustomers++;
+                        if(Math.random() < .1){
+                            server.status = Health(server.status, -1);
+                        }
+                    }
+
+                    // if the employee was sick they might make the customer sick
+                    // if customer was sick they might make the employee sick
+
+                    // the employee's mood affects sale amount
+                    let moodModifier = 1;
+                    if(server.mood == "Good"){ moodModifier = 1.15; }
+                    if(server.mood == "Bad"){ moodModifier = .8; }
+
+                    sales += Randomize(dayTicket[date.getDay()] * moodModifier * sickModifier, .15);
+                }
+
+                // update your health if you got sick
+                let yourNewStatus = yourStatus;
+                if(youWorked){
+                    yourNewStatus = availableEmployees[0].status;
                 }
 
                 if (busyEvent || slowEvent) {
                     AddLog(`You made $${sales}.`);
-                }
-
-                //UPDATE cleanliness
-                // for each customer check if they were sick
-                let newCleanliness = cleanliness;
-                let sickCustomers = 0;
-                //console.lconsole.log("sick customer odds",(2*infected / (uninfected + recovered + infected)));
-                for (var i = 0; i < transactions * 1.5; i++) {
-                    var wasSick = Math.random() < (2 * infected / (uninfected + recovered + infected));
-                    if (wasSick) { sickCustomers++; }
                 }
 
                 //console.log("sick customers", sickCustomers)
@@ -357,19 +425,88 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 // employee health
                 const newEmployees = employees.map(e => {
                     if (e.status == "Deceased") { return e; }
-                    // TODO Make this not terrible!
-                    var cVal = CleanMap[cleanliness];
-                    var hVal = HealthMap[e.status];
-                    var combo = (sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6) //* Math.pow(hVal+1, .5) / HourMap[hourQ];
-                    const chance = Math.pow(Math.random(), 1 / combo);
-                    //console.log("chance (sick > .9, heal < .1)", chance, combo);
-                    if (Math.pow(Math.random(), 1 / combo) > .9) {
-                        e.status = Health(e.status, -1);
-                        AddLog(`${e.name} got ${e.status}!`, { color: "red" });
+
+                    // handle mood
+                    const originalMood = e.mood;
+                    if(payQ =="Paid Sick Leave"){
+                        if(Math.random() < .25){
+                            e.mood = Mood(e.mood, 1);
+                        }
                     }
-                    else if (Math.pow(Math.random(), 1 / combo) < .1 && e.status != "Good") {
-                        e.status = Health(e.status, 1);
-                        AddLog(`${e.name} healed to ${e.status}!`, { color: "green" });
+                    else if(payQ =="Overtime"){
+                        if(Math.random() < .1){
+                            e.mood = Mood(e.mood, 1);
+                        }
+                        else if(Math.random() < .05){
+                            e.mood = Mood(e.mood, -1);
+                        }
+                    }
+                    else if(payQ =="Minimum Wage"){
+                        if(Math.random() < .08){
+                            e.mood = Mood(e.mood, 1);
+                        }
+                        else if(Math.random() < .1){
+                            e.mood = Mood(e.mood, -1);
+                        }
+                    }
+
+                    if(e.mood != originalMood){
+                        if(e.mood == "Bad"){
+                            // still pretty noisy!
+                            //if(Math.random() < .3){
+                                AddLog(`${e.name} is upset about their pay.`, {color: "brown"});
+                            //}
+                        }
+                        if(e.mood == "Good"){
+                            // Kind of noisy: AddLog(`${e.name} is happy with their pay.`);
+                        }
+                    }
+
+                    //handle sick chance & PTO
+                    const originalHealth = e.status;
+                    if(payQ == "Paid Sick Leave" && HealthMap[e.status] >= HealthMap["Sick"]){
+                        // employee is sick and so is not at work
+                        // chance to recover, but it could still get worse
+                        if(Math.random() < .1){
+                            e.status = Health(e.status, 1);
+                        }
+                        else if(Math.random() <.05){
+                            e.status = Health(e.status, -1);
+                        }
+                    }
+                    else {
+                        // TODO Make this not terrible!
+                        var cVal = CleanMap[cleanliness];
+                        var hVal = HealthMap[e.status];
+                        var combo = (sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6) //* Math.pow(hVal+1, .5) / HourMap[hourQ];
+                        const chance = Math.pow(Math.random(), 1 / combo);
+                        //console.log("chance (sick > .9, heal < .1)", chance, combo);
+                        if (Math.pow(Math.random(), 1 / combo) > .9) {
+                            e.status = Health(e.status, -1);
+                            //AddLog(`${e.name} got ${e.status}!`, { color: "red" });
+                        }
+                        else if (Math.pow(Math.random(), 1 / combo) < .1 && e.status != "Good") {
+                            e.status = Health(e.status, 1);
+                            //AddLog(`${e.name} healed to ${e.status}!`, { color: "green" });
+                        }
+                    }
+
+                    if(e.status != originalHealth){
+                        // Health has gotten worse
+                        if(HealthMap[e.status] > HealthMap[originalHealth]){
+                            if(e.status == "Sick"){
+                                AddLog(`${e.name} is sick.`);
+                            }
+                            if(e.status == "Coronavirus"){
+                                AddLog(`${e.name} has Coronavirus.`, {color: "red"});
+                            }
+                            if(e.status == "Severe Coronavirus"){
+                                AddLog(`${e.name} is severely ill from the Coronavirus.`, {color: "red"});
+                            }
+                            if(e.status == "Deceased"){
+                                AddLog(`${e.name} has died from the Coronavirus.`, {color: "red"});
+                            }
+                        }
                     }
 
                     return e;
@@ -512,9 +649,9 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 setGame({
                     ...game,
                     date: newDate,
-                    uninfected: uninfected - increase,
+                    uninfected: uninfected - (increase + youInfected),
                     recovered: recovered + recoveries,
-                    infected: newInfected,
+                    infected: newInfected + youInfected,
                     deceased: deceased + deaths,
                     infectRate: newInfectRate,
 
@@ -523,6 +660,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                     cleanliness: newCleanliness,
                     employees: newEmployees,
+                    yourStatus: yourNewStatus,
                 });
             }
         }, isDev ? 500 : 4000);
@@ -535,7 +673,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 setValue={setPayQ}
                 title="How much do you want to pay your employees?"
                 items={[
-                    { name: "Double Overtime", image: PayGreat },
+                    { name: "Paid Sick Leave", image: PayGreat },
                     { name: "Overtime", image: PayOk },
                     { name: "Minimum Wage", image: PayBad },
                 ]}
@@ -632,7 +770,9 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <div style={{ textAlign: "right", width: "50%" }}>
                         <div style={{ marginBottom: 12 }}>Current Health:</div>
                         <div style={{ marginBottom: 5 }}>{yourName} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>{yourStatus}</span></div>
-                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>{e.status}</span></div>)}
+                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>
+                            {HealthMap[e.status] < HealthMap["Sick"] ? (e.mood == "Bad" ? "Angry" : e.status) : e.status}
+                            </span></div>)}
                     </div>
                 </div>
                 <div style={{ marginTop: 16 }}>Business: Restaurant </div>
@@ -780,7 +920,6 @@ export function CenterMenu<T>(props: { title: string, items?: { name: T, image?:
         <div style={{ textAlign: "left", margin: "0 10px", fontSize: 14 }}>{props.title}</div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
             {props.items?.map(item => <CenterMenuItem {...item} onClick={() => { props.setValue(item.name) }} />)}
-            {/* TODO: Add menu items here! */}
         </div>
     </div>;
 }

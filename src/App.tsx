@@ -33,11 +33,11 @@ export var yourName = isDev ? "YOU" : "";
 export var businessName = PickRandom(["OK Food!", "Eat 'r Up!", "Burgers and More Things", "Fancy Fish", "Mario's Asian Fusion", "Leftover's Cafe", "Papi Juan's"]);
 
 export var employees: Employee[] = [
-  { name: PickRandom(["Bert", "Simon", "Sampson"]), status: "Good"},
-  { name: PickRandom(["Mary", "Alice", "Arushi"]), status: "Good"},
-  { name: PickRandom(["Gautham", "Bob", "Mike"]), status: "Good"},
-  { name: PickRandom(["Zach", "Aunya", "Jonathan"]), status: "Good"},
-  { name: PickRandom(["Francesca", "Sam", "Tyler"]), status: "Good"},
+  { name: PickRandom(["Bert", "Simon", "Sampson"]), status: "Good", mood: "Ok"},
+  { name: PickRandom(["Mary", "Alice", "Arushi"]), status: "Good", mood: "Ok"},
+  { name: PickRandom(["Gautham", "Bob", "Mike"]), status: "Good", mood: "Ok"},
+  { name: PickRandom(["Zach", "Aunya", "Jonathan"]), status: "Good", mood: "Ok"},
+  { name: PickRandom(["Francesca", "Sam", "Tyler"]), status: "Good", mood: "Ok"},
 ]
 
 export interface ILog {
