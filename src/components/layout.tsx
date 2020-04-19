@@ -809,9 +809,9 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         case "Chart":
             centerMenu = <div>
                 <div>Infection</div>
-                <BarDisplay values={infectionGraph} fillColor="orange" />;
+                <BarDisplay values={infectionGraph} fillColor="orange" />
                 <div>Money</div>
-                <BarDisplay values={moneyGraph} fillColor="green" />;
+                <BarDisplay values={moneyGraph} fillColor="green" />
                 </div>;
             break;
         case "Bank":
