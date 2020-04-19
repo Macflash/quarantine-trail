@@ -30,7 +30,7 @@ import Tweet from '../images/shitnews.png';
 
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
-import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog, tickSpeed } from '../App';
+import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog, tickSpeed, OptionsMenu, startingGame } from '../App';
 
 import { employees as StartEmployees } from '../App';
 import { CleaningView } from './cleaning';
@@ -93,7 +93,7 @@ export const basicBoxStyle = {
     border: MiniBorder,
 }
 
-export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Hours" | "Hunt";
+export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Hours" | "Hunt" | "OptionsMenu";
 
 export type PayQuality = "Paid Sick Leave" | "Overtime" | "Minimum Wage";
 const PayMap: Lookup<PayQuality> = {
@@ -264,7 +264,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
 
-    const [game, setGame] = React.useState<Game>({
+    const [game, setGame] = React.useState<Game>(startingGame ?? {
         infectRate: "Normal",
 
         date: new Date("02/02/2020"),
@@ -718,10 +718,15 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
     let centerMenu = <StoreDisplay paused={paused} customers={customers} height={220} width={280} />;
     switch (view) {
+        case "OptionsMenu":
+        centerMenu = <div style={{position: "absolute", top: 0, left: 0, right: 0, bottom: 0}}>
+            <OptionsMenu onClick={ResetView} game={game} />
+        </div>
+        break;
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
                 helpContent={<div>
-                    <div>Paid Sick Leave - Pay is large and generous. Sick employees can stay home to recover.</div>
+                    <div>Paid Sick Leave - Pay is respectful and generous. Sick employees can stay home to recover.</div>
                     <br />
                     <br />
                     <div>Overtime - Pay is low, but adequate.</div>
@@ -970,7 +975,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={paused ? UnPause : Pause}>{paused ? "Continue" : "Time out"}</button></span>
                 </div>
                 <div style={{ padding: 5, margin: 6 }}>
-                    <span style={buttonWrapperStyle}><button style={buttonStyle} disabled>Options</button></span>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={()=>setView("OptionsMenu")}>Options</button></span>
                 </div>
             </div>
         </div>

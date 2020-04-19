@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { PickRandom } from './utils';
-import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBorder, buttonStyle, MiniBorder, ColorYellow, MenuCircle, Employee, ColorBrown, Callback, VerticalMenu, CenterMenuItem } from './components/layout';
+import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBorder, buttonStyle, MiniBorder, ColorYellow, MenuCircle, Employee, ColorBrown, Callback, VerticalMenu, CenterMenuItem, Game } from './components/layout';
 
 import Help from './images/help.png';
 import Eagle from './images/eagle.png';
@@ -20,11 +20,15 @@ const textBlockStyle: React.CSSProperties = {
   fontSize: 13
 }
 
+const savedGameKey = "quarantinetrail_savedgame";
+
 const enableDevMode = false;
 export const isDev = window.location.href.indexOf("localhost") >= 0 && enableDevMode;
 
 export var yourName = isDev ? "YOU" : "";
 export var businessName = PickRandom(["OK Food!", "Eat 'r Up!", "Burgers and More Things", "Fancy Fish", "Mario's Asian Fusion", "Leftover's Cafe", "Papi Juan's"]);
+
+export var startingGame = null;
 
 export var employees: Employee[] = [
   { name: PickRandom(["Bert", "Simon", "Sampson"]), status: "Good", mood: "Ok" },
@@ -67,7 +71,17 @@ function App() {
   }} />;
 
   if (stage == "Menu") {
-    layout = <Menu onClick={() => setStage("Intro")} introduction={() => setStage("DetailedIntro")} options={() => setStage("OptionsMenu")} />;
+    layout = <Menu onClick={() => {
+      if (startingGame) {
+        setStage("Game");
+      }
+      else {
+        setStage("Intro")
+      }
+    }}
+      introduction={() => setStage("DetailedIntro")}
+      options={() => setStage("OptionsMenu")}
+    />;
   }
 
   if (stage == "Intro") {
@@ -130,7 +144,7 @@ const Menu: React.FC<{ onClick: Callback, introduction: Callback, options: Callb
     <div style={{ position: "absolute", bottom: 40, left: 30, right: 20, justifyContent: "space-around", display: "flex" }}>
       <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }} onClick={props.introduction}>Introduction</button>
       <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }} onClick={props.options}>Options</button>
-      <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }} onClick={()=> {var link = document.createElement("a"); link.href = "https://github.com/Macflash/quarantine-trail"; link.click(); }}>Quit</button>
+      <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }} onClick={() => { var link = document.createElement("a"); link.href = "https://github.com/Macflash/quarantine-trail"; link.click(); }}>Quit</button>
       <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={props.onClick}>Travel the Trail</button>
     </div>
     <div style={{ position: "absolute", right: 10, bottom: -30, fontSize: 12, color: ColorBrown }}>© 2020</div>
@@ -144,7 +158,13 @@ const Intro: React.FC<{ onClick: () => void }> = props => {
     <div style={textBlockStyle}>Before you set off on the trail, register your name, the names of the members of your staff, and your business. After that, you'll need to buy supplies and make other important decisions.</div>
     <div style={textBlockStyle}>Good Luck!</div>
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around", marginTop: 35 }}>
-      <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} disabled>Load Game</button>
+      <button
+        style={{ ...buttonStyle, width: "25%", border: MiniBorder }}
+        onClick={() => { startingGame = JSON.parse(localStorage.getItem(savedGameKey)!); props.onClick(); }}
+        disabled={!localStorage.getItem(savedGameKey)}>
+        Load Game
+        </button>
+
       <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={props.onClick}>New Game</button>
     </div>
   </div>;
@@ -204,7 +224,7 @@ const DetailedIntro: React.FC<{ onClick: () => void }> = props => {
 export var tickSpeed = 4000;
 export var virusCount = 50;
 
-const OptionsMenu: React.FC<{ onClick: () => void }> = props => {
+export const OptionsMenu: React.FC<{ onClick: () => void, game?: Game }> = props => {
   const [state, setState] = React.useState(0);
   const ping = () => setState(Math.random());
   return <div style={{ ...basicBoxStyle, border: InnerBorder, height: "100%", display: "flex", flexDirection: "row" }}>
@@ -226,9 +246,11 @@ const OptionsMenu: React.FC<{ onClick: () => void }> = props => {
       <div><label><input type="radio" checked={virusCount == 120} onChange={ev => { ping(); virusCount = 120 }} /> 120</label></div>
     </div>
 
-    <div>
-      <CenterMenuItem name="Save Game" image={Save} onClick={() => { }} />
-    </div>
+    {props.game ?
+      <div>
+        <CenterMenuItem name="Save Game" image={Save} onClick={() => { localStorage.setItem(savedGameKey, JSON.stringify(props.game)); alert("Saved!") }} />
+      </div>
+      : null}
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around", position: "absolute", bottom: 25, left: 175, right: 175 }}>
       <span style={{ border: "3px solid black", borderRadius: 9 }}>
         <button style={{ ...buttonStyle, width: undefined, minWidth: 80, border: MiniBorder }} onClick={() => { props.onClick() }}>OK</button>
