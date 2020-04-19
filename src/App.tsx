@@ -66,7 +66,10 @@ function App() {
 
   const [stage, setStage] = React.useState<Stage>(isDev ? "Game" : "Menu");
 
-  let layout = <Layout gameOver={()=>setStage("Menu")} />;
+  let layout = <Layout gameOver={()=>{
+    employees.forEach(e=>e.status = "Good");
+    setStage("Menu");
+  }} />;
 
   if (stage == "Menu") {
     layout = <Menu onClick={() => setStage("Intro")} />;

@@ -19,7 +19,7 @@ type Direction = "up" | "down" | "left" | "right";
 var customers: { x: number, y: number, img: string, dir: Direction, dist: number }[] = [];
 var interval: any = null;
 
-export const StoreDisplay: React.FC<{ customers: number, height?: number, width?: number }> = props => {
+export const StoreDisplay: React.FC<{ paused: boolean, customers: number, height?: number, width?: number }> = props => {
     const height = props.height ?? 250;
     const width = props.width ?? 800;
     const [c, setC] = React.useState(customers);
@@ -28,6 +28,7 @@ export const StoreDisplay: React.FC<{ customers: number, height?: number, width?
     React.useEffect(() => {
         if (interval) { clearInterval(interval) }
         interval = setInterval(() => {
+            if(props.paused){return;}
             //update locations
             if (customers.length < props.customers && Math.random() < .1) {
                 // have someone walk in

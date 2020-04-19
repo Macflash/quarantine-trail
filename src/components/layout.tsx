@@ -34,6 +34,7 @@ import { isDev, yourName as StartingName, businessName as StartingBusinessName, 
 
 import { employees as StartEmployees } from '../App';
 import { CleaningView } from './cleaning';
+import { SupplyStore } from './supplyStore';
 
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
@@ -393,9 +394,11 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 // DEBT
                 let debtPayment = 0;
+                let debtPrinciple = 0;
                 const monthlyInterest = .007;
                 if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
+                    debtPrinciple = debt / 120;
                     //console.log("DEBT!", debtPayment);
                 }
 
@@ -417,7 +420,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     AddLog(`You made $${month}.00 in revenue this month.`);
                     AddLog(`Rent: $${rentPayment}`);
                     AddLog(`Utilities: $${utiltiiesPayment}`);
-                    AddLog(`Interest Payments: $${debtPayment}`);
+                    AddLog(`Interest Payments: $${debtPayment + debtPrinciple}`);
                     AddLog(`Net: $${month - monthylpayments}`);
 
                     month = 0;
@@ -507,6 +510,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     infectRate: newInfectRate,
 
                     money: money + (sales - cost) - (rentPayment + debtPayment + foodCost),
+                    debt: debt - debtPrinciple,
 
                     cleanliness: newCleanliness,
                     employees: newEmployees,
@@ -515,7 +519,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         }, isDev ? 500 : 4000);
     }, [paused, game])
 
-    let centerMenu = <StoreDisplay customers={customers} height={220} width={280} />;
+    let centerMenu = <StoreDisplay paused={paused} customers={customers} height={220} width={280} />;
     switch (view) {
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
@@ -577,17 +581,30 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     ResetView();
                 }} />;
             break;
+        case "Supplies":
+            centerMenu = <SupplyStore 
+            money={money} 
+            paperTowels={paperTowels} 
+            cleaningSpray={cleaningSprays}
+            onCancel={ResetView}
+            onBuy={(towels, sprays, cost) => {
+                setGame({...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money-cost});
+                ResetView();
+            }}
+             />;
+            break;
         case "Chart":
             centerMenu = <BarDisplay values={infectionGraph} />;
             break;
         case "Bank":
             const paymentAmount = Math.min(1000, debt);
+            const borrowAmount = 10000;
             centerMenu = <div style={{ padding: 5 }}>
                 <div style={{ textAlign: "left" }}>Welcome to the bank</div>
                 <div style={{ textAlign: "left" }}>You owe ${debt}</div>
                 <div>
-                    <button style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt + 1000 })}>Borrow $1000</button>
-                    <button style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt - paymentAmount, money: money - paymentAmount })} disabled={debt <= 0 || money < paymentAmount}>Pay ${paymentAmount}</button>
+                    <button disabled={debt > 500000} style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt + borrowAmount, money: money + borrowAmount })}>Borrow ${borrowAmount}</button>
+                    <button style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt - Math.round(paymentAmount), money: money - paymentAmount })} disabled={debt <= 0 || money < paymentAmount}>Pay ${paymentAmount}</button>
                 </div>
             </div>;
             break;
@@ -597,10 +614,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
                     <div style={{ textAlign: "left", width: "40", marginRight: 10 }}>
                         <div style={{ marginBottom: 12 }}>Current Supplies:</div>
+                        <div style={{ marginBottom: 7 }}>{paperTowels} paper towels</div>
+                        <div style={{ marginBottom: 7 }}>{cleaningSprays} sprays of disinfectant</div>
                         <div style={{ marginBottom: 7 }}>5 masks</div>
                         <div style={{ marginBottom: 7 }}>1 set of gloves</div>
-                        <div style={{ marginBottom: 7 }}>1 paper towel</div>
-                        <div style={{ marginBottom: 7 }}>30 sprays of disinfectant</div>
                         <div style={{ marginBottom: 7 }}>100 pounds of food</div>
                     </div>
                     <div style={{ textAlign: "right", width: "50%" }}>
@@ -660,7 +677,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <BodyRow left="Pay:" right={payQ} />
                     <BodyRow left="Cleanliness:" right={cleanliness} />
                     <BodyRow left="Hours:" right={hourQ} />
-                    <BodyRow left="Supplies:" right="12" />
+                    <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{color: "red"}}>Low</div>} />
                     <BodyRow left="Health:" right={avgStatus} />
                     <br />
                     <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />

@@ -42,3 +42,9 @@
   margin-right: -5px;
   box-shadow: 0px 1px 0 black !important;
 }
+
+td {
+  border: none;
+  outline: 1px solid black;
+  padding: 0 1px;
+}
