@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/quarantine-trail/static/css/main.5358327e.chunk.css",
-    "main.js": "/quarantine-trail/static/js/main.2713d4a9.chunk.js",
-    "main.js.map": "/quarantine-trail/static/js/main.2713d4a9.chunk.js.map",
+    "main.js": "/quarantine-trail/static/js/main.c5a7d15a.chunk.js",
+    "main.js.map": "/quarantine-trail/static/js/main.c5a7d15a.chunk.js.map",
     "runtime-main.js": "/quarantine-trail/static/js/runtime-main.a36e4c1d.js",
     "runtime-main.js.map": "/quarantine-trail/static/js/runtime-main.a36e4c1d.js.map",
     "static/js/2.d05012ce.chunk.js": "/quarantine-trail/static/js/2.d05012ce.chunk.js",
     "static/js/2.d05012ce.chunk.js.map": "/quarantine-trail/static/js/2.d05012ce.chunk.js.map",
     "index.html": "/quarantine-trail/index.html",
-    "precache-manifest.ef9108a79206d26848ac02606039641a.js": "/quarantine-trail/precache-manifest.ef9108a79206d26848ac02606039641a.js",
+    "precache-manifest.5ee3551d0942726b7fdce98f6699df60.js": "/quarantine-trail/precache-manifest.5ee3551d0942726b7fdce98f6699df60.js",
     "service-worker.js": "/quarantine-trail/service-worker.js",
     "static/css/main.5358327e.chunk.css.map": "/quarantine-trail/static/css/main.5358327e.chunk.css.map",
     "static/js/2.d05012ce.chunk.js.LICENSE.txt": "/quarantine-trail/static/js/2.d05012ce.chunk.js.LICENSE.txt",
@@ -39,6 +39,6 @@
     "static/js/runtime-main.a36e4c1d.js",
     "static/js/2.d05012ce.chunk.js",
     "static/css/main.5358327e.chunk.css",
-    "static/js/main.2713d4a9.chunk.js"
+    "static/js/main.c5a7d15a.chunk.js"
   ]
 }
