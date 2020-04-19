@@ -10,7 +10,7 @@ import Virus1 from '../images/virus.png';
 import { InRange } from "../utils";
 
 type Direction = "up" | "down" | "left" | "right";
-var viruses: { x: number, y: number, img: HTMLImageElement, dir: Direction }[] = [];
+var viruses: { x: number, y: number, img: HTMLImageElement, dir: Direction, dead: boolean }[] = [];
 var interval: any = null;
 var splotch = document.createElement("img");
 splotch.src = Water1;
@@ -19,16 +19,34 @@ wipe.src = Wipe1;
 var v1 = document.createElement("img");
 v1.src = Virus1;
 
+var vcanv: HTMLCanvasElement | null = null;
+var vctx: CanvasRenderingContext2D  | null = null;
+var cleancanv: HTMLCanvasElement | null = null;
+var cleanctx: CanvasRenderingContext2D  | null = null;
+
+var spawned = 0;
+var killed = 0;
+
 export const CleaningView: React.FC<{ close: () => void }> = props => {
     const [spray, setSpray] = React.useState(Spray1);
     const [towel, setTowel] = React.useState(Towel1);
 
     React.useEffect(() => {
+        spawned = 0;
+        killed = 0;
+
         if (interval) { clearInterval(interval) }
         interval = setInterval(() => {
-            console.log(viruses)
+            if(spawned > 50){
+                alert(`Done! you got ${killed} out of ${spawned} and missed ${missed}`)
+                clearInterval(interval);
+                return;
+            }
+
             if (Math.random() < .1) {
+                spawned++;
                 viruses.push({
+                    dead: false,
                     dir: "right",
                     img: v1,
                     x: -50,
@@ -36,7 +54,9 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
                 });
             }
             else if (Math.random() < .1) {
+                spawned++;
                 viruses.push({
+                    dead: false,
                     dir: "left",
                     img: v1,
                     x: 650,
@@ -45,6 +65,7 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
             }
 
             viruses.forEach(v => {
+                if(v.dead){ return; }
                 if (v.dir == "left") {
                     v.x -= 30;
                 }
@@ -53,16 +74,15 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
                 }
             });
 
-            viruses = viruses.filter(v => v.x < 800 && v.x > -50);
+            viruses = viruses.filter(v => v.x < 800 && v.x > -50 && !v.dead);
 
-            var vcanv = document.getElementById("viruscanvas") as HTMLCanvasElement;
-            var vctx = vcanv.getContext("2d");
-            console.log(vctx);
+            vcanv = vcanv ?? document.getElementById("viruscanvas") as HTMLCanvasElement;
+            vctx = vctx ?? vcanv.getContext("2d");
             vctx?.clearRect(0, 0, 700, 700);
             viruses.forEach(v => vctx?.drawImage(v.img, v.x, v.y))
         }, 100);
 
-        return () => clearInterval(interval);
+        return () => {clearInterval(interval); vcanv = null; vctx = null; cleanctx = null; cleancanv = null; };
     }, []);
 
     return <div style={{ overflow: "hidden", cursor: `url(${CrossHair}) 12 12, crosshair`, position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "green" }}>
@@ -94,17 +114,26 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
                 setTowel(Towel1);
             }}
                 onClick={(ev) => {
-                    const canv = document.getElementById("cleancanvas") as HTMLCanvasElement;
-                    const rect = canv!.getBoundingClientRect()
+                    cleancanv = cleancanv ?? document.getElementById("cleancanvas") as HTMLCanvasElement;
+                    const rect = cleancanv!.getBoundingClientRect()
                     const x = ev.clientX - rect.left
                     const y = ev.clientY - rect.top
 
-                    const ctx = canv.getContext("2d");
-                    ctx!.fillStyle = "rgba(0,150,255, 50)";
+                    //check for viruses
+                    viruses.forEach(v => {
+                        if(Math.abs(v.x - x) < 50 && Math.abs(v.y - y) < 50){
+                            cleanctx?.drawImage(v.img, v.x, v.y);
+                            v.dead = true;
+                            killed++;
+                        }
+                    });
+
+                    cleanctx = cleanctx ?? cleancanv.getContext("2d");
+                    cleanctx!.fillStyle = "rgba(0,150,255, 50)";
                     const size = 200;
                     const half = size / 2;
                     //ctx?.fillRect(x-half,y-half,size,size);
-                    ctx?.drawImage(splotch, x - half, y - half);
+                    cleanctx?.drawImage(splotch, x - half, y - half);
 
                     console.log(x, y);
                     setSpray(Spray2);
