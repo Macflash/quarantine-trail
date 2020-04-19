@@ -255,14 +255,16 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     React.useEffect(() => {
         // advance the days!
         setTimeout(() => {
-            if(debt <= 0 && infected == 0){
+            if (debt <= 0 && infected == 0) {
                 alert("You win! You survived the pandemic and stayed in business!");
+                props.gameOver?.();
             }
             //console.log("running")
             if (!paused) {
-                if(money < 0){
+                if (money < 0) {
                     setPaused(true);
                     alert("Oh no, you are out of money! Better go to the bank!");
+                    props.gameOver?.();
                 }
                 // increment date
                 let newDate = new Date(date);
@@ -589,16 +591,16 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 }} />;
             break;
         case "Supplies":
-            centerMenu = <SupplyStore 
-            money={money} 
-            paperTowels={paperTowels} 
-            cleaningSpray={cleaningSprays}
-            onCancel={ResetView}
-            onBuy={(towels, sprays, cost) => {
-                setGame({...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money-cost});
-                ResetView();
-            }}
-             />;
+            centerMenu = <SupplyStore
+                money={money}
+                paperTowels={paperTowels}
+                cleaningSpray={cleaningSprays}
+                onCancel={ResetView}
+                onBuy={(towels, sprays, cost) => {
+                    setGame({ ...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money - cost });
+                    ResetView();
+                }}
+            />;
             break;
         case "Chart":
             centerMenu = <BarDisplay values={infectionGraph} />;
@@ -684,7 +686,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <BodyRow left="Pay:" right={payQ} />
                     <BodyRow left="Cleanliness:" right={cleanliness} />
                     <BodyRow left="Hours:" right={hourQ} />
-                    <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{color: "red"}}>Low</div>} />
+                    <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{ color: "red" }}>Low</div>} />
                     <BodyRow left="Health:" right={avgStatus} />
                     <br />
                     <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />
