@@ -389,6 +389,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     AddLog(`You made $${sales}.`);
                 }
 
+                if(sickCustomers >0){ console.log("SICK customerS!", sickCustomers)}
+
                 //console.log("sick customers", sickCustomers)
                 if (sickCustomers == 0) {
                     // small chance the store gets dirty
@@ -427,6 +429,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     if (e.status == "Deceased") { return e; }
 
                     // handle mood
+                    // TODO: Handle shifts!
                     const originalMood = e.mood;
                     if(payQ =="Paid Sick Leave"){
                         if(Math.random() < .25){
@@ -453,9 +456,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     if(e.mood != originalMood){
                         if(e.mood == "Bad"){
                             // still pretty noisy!
-                            //if(Math.random() < .3){
                                 AddLog(`${e.name} is upset about their pay.`, {color: "brown"});
-                            //}
                         }
                         if(e.mood == "Good"){
                             // Kind of noisy: AddLog(`${e.name} is happy with their pay.`);
@@ -475,19 +476,30 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         }
                     }
                     else {
+                        // TODO: Handle shift length!
                         // TODO Make this not terrible!
                         var cVal = CleanMap[cleanliness];
-                        var hVal = HealthMap[e.status];
                         var combo = (sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6) //* Math.pow(hVal+1, .5) / HourMap[hourQ];
-                        const chance = Math.pow(Math.random(), 1 / combo);
-                        //console.log("chance (sick > .9, heal < .1)", chance, combo);
-                        if (Math.pow(Math.random(), 1 / combo) > .9) {
-                            e.status = Health(e.status, -1);
-                            //AddLog(`${e.name} got ${e.status}!`, { color: "red" });
+
+                        let SickChance = .9;
+                        let HealChance = .1;
+
+                        if(hourQ == "Short Shifts"){
+                            // better chances for health
+                            SickChance = .95;
+                            HealChance = .15;
                         }
-                        else if (Math.pow(Math.random(), 1 / combo) < .1 && e.status != "Good") {
+                        else if(hourQ == "Grueling shifts"){
+                            // worse chances for health
+                            SickChance = .89;
+                            HealChance = .05;
+                        }
+
+                        if (Math.pow(Math.random(), 1 / combo) > SickChance) {
+                            e.status = Health(e.status, -1);
+                        }
+                        else if (Math.pow(Math.random(), 1 / combo) < HealChance) {
                             e.status = Health(e.status, 1);
-                            //AddLog(`${e.name} healed to ${e.status}!`, { color: "green" });
                         }
                     }
 
@@ -769,7 +781,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     </div>
                     <div style={{ textAlign: "right", width: "50%" }}>
                         <div style={{ marginBottom: 12 }}>Current Health:</div>
-                        <div style={{ marginBottom: 5 }}>{yourName} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>{yourStatus}</span></div>
+                        <div style={{ marginBottom: 5 }}>{yourName} - <span style={{ display: "inline-block", width: 55, textAlign: "center" }}>{yourStatus}</span></div>
                         {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>
                             {HealthMap[e.status] < HealthMap["Sick"] ? (e.mood == "Bad" ? "Angry" : e.status) : e.status}
                             </span></div>)}
