@@ -185,7 +185,7 @@ export const ReverseCleanMap: ReverseLookup<Cleanliness> = {
     5: "Dangerous!",
 };
 
-export const CleanColorMap: { [P in Cleanliness]: string | undefined } = {  
+export const CleanColorMap: { [P in Cleanliness]: string | undefined } = {
     "Pristine": "blue",
     "Fair": undefined,
     "Poor": undefined,
@@ -246,6 +246,12 @@ var infectionGraph = [0];
 var deceasedGraph = [0];
 var moneyGraph = [1600];
 
+const MaxDebt = 100000;
+
+const PrintMoney = (money: number): string => {
+    return `$${Number(Math.round(money)).toLocaleString()}.00`
+}
+
 export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [paused, setPaused] = React.useState(false);
     const Pause = React.useCallback(() => setPaused(true), [setPaused]);
@@ -293,9 +299,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 props.gameOver?.();
                 alert("You win! You survived the pandemic and stayed in business!");
             }
-            //console.log("running")
             if (!paused) {
-                if (money < 0 && debt < 100000) {
+                if (money < 0 && debt < MaxDebt) {
                     setPaused(true);
                     alert("Oh no, you are out of money! Better go to the bank!");
                     //props.gameOver?.();
@@ -349,11 +354,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 let sales = 0;
                 let availableEmployees = employees.filter(e => payQ !== "Paid Sick Leave" || HealthMap[e.status] < HealthMap["Sick"]);
                 let youWorked = false;
-                console.log("Available Employees", availableEmployees);
-                if(availableEmployees.length == 0){
+                if (availableEmployees.length == 0) {
                     //you gotta do it!
                     youWorked = true;
-                    availableEmployees = [{name: yourName, status: yourStatus, mood: "Ok"}];
+                    availableEmployees = [{ name: yourName, status: yourStatus, mood: "Ok" }];
                 }
                 for (var i = 0; i < transactions; i++) {
                     // pick a random employee to have them interact with!
@@ -362,45 +366,45 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     const serverIsSick = HealthMap[server.status] > HealthMap["Sick"];
 
                     let sickModifier = 1;
-                    if(serverIsSick){
+                    if (serverIsSick) {
                         sickModifier = .9;
                     }
 
                     var customerIsSick = Math.random() < (2 * infected / (uninfected + recovered + infected));
-                    if(Math.random() < .5){
+                    if (Math.random() < .5) {
                         customerIsSick = customerIsSick || Math.random() < (2 * infected / (uninfected + recovered + infected));
                     }
 
                     let spreadChance = .1;
-                    if(cleanliness == "Dangerous!"){
+                    if (cleanliness == "Dangerous!") {
                         spreadChance = .7;
                     }
-                    else if(cleanliness == "Filthy"){
+                    else if (cleanliness == "Filthy") {
                         spreadChance = .5;
                     }
-                    else if(cleanliness == "Dirty"){
+                    else if (cleanliness == "Dirty") {
                         spreadChance = .25;
                     }
-                    else if(cleanliness == "Poor"){
+                    else if (cleanliness == "Poor") {
                         spreadChance = .15;
                     }
-                    else if(cleanliness == "Fair"){
+                    else if (cleanliness == "Fair") {
                         spreadChance = .1;
                     }
-                    else if(cleanliness == "Pristine"){
+                    else if (cleanliness == "Pristine") {
                         spreadChance = .09;
                     }
 
                     // TODO: Factor in masks or gloves here! 
-                    if(serverIsSick && Math.random() < spreadChance){
+                    if (serverIsSick && Math.random() < spreadChance) {
                         customerIsSick = true; // You spread it!
                         youInfected++;
                     }
 
-                    if(customerIsSick){
+                    if (customerIsSick) {
                         sickCustomers++;
-                        if(Math.random() < spreadChance){
-                            if(HealthMap[server.status] < HealthMap["Coronavirus"]){
+                        if (Math.random() < spreadChance) {
+                            if (HealthMap[server.status] < HealthMap["Coronavirus"]) {
                                 console.log(`A sick customer made ${server.name} sick!`);
                                 server.status = "Coronavirus";
                             }
@@ -412,25 +416,24 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                     // the employee's mood affects sale amount
                     let moodModifier = 1;
-                    if(server.mood == "Good"){ moodModifier = 1.15; }
-                    if(server.mood == "Bad"){ moodModifier = .8; }
+                    if (server.mood == "Good") { moodModifier = 1.15; }
+                    if (server.mood == "Bad") { moodModifier = .8; }
 
                     sales += Randomize(dayTicket[date.getDay()] * moodModifier * sickModifier, .15);
                 }
 
                 // update your health if you got sick
                 let yourNewStatus = yourStatus;
-                if(youWorked){
+                if (youWorked) {
                     yourNewStatus = availableEmployees[0].status;
                 }
 
                 if (busyEvent || slowEvent) {
-                    AddLog(`You made $${sales}.`);
+                    AddLog(`You made ${PrintMoney(sales)}.`);
                 }
 
-                if(sickCustomers >0){ console.log("SICK customerS!", sickCustomers)}
+                if (sickCustomers > 0) { console.log("SICK customerS!", sickCustomers) }
 
-                //console.log("sick customers", sickCustomers)
                 if (sickCustomers == 0) {
                     // small chance the store gets dirty
                     if (Math.random() < .05) {
@@ -438,7 +441,6 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     }
                 }
                 else if (sickCustomers < 5) {
-                    //alert("sick customer!");
                     // small chance the store gets dirty
                     if (Math.random() < .5) {
                         newCleanliness = Clean(newCleanliness, -1);
@@ -470,47 +472,47 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     // handle mood
                     // TODO: Handle shifts!
                     const originalMood = e.mood;
-                    if(payQ =="Paid Sick Leave"){
-                        if(Math.random() < .25){
+                    if (payQ == "Paid Sick Leave") {
+                        if (Math.random() < .25) {
                             e.mood = Mood(e.mood, 1);
                         }
                     }
-                    else if(payQ =="Overtime"){
-                        if(Math.random() < .1){
+                    else if (payQ == "Overtime") {
+                        if (Math.random() < .1) {
                             e.mood = Mood(e.mood, 1);
                         }
-                        else if(Math.random() < .05){
+                        else if (Math.random() < .05) {
                             e.mood = Mood(e.mood, -1);
                         }
                     }
-                    else if(payQ =="Minimum Wage"){
-                        if(Math.random() < .08){
+                    else if (payQ == "Minimum Wage") {
+                        if (Math.random() < .08) {
                             e.mood = Mood(e.mood, 1);
                         }
-                        else if(Math.random() < .1){
+                        else if (Math.random() < .1) {
                             e.mood = Mood(e.mood, -1);
                         }
                     }
 
-                    if(e.mood != originalMood){
-                        if(e.mood == "Bad"){
+                    if (e.mood != originalMood) {
+                        if (e.mood == "Bad") {
                             // still pretty noisy!
-                                AddLog(`${e.name} is upset about their pay.`, {color: "brown"});
+                            AddLog(`${e.name} is upset about their pay.`, { color: "brown" });
                         }
-                        if(e.mood == "Good"){
+                        if (e.mood == "Good") {
                             // Kind of noisy: AddLog(`${e.name} is happy with their pay.`);
                         }
                     }
 
                     //handle sick chance & PTO
                     const originalHealth = e.status;
-                    if(payQ == "Paid Sick Leave" && HealthMap[e.status] >= HealthMap["Sick"]){
+                    if (payQ == "Paid Sick Leave" && HealthMap[e.status] >= HealthMap["Sick"]) {
                         // employee is sick and so is not at work
                         // chance to recover, but it could still get worse
-                        if(Math.random() < .1){
+                        if (Math.random() < .1) {
                             e.status = Health(e.status, 1);
                         }
-                        else if(Math.random() <.05){
+                        else if (Math.random() < .05) {
                             e.status = Health(e.status, -1);
                         }
                     }
@@ -523,18 +525,16 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         let SickChance = .9;
                         let HealChance = .1;
 
-                        if(hourQ == "Short Shifts"){
+                        if (hourQ == "Short Shifts") {
                             // better chances for health
                             SickChance = .95;
                             HealChance = .12;
                         }
-                        else if(hourQ == "Grueling shifts"){
+                        else if (hourQ == "Grueling shifts") {
                             // worse chances for health
                             SickChance = .85;
                             HealChance = .05;
                         }
-
-                        //console.log("Health statistics", Math.round(chance * 100)/100, SickChance, HealChance );
 
                         if (chance > SickChance) {
                             console.log(`${e.name} sicker -`);
@@ -546,20 +546,20 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         }
                     }
 
-                    if(e.status != originalHealth){
+                    if (e.status != originalHealth) {
                         // Health has gotten worse
-                        if(HealthMap[e.status] > HealthMap[originalHealth]){
-                            if(e.status == "Sick"){
+                        if (HealthMap[e.status] > HealthMap[originalHealth]) {
+                            if (e.status == "Sick") {
                                 AddLog(`${e.name} is sick.`);
                             }
-                            if(e.status == "Coronavirus"){
-                                AddLog(`${e.name} has Coronavirus.`, {color: "red"});
+                            if (e.status == "Coronavirus") {
+                                AddLog(`${e.name} has Coronavirus.`, { color: "red" });
                             }
-                            if(e.status == "Severe Coronavirus"){
-                                AddLog(`${e.name} is severely ill from the Coronavirus.`, {color: "red"});
+                            if (e.status == "Severe Coronavirus") {
+                                AddLog(`${e.name} is severely ill from the Coronavirus.`, { color: "red" });
                             }
-                            if(e.status == "Deceased"){
-                                AddLog(`${e.name} has died from the Coronavirus.`, {color: "red"});
+                            if (e.status == "Deceased") {
+                                AddLog(`${e.name} has died from the Coronavirus.`, { color: "red" });
                             }
                         }
                     }
@@ -581,7 +581,6 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 const sqfoot = 2500;
                 if (date.getDate() == 1) {
                     rentPayment = costperfoot * sqfoot;
-                    //console.log("RENT!", rentPayment);
                 }
 
                 // Utilities
@@ -590,7 +589,6 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 const gasPerfoot = .85 / 12;
                 if (date.getDate() == 1) {
                     utiltiiesPayment = sqfoot * (gasPerfoot + electricityPerFoot) + 150;
-                    //console.log("utilities!", utiltiiesPayment);
                 }
 
                 // DEBT
@@ -600,29 +598,26 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
                     debtPrinciple = debt / 120;
-                    //console.log("DEBT!", debtPayment);
                 }
 
                 let monthylpayments = rentPayment + utiltiiesPayment + debtPayment;
 
                 //TODO PURCHASE FOOD as supplies! compare BULK prices vs spoilage and stuff
                 // for now lets say ~30% of the sale is food cost
+                // this value made things hard in the game, so I set it to 20% instead lol
                 let foodCost = Math.round(sales * .2);
-
-                //console.log("Wages", payQ, hourQ, `$${cost}`);
                 const profit = sales - cost - foodCost;
-                //console.log("Profit", `$${profit}`, sales, cost, foodCost);
 
                 month += profit;
                 if (date.getDate() == 1) {
                     debtPayment = debt * monthlyInterest;
 
                     AddLog(`${date.toDateString()}`, { marginTop: 8 });
-                    AddLog(`You made $${month}.00 in revenue this month.`);
-                    AddLog(`Rent: $${rentPayment}`);
-                    AddLog(`Utilities: $${utiltiiesPayment}`);
-                    AddLog(`Interest Payments: $${debtPayment + debtPrinciple}`);
-                    AddLog(`Net: $${month - monthylpayments}`);
+                    AddLog(`You made ${PrintMoney(month)} in revenue this month.`);
+                    AddLog(`Rent: ${PrintMoney(rentPayment)}`);
+                    AddLog(`Utilities: ${PrintMoney(utiltiiesPayment)}`);
+                    AddLog(`Interest Payments: ${PrintMoney(debtPayment + debtPrinciple)}`);
+                    AddLog(`Net: ${PrintMoney(month - monthylpayments)}`);
 
                     month = 0;
                 }
@@ -657,9 +652,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 const deaths = Math.round((infected * .007 * Math.random()) + Math.random());
                 const recoveries = Math.round((infected / 21) * Math.random());
-
                 const increase = Math.min(uninfected, Math.round((infected * growthRate) + (Math.random() * 2)));
-                //console.log("infections", increase, infected + increase);
 
                 let newInfectRate = infectRate
                 if (increase > 1000) {
@@ -727,6 +720,15 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     switch (view) {
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
+                helpContent={<div>
+                    <div>Paid Sick Leave - Pay is large and generous. Sick employees can stay home to recover.</div>
+                    <br />
+                    <br />
+                    <div>Overtime - Pay is low, but adequate.</div>
+                    <br />
+                    <br />
+                    <div>Minimum Wage - Pay is very low. Everyone can barely make ends meet and their performance on the job may suffer.</div>
+                </div>}
                 setValue={setPayQ}
                 title="How much do you want to pay your employees?"
                 items={[
@@ -738,6 +740,13 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             break;
         case "Hours":
             centerMenu = <CenterMenu<HourQuality>
+                helpContent={<div>
+                    <div>Short Shifts - Your employees work 8 hours a day. They can take many breaks and rarely get tired.</div>
+                    <br />
+                    <div>Normal Shifts - Your employees work 12 hours a day, starting at sunrise and stopping at sunset. They stop to rest only when you allow it. They finish each day very tired.</div>
+                    <br />
+                    <div>Grueling Shifts - Your employees work 16 hours a day, starting before dawn and going until dark. They rarely rest or see their families. They finish each day exhausted and their health suffers.</div>
+                </div>}
                 setValue={setHourQ}
                 title="How long should your employees work each day?"
                 items={[
@@ -800,22 +809,81 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         case "Chart":
             centerMenu = <div>
                 <div>Infection</div>
-                    <BarDisplay values={infectionGraph} fillColor="orange" />;
+                <BarDisplay values={infectionGraph} fillColor="orange" />;
                 <div>Money</div>
-                    <BarDisplay values={moneyGraph} fillColor="green" />;
+                <BarDisplay values={moneyGraph} fillColor="green" />;
                 </div>;
             break;
         case "Bank":
             const paymentAmount = Math.min(1000, debt);
             const borrowAmount = 10000;
-            centerMenu = <div style={{ padding: 5 }}>
-                <div style={{ textAlign: "left" }}>Welcome to the bank</div>
-                <div style={{ textAlign: "left" }}>You owe ${debt}</div>
-                <div>
-                    <button disabled={debt > 500000} style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt + borrowAmount, money: money + borrowAmount })}>Borrow ${borrowAmount}</button>
-                    <button style={{ ...buttonStyle, width: 150 }} onClick={() => setGame({ ...game, debt: debt - Math.round(paymentAmount), money: money - paymentAmount })} disabled={debt <= 0 || money < paymentAmount}>Pay ${paymentAmount}</button>
+            centerMenu = <div style={{ textAlign: "left" }}>
+                <div style={{ margin: 5 }}>
+                    <div >Welcome to the bank</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 16 }}>You can borrow up to $100,000.00 dollars. Each month on the 1st of the month you will have to pay back a portion of your debt as well as interest.</div>
+                    <div >You have {PrintMoney(money)}</div>
+                    <div >You owe {PrintMoney(debt)}</div>
+                </div>
+                <div style={{ textAlign: "right", marginTop: 4 }}>
+                    <button
+                        disabled={debt > MaxDebt}
+                        style={{ ...buttonStyle, border: MiniBorder, width: undefined, marginTop: 4, marginBottom: 4 }}
+                        onClick={() => setGame({ ...game, debt: debt + (borrowAmount * 1.1), money: money + borrowAmount })}
+                    >
+                        Borrow {PrintMoney(borrowAmount)}
+                    </button>
+                    <button
+                        style={{ ...buttonStyle, border: MiniBorder, width: undefined }}
+                        onClick={() => setGame({ ...game, debt: debt - Math.round(paymentAmount), money: money - paymentAmount })}
+                        disabled={debt <= 0 || money < paymentAmount}
+                    >
+                        Pay ${paymentAmount}
+                    </button>
+
                 </div>
             </div>;
+            break;
+        case "Guide":
+            centerMenu = <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+                <div style={{ flex: "auto", textAlign: "left", position: "relative" }}>
+                    <div style={{ width: 200, margin: 4, padding: 4, paddingBottom: 12, borderBottom: "2px solid black" }}>Coronavirus</div>
+                    <div style={{ padding: 2, fontSize: 10, fontWeight: 700 }}>
+                        Coronavirus (Covid-19) is a virus that affects the lungs. Originating from an unknown animal species in China, the virus quickly spread around the world.
+                        The virus can be spread through the air or by touch, though it only lasts a few hours to a few days on a given surface.
+                        People with the disease can be contagious before showing symptoms. Thorough cleaning using disinfecting spray and wipes can help clean surfaces.
+                        Masks and gloves can help limit the spread between people and surfaces when used properly.
+                    </div>
+                    <div style={{ position: "absolute", bottom: 10, left: 0, right: 0, textAlign: "center" }}>
+                        <button onClick={ResetView} style={{ cursor: "pointer", width: 75, backgroundColor: ColorYellow, borderRadius: 5, border: MiniBorder, fontWeight: 700 }}>OK</button>
+                    </div>
+                </div>
+                <div style={{ flex: "none", backgroundColor: "black", height: "100%", overflow: "hidden" }}>
+                    <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                        <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                            <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                    <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                        <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                            <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                                <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                                    <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                                        <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                                            <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                                                <div style={{ backgroundColor: "black", height: "100%", paddingLeft: 2, paddingTop: 2, borderLeft: `2px solid ${ColorYellow}` }}>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             break;
         case "Status":
             centerMenu = <div style={{ padding: 5, ...bodyText, margin: "0 12px" }}>
@@ -825,16 +893,19 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         <div style={{ marginBottom: 12 }}>Current Supplies:</div>
                         <div style={{ marginBottom: 7 }}>{paperTowels} paper towels</div>
                         <div style={{ marginBottom: 7 }}>{cleaningSprays} sprays of disinfectant</div>
-                        <div style={{ marginBottom: 7 }}>5 masks</div>
+                        {/* 
+                        TODO: Add masks and food stuff:
+                         <div style={{ marginBottom: 7 }}>5 masks</div>
                         <div style={{ marginBottom: 7 }}>1 set of gloves</div>
                         <div style={{ marginBottom: 7 }}>100 pounds of food</div>
+                        */}
                     </div>
-                    <div style={{ textAlign: "right", width: "50%" }}>
+                    <div style={{ textAlign: "right", width: 160 }}>
                         <div style={{ marginBottom: 12 }}>Current Health:</div>
                         <div style={{ marginBottom: 5 }}>{yourName} - <span style={{ display: "inline-block", width: 55, textAlign: "center" }}>{yourStatus}</span></div>
-                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 55, textAlign: "center" }}>
+                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}><span style={{ display: "inline-block" }}>{e.name} - </span><span style={{ display: "inline-block", width: 55, textAlign: "center" }}>
                             {HealthMap[e.status] < HealthMap["Sick"] ? (e.mood == "Bad" ? "Angry" : e.status) : e.status}
-                            </span></div>)}
+                        </span></div>)}
                     </div>
                 </div>
                 <div style={{ marginTop: 16 }}>Business: Restaurant </div>
@@ -884,12 +955,12 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
                 <div style={{ ...bodyStyle }}>
-                    <BodyRow left="Money:" right={`$${Math.floor(money)}`} />
+                    <BodyRow left="Money:" right={PrintMoney(money)} />
                     <BodyRow left="Pay:" right={payQ} />
-                    <BodyRow left="Cleanliness:" right={<div style={{color: CleanColorMap[cleanliness]}}>{cleanliness}</div>} />
+                    <BodyRow left="Cleanliness:" right={<div style={{ color: CleanColorMap[cleanliness] }}>{cleanliness}</div>} />
                     <BodyRow left="Hours:" right={hourQ} />
                     <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{ color: "red" }}>Low</div>} />
-                    <BodyRow left="Health:" right={<div style={{textAlign: "right"}}>{avgStatus}</div>} />
+                    <BodyRow left="Health:" right={<div style={{ textAlign: "right" }}>{avgStatus}</div>} />
                     <br />
                     <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />
                 </div>
@@ -924,18 +995,19 @@ export const LogViewer: React.FC = props => {
             }
 
             var el = document.getElementById("logviewer");
-            el!.scrollTop= el!.scrollHeight;
-            console.log("scroll", el!.scrollHeight);
+            if (el) {
+                el!.scrollTop = el!.scrollHeight;
+            }
         }, 500);
     }, [])
 
-    return <div id="logviewer" style={{ overflowY: "scroll", ...basicBoxStyle, flex: "auto"}}>
+    return <div id="logviewer" style={{ overflowY: "scroll", ...basicBoxStyle, flex: "auto" }}>
         <div style={{ display: "flex", flexDirection: "column-reverse" }}>
-        {logs.map((log, i) =>
-            <div key={i}
-                style={{ flex: "none", textAlign: "left", fontSize: 12, fontWeight: 700, ...log.style }}
-            >{log.message}
-            </div>)}
+            {logs.map((log, i) =>
+                <div key={i}
+                    style={{ flex: "none", textAlign: "left", fontSize: 12, fontWeight: 700, ...log.style }}
+                >{log.message}
+                </div>)}
         </div>
     </div>;
 }
@@ -947,9 +1019,9 @@ export const BodyRow: React.FC<{ left: React.ReactNode, right: React.ReactNode }
     </div>;
 }
 
-export const MenuCircle: React.FC<{ image?: string }> = props => {
-    return <div className="menuCircle" style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black", cursor: "pointer" }}>
-        {props.image ? <img src={props.image} style={{ marginTop: 5 }} /> : null}
+export const MenuCircle: React.FC<{ image?: string, onClick?: Callback }> = props => {
+    return <div className="menuCircle"  onClick={props.onClick} style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black", cursor: "pointer" }}>
+        {props.image ? <img onClick={props.onClick} src={props.image} style={{ marginTop: 5 }} /> : null}
     </div>;
 }
 
@@ -983,11 +1055,30 @@ export function CenterMenuItem<T>(props: { name: T, image?: string, onClick?: ()
     </div>;
 }
 
-export function CenterMenu<T>(props: { title: string, items?: { name: T, image?: string }[], setValue: (newValue: T) => void }) {
-    return <div style={{ width: 280 }}>
+export function CenterMenu<T>(props: { title: string, items?: { name: T, image?: string }[], setValue: (newValue: T) => void, helpContent?: React.ReactNode }) {
+    const [viewingHelp, setViewHelp] = React.useState(false);
+
+    if (viewingHelp && props.helpContent) {
+        return <div style={{ ...bodyText, fontSize: 12, padding: "10px 2px", textAlign: "left", position: "relative", height: "100%" }}>
+            {props.helpContent}
+            <div style={{ position: "absolute", bottom: 30, left: 0, right: 0, textAlign: "center" }}>
+                <span style={{ border: "3px solid black", padding: 2, borderRadius: 8 }}>
+                    <button onClick={() => setViewHelp(false)} style={{ cursor: "pointer", width: 75, backgroundColor: ColorYellow, borderRadius: 5, border: MiniBorder, fontWeight: 700 }}>OK</button>
+                </span>
+            </div>
+        </div>
+    }
+
+    return <div style={{ width: 280, position: "relative" }}>
         <div style={{ textAlign: "left", margin: "0 10px", fontSize: 14 }}>{props.title}</div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
             {props.items?.map(item => <CenterMenuItem {...item} onClick={() => { props.setValue(item.name) }} />)}
         </div>
+
+        {props.helpContent
+            ? <div style={{ position: "absolute", top: 0, bottom: 0, right: 16, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <MenuCircle image={Help} onClick={() => setViewHelp(true)} />
+            </div>
+            : null}
     </div>;
 }

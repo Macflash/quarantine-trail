@@ -48,3 +48,19 @@ td {
   outline: 1px solid black;
   padding: 0 1px;
 }
+
+button {
+  background-color: rgb(255,247,138);
+}
+button:active {
+  background-color: black !important;
+  color: white;
+}
+
+button:disabled{
+  border-color: grey;
+}
+
+button:active:disabled{
+  background-color: grey !important;
+}
