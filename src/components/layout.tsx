@@ -355,16 +355,40 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     if(Math.random() < .5){
                         customerIsSick = customerIsSick || Math.random() < (2 * infected / (uninfected + recovered + infected));
                     }
+
+                    let spreadChance = .1;
+                    if(cleanliness == "Dangerous!"){
+                        spreadChance = .7;
+                    }
+                    else if(cleanliness == "Filthy"){
+                        spreadChance = .5;
+                    }
+                    else if(cleanliness == "Dirty"){
+                        spreadChance = .25;
+                    }
+                    else if(cleanliness == "Poor"){
+                        spreadChance = .15;
+                    }
+                    else if(cleanliness == "Fair"){
+                        spreadChance = .1;
+                    }
+                    else if(cleanliness == "Pristine"){
+                        spreadChance = .09;
+                    }
+
                     // TODO: Factor in masks or gloves here! 
-                    if(serverIsSick && Math.random() < .1){
+                    if(serverIsSick && Math.random() < spreadChance){
                         customerIsSick = true; // You spread it!
                         youInfected++;
                     }
 
                     if(customerIsSick){
                         sickCustomers++;
-                        if(Math.random() < .1){
-                            server.status = Health(server.status, -1);
+                        if(Math.random() < spreadChance){
+                            if(HealthMap[server.status] < HealthMap["Coronavirus"]){
+                                console.log(`A sick customer made ${server.name} sick!`);
+                                server.status = "Coronavirus";
+                            }
                         }
                     }
 
@@ -476,10 +500,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         }
                     }
                     else {
-                        // TODO: Handle shift length!
                         // TODO Make this not terrible!
                         var cVal = CleanMap[cleanliness];
-                        var combo = (sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6) //* Math.pow(hVal+1, .5) / HourMap[hourQ];
+                        var combo = Math.sqrt(sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6);
+                        const chance = Math.pow(Math.random(), 1 / combo);
 
                         let SickChance = .9;
                         let HealChance = .1;
@@ -487,18 +511,22 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         if(hourQ == "Short Shifts"){
                             // better chances for health
                             SickChance = .95;
-                            HealChance = .15;
+                            HealChance = .12;
                         }
                         else if(hourQ == "Grueling shifts"){
                             // worse chances for health
-                            SickChance = .89;
+                            SickChance = .85;
                             HealChance = .05;
                         }
 
-                        if (Math.pow(Math.random(), 1 / combo) > SickChance) {
+                        //console.log("Health statistics", Math.round(chance * 100)/100, SickChance, HealChance );
+
+                        if (chance > SickChance) {
+                            console.log(`${e.name} sicker -`);
                             e.status = Health(e.status, -1);
                         }
-                        else if (Math.pow(Math.random(), 1 / combo) < HealChance) {
+                        else if (chance < HealChance) {
+                            console.log(`${e.name} better +`);
                             e.status = Health(e.status, 1);
                         }
                     }
@@ -782,7 +810,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <div style={{ textAlign: "right", width: "50%" }}>
                         <div style={{ marginBottom: 12 }}>Current Health:</div>
                         <div style={{ marginBottom: 5 }}>{yourName} - <span style={{ display: "inline-block", width: 55, textAlign: "center" }}>{yourStatus}</span></div>
-                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 45, textAlign: "center" }}>
+                        {employees.map((e, i) => <div key={i} style={{ marginBottom: 5 }}>{e.name} - <span style={{ display: "inline-block", width: 55, textAlign: "center" }}>
                             {HealthMap[e.status] < HealthMap["Sick"] ? (e.mood == "Bad" ? "Angry" : e.status) : e.status}
                             </span></div>)}
                     </div>
@@ -834,12 +862,12 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 <div style={{ ...headerStyle, marginTop: 10 }}>Store</div>
                 <div style={{ ...bodyStyle }}>
-                    <BodyRow left="Money:" right={`$${money}`} />
+                    <BodyRow left="Money:" right={`$${Math.floor(money)}`} />
                     <BodyRow left="Pay:" right={payQ} />
                     <BodyRow left="Cleanliness:" right={cleanliness} />
                     <BodyRow left="Hours:" right={hourQ} />
                     <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{ color: "red" }}>Low</div>} />
-                    <BodyRow left="Health:" right={avgStatus} />
+                    <BodyRow left="Health:" right={<div style={{textAlign: "right"}}>{avgStatus}</div>} />
                     <br />
                     <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />
                 </div>
