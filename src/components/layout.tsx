@@ -132,6 +132,16 @@ export const ReverseHealthMap: ReverseLookup<Health> = {
     6: "Deceased",
 };
 
+export const HealthScoreMap: { [P in Health]: number } = {
+    "Good": 10000,
+    "Fair": 5000,
+    "Poor": 1000,
+    "Sick": -1000,
+    "Coronavirus": -5000,
+    "Severe Coronavirus": -10000,
+    "Deceased": -50000,
+}
+
 export const Health = (currentValue: Health, change: number): Health => {
     let cur = HealthMap[currentValue];
     cur -= change;
@@ -146,6 +156,13 @@ export const MoodMap: Lookup<Mood> = {
     "Ok": 1,
     "Bad": 2,
 };
+
+export const MoodScoreMap: { [P in Mood]: number } = {
+    "Good": 500,
+    "Ok": 200,
+    "Bad": -100,
+}
+
 export const ReverseMoodMap: ReverseLookup<Mood> = {
     0: "Good",
     1: "Ok",
@@ -185,14 +202,6 @@ export const ReverseCleanMap: ReverseLookup<Cleanliness> = {
     5: "Dangerous!",
 };
 
-export const CleanColorMap: { [P in Cleanliness]: string | undefined } = {
-    "Pristine": "blue",
-    "Fair": undefined,
-    "Poor": undefined,
-    "Dirty": "darkred",
-    "Filthy": "darkred",
-    "Dangerous!": "red",
-}
 
 export const Clean = (currentValue: Cleanliness, change: number): Cleanliness => {
     let cur = CleanMap[currentValue];
@@ -200,6 +209,16 @@ export const Clean = (currentValue: Cleanliness, change: number): Cleanliness =>
     if (cur > 5) { cur = 5; }
     if (cur < 0) { cur = 0; }
     return ReverseCleanMap[cur];
+}
+
+
+export const CleanColorMap: { [P in Cleanliness]: string | undefined } = {
+    "Pristine": "blue",
+    "Fair": undefined,
+    "Poor": undefined,
+    "Dirty": "darkred",
+    "Filthy": "darkred",
+    "Dangerous!": "red",
 }
 
 export interface Game {
@@ -247,11 +266,15 @@ var infectionGraph = [0];
 var deceasedGraph = [0];
 var moneyGraph = [1600];
 
+var totalYouInfected = 0;
+
 const MaxDebt = 100000;
 
 const PrintMoney = (money: number): string => {
     return `$${Number(Math.round(money)).toLocaleString()}.00`
 }
+
+const startDate = new Date("02/02/2020");
 
 export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [paused, setPaused] = React.useState(false);
@@ -268,14 +291,14 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [game, setGame] = React.useState<Game>(startingGame ? {...startingGame, date: new Date(startingGame.date)} : {
         infectRate: "Normal",
 
-        date: new Date("02/02/2020"),
+        date: startDate,
         uninfected: 2000000,
         infected: 1,
         deceased: 0,
         recovered: 0,
 
         money: 1600,
-        debt: 10000,
+        debt: 0,
         yourName: StartingName,
         yourStatus: "Good",
         businessName: StartingBusinessName,
@@ -298,7 +321,27 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         setTimeout(() => {
             if (debt <= 0 && infected == 0) {
                 props.gameOver?.();
-                alert("You win! You survived the pandemic and stayed in business!");
+                let score = 0;
+                score += money;
+                let empHp = 0;
+                employees.forEach(e => {
+                    empHp += HealthScoreMap[e.status];
+                    empHp += e.status == "Deceased" ? 0 : MoodScoreMap[e.mood];
+                });
+
+                score+= empHp;
+
+                score *= Number(startDate) / Number(date);
+
+                score -= totalYouInfected * 500;
+
+                alert(`You win! 
+                You survived the pandemic and stayed in business! 
+                You scored ${score}pts!
+                Money: $${money} -> ${money}pts
+                Employee Health: ${empHp} pts
+                Customers you got sick: ${totalYouInfected} -> -${totalYouInfected *500}pts
+                `);
             }
             if (!paused) {
                 if (money < 0 && debt < MaxDebt) {
@@ -697,6 +740,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 infectionGraph.push(newInfected);
                 deceasedGraph.push(deceased + deaths);
                 moneyGraph.push(money);
+                totalYouInfected += youInfected;
                 setGame({
                     ...game,
                     date: newDate,
