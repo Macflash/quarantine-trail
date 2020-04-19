@@ -1,4 +1,5 @@
 import * as React from "react";
+import Background from "../images/storeback.png";
 import { basicBoxStyle, ColorYellow, Callback, buttonStyle, MiniBorder } from "./layout";
 import { ConstrainRange, ParseConstrainRange } from "../utils";
 
@@ -17,8 +18,10 @@ export const SupplyStore: React.FC<{money: number, paperTowels: number, cleaning
     const total = costTowel + costSpray;
 
      return <div style={{position: "absolute", top:0,left:0,right:0, bottom:0,backgroundColor: ColorYellow, fontWeight: 700}}>
-        <div>Alex's General Store</div>
-        <table>
+         <img src={Background} />
+        <div style={{position: "absolute", right: 0, bottom: 0, backgroundColor: ColorYellow, border: MiniBorder, width: 420, height: 300}}>
+        <div style={{marginBottom: 16}}>Alex's General Store</div>
+        <table style={{width: "100%"}}>
             <tr style={{textAlign: "left"}}>
                 <th>Have</th>
                 <th>Buy</th>
@@ -57,6 +60,7 @@ export const SupplyStore: React.FC<{money: number, paperTowels: number, cleaning
             disabled={total > props.money || total < 0}
              style={{...buttonStyle, border: MiniBorder, margin: 10, width: undefined, display: "inline-block"}} 
              onClick={()=>props.onBuy(buyTowel * perRoll, buySpray * perBottle, total)}>Buy</button>
+        </div>
         </div>
     </div>
 }
