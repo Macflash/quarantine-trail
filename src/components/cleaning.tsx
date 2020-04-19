@@ -56,7 +56,9 @@ const playVirusSound = () => {
     var audio = new Audio(pick);
     audio.volume = .25;
 
-    if (pick == cough_sound) { audio.volume = .05; }
+    if (pick == sneeze_sound) { audio.volume = .05; }
+    if (pick == cough_sound) { audio.volume = .005; }
+    if (pick == smallcough_sound) { audio.volume = .1; }
     if (pick == backgroundnoise_sound) { audio.volume = .4; }
 
     audio.play();
