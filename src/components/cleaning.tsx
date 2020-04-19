@@ -151,15 +151,23 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                 <div style={{ ...basicBoxStyle, color: paperTowels <= 0 ? "red" : undefined }}>Paper Towels: {paperTowels}</div>
             </div>
 
-            <img style={{ position: "absolute", left: 0, top: 50, zIndex: 1 }} src={spray} />
-            <img style={{ position: "absolute", left: 0, top: 50, zIndex: 2 }} src={towel} />
+            <img style={{ position: "absolute", left: 0, top: 50, zIndex: 3 }} src={spray} />
+            <img style={{ position: "absolute", left: 0, top: 50, zIndex: 4 }} src={towel} />
             <canvas
-                style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, zIndex: 3 }}
+                style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, zIndex: 1 }}
                 width={618}
                 height={465}
                 id="viruscanvas"
             />
-            <canvas draggable={paperTowels > 0} onDragOver={ev => {
+            <canvas 
+                style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, zIndex: 2 }}
+                width={618}
+                height={465}
+                id="cleancanvas"
+            />
+            <div id="dragger!" style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0, height: 465, width: 618, zIndex: 10}}
+            draggable={paperTowels > 0} 
+            onDragOver={ev => {
                 const canv = document.getElementById("cleancanvas") as HTMLCanvasElement;
                 const rect = canv!.getBoundingClientRect()
                 const x = ev.clientX - rect.left
@@ -169,17 +177,20 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                 const size = 100;
                 const half = size / 2;
                 ctx?.clearRect(x - half, y - half, size, size);
-            }} onDragStart={ev => {
+            }} 
+            onDragStart={ev => {
                 playWipe();
                 setPaperTowels(paperTowels - 1);
                 ev.dataTransfer.setDragImage(wipe, 50, 50);
                 console.log("drag!!");
                 setTowel(Towel2);
-            }} onDragEnd={() => {
+            }} 
+            onDragEnd={() => {
                 console.log("drag!!");
                 setTowel(Towel1);
             }}
                 onClick={(ev) => {
+                    console.log("clicked!");
                     if (cleaningSprays <= 0) { return; }
                     playSpray();
                     setCleaningSprays(cleaningSprays - 1);
@@ -212,12 +223,7 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                     setTimeout(() => {
                         setSpray(Spray1);
                     }, 150);
-                }}
-                style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, zIndex: 4 }}
-                width={618}
-                height={465}
-                id="cleancanvas"
-            />
+                }}></div>
         </div>
     </div>;
 }
