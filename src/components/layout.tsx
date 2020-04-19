@@ -319,7 +319,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     React.useEffect(() => {
         // advance the days!
         setTimeout(() => {
-            if (debt <= 0 && infected == 0) {
+            if (debt <= 0 && infected == 0 && date > new Date("04/04/2020")) {
                 props.gameOver?.();
                 let score = 0;
                 score += money;
@@ -331,13 +331,13 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 score+= empHp;
 
-                score *= Number(startDate) / Number(date);
 
                 score -= totalYouInfected * 500;
+                score *= Number(startDate) / Number(date);
 
                 alert(`You win! 
                 You survived the pandemic and stayed in business! 
-                You scored ${score}pts!
+                You scored ${Math.round(score)}pts!
                 Money: $${money} -> ${money}pts
                 Employee Health: ${empHp} pts
                 Customers you got sick: ${totalYouInfected} -> -${totalYouInfected *500}pts
@@ -581,11 +581,11 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         }
 
                         if (chance > SickChance) {
-                            console.log(`${e.name} sicker -`);
+                            //console.log(`${e.name} sicker -`);
                             e.status = Health(e.status, -1);
                         }
                         else if (chance < HealChance) {
-                            console.log(`${e.name} better +`);
+                            //console.log(`${e.name} better +`);
                             e.status = Health(e.status, 1);
                         }
                     }

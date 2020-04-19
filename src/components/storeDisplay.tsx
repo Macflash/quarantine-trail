@@ -46,7 +46,7 @@ export const StoreDisplay: React.FC<{ paused: boolean, customers: number, height
                 leaver.dir = "right";
             }
 
-            customers = customers.filter(c => c.y < width + 5);
+            customers = customers.filter(c => !isNaN(c.y) && !isNaN(c.x) && c.y < width + 5);
             
             const speed = 3;
             customers.forEach(c => {
@@ -77,17 +77,19 @@ export const StoreDisplay: React.FC<{ paused: boolean, customers: number, height
                 customers.forEach(otherC => {
                     if(c == otherC){return;}
 
-                    const forceX = 1 / Math.pow(c.x - otherC.x, 2);
-                    const forceY = 1 / Math.pow(c.y - otherC.y, 2);
-                    c.x += ConstrainRange(forceX * (c.x - otherC.x), 0, 1);
+                    const forceX = 1 / (Math.pow(c.x - otherC.x, 2)+1);
+                    const forceY = 1 / (Math.pow(c.y - otherC.y, 2)+1);
+                    //c.x += ConstrainRange(forceX * (c.x - otherC.x), 0, 1);
                     c.y += ConstrainRange(forceY * (c.y - otherC.y), 0, 1);
                 })
+
 
                 c.x = ConstrainRange(c.x, minX, maxX);
                 c.y = ConstrainRange(c.y, 0, width);
             });
 
             setC([...customers]);
+            console.log(customers);
         }, 100);
 
         return () => clearInterval(interval);
