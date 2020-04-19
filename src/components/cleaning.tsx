@@ -142,7 +142,7 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
     return <div style={{ overflow: "hidden", cursor: `url(${CrossHair}) 12 12, crosshair`, position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "green" }}>
         <div style={{ position: "relative" }}>
 
-            <div style={{ position: "absolute", top: 430, bottom: 0, right: 0, zIndex: 8 }}>
+            <div style={{ position: "absolute", top: 430, bottom: 0, right: 0, zIndex: 12 }}>
                 <button style={{ ...buttonStyle }} onClick={() => props.close(killed / virusesPerRun, cleaningSprays, paperTowels)}>Quit</button>
             </div>
 

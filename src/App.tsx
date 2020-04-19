@@ -6,7 +6,7 @@ import { City, CityView, AdvanceCity } from './views/city';
 import { useHistory, PickRandom } from './utils';
 import { BarDisplay } from './components/barDisplay';
 import { StoreDisplay } from './components/storeDisplay';
-import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBorder, buttonStyle, MiniBorder, ColorYellow, MenuCircle, Employee } from './components/layout';
+import { Layout, ColorOrange, OuterBorder, headerStyle, basicBoxStyle, InnerBorder, buttonStyle, MiniBorder, ColorYellow, MenuCircle, Employee, ColorBrown } from './components/layout';
 
 import Help from './images/help.png';
 import Eagle from './images/eagle.png';
@@ -26,7 +26,7 @@ const textBlockStyle: React.CSSProperties = {
   fontSize: 13
 }
 
-const enableDevMode = true;
+const enableDevMode = false;
 export const isDev = window.location.href.indexOf("localhost") >= 0  && enableDevMode;
 
 export var yourName = isDev ? "YOU" : "";
@@ -132,6 +132,7 @@ const Menu: React.FC<{ onClick: () => void }> = props => {
       <button style={{ ...buttonStyle, width: "20%", border: MiniBorder }}>Quit</button>
       <button style={{ ...buttonStyle, width: "25%", border: MiniBorder }} onClick={props.onClick}>Travel the Trail</button>
     </div>
+    <div style={{position: "absolute", right: 10, bottom: -30, fontSize: 12, color: ColorBrown}}>© 2020</div>
   </div>;
 }
 
