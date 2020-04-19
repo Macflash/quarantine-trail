@@ -255,8 +255,15 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     React.useEffect(() => {
         // advance the days!
         setTimeout(() => {
+            if(debt <= 0 && infected == 0){
+                alert("You win! You survived the pandemic and stayed in business!");
+            }
             //console.log("running")
             if (!paused) {
+                if(money < 0){
+                    setPaused(true);
+                    alert("Oh no, you are out of money! Better go to the bank!");
+                }
                 // increment date
                 let newDate = new Date(date);
                 newDate.setDate(newDate.getDate() + 1);
