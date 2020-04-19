@@ -33,6 +33,7 @@ import { BarDisplay } from './barDisplay';
 import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog } from '../App';
 
 import { employees as StartEmployees } from '../App';
+import { CleaningView } from './cleaning';
 
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
@@ -536,6 +537,9 @@ export const Layout: React.FC<{gameOver?: Callback}> = props => {
                 ]}
             />;
             break;
+        case "Cleaning":
+            centerMenu = <CleaningView close={ResetView} />;
+            break;
         case "Chart":
             centerMenu = <BarDisplay values={infectionGraph} />;
             break;
@@ -581,7 +585,7 @@ export const Layout: React.FC<{gameOver?: Callback}> = props => {
     avgHealth /= employees.length;
     const avgStatus = ReverseHealthMap[Math.round(avgHealth)];
 
-    return <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", backgroundColor: ColorBrown, height: "100%", padding: margin, border: MiniBorder }}>
+    return <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "stretch", backgroundColor: ColorBrown, height: "100%", padding: margin, border: MiniBorder }}>
         <VerticalMenu setView={setView} items={[
             { image: Buy, name: "Store" },
             { image: Help, name: "Guide" },
@@ -638,9 +642,9 @@ export const Layout: React.FC<{gameOver?: Callback}> = props => {
         <VerticalMenu setView={setView} items={[
             { image: Supplies, name: "Supplies" },
             { image: News, name: "News" },
-            { image: Cleaning, name: "Cleaning" },
             { image: Hours, name: "Hours" },
             { image: Finances, name: "Bank" },
+            { image: Cleaning, name: "Cleaning" },
         ]} />
     </div>;
 }
