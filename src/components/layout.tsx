@@ -30,7 +30,7 @@ import Tweet from '../images/shitnews.png';
 
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
-import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog } from '../App';
+import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog, tickSpeed } from '../App';
 
 import { employees as StartEmployees } from '../App';
 import { CleaningView } from './cleaning';
@@ -713,7 +713,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     yourStatus: yourNewStatus,
                 });
             }
-        }, isDev ? 500 : 4000);
+        }, isDev ? 500 : tickSpeed);
     }, [paused, game])
 
     let centerMenu = <StoreDisplay paused={paused} customers={customers} height={220} width={280} />;

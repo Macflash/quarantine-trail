@@ -9,6 +9,7 @@ import Wipe1 from '../images/wipe1.png';
 import Virus1 from '../images/virus.png';
 import { InRange, PickRandom } from "../utils";
 import { buttonStyle, basicBoxStyle } from "./layout";
+import { virusCount } from "../App";
 
 type Direction = "up" | "down" | "left" | "right";
 var viruses: { x: number, y: number, img: HTMLImageElement, dir: Direction, dead: boolean }[] = [];
@@ -27,8 +28,6 @@ var cleanctx: CanvasRenderingContext2D | null = null;
 
 var spawned = 0;
 var killed = 0;
-
-const virusesPerRun = 50;
 
 const spray_sound = require("../sounds/spray.mp3");
 const wipe_sound = require("../sounds/wipe.mp3");
@@ -86,7 +85,7 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
 
         if (interval) { clearInterval(interval) }
         interval = setInterval(() => {
-            if (spawned < virusesPerRun) {
+            if (spawned < virusCount) {
                 if (Math.random() < .1) {
                     if (Math.random() < .2) {
                         playVirusSound();
@@ -143,7 +142,7 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
         <div style={{ position: "relative" }}>
 
             <div style={{ position: "absolute", top: 430, bottom: 0, right: 0, zIndex: 12 }}>
-                <button style={{ ...buttonStyle }} onClick={() => props.close(killed / virusesPerRun, cleaningSprays, paperTowels)}>Quit</button>
+                <button style={{ ...buttonStyle }} onClick={() => props.close(killed / virusCount, cleaningSprays, paperTowels)}>Quit</button>
             </div>
 
             <div style={{ position: "absolute", top: 410, bottom: 0, left: 0, zIndex: 8 }}>
