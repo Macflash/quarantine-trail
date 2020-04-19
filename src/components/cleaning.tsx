@@ -8,7 +8,7 @@ import Water1 from '../images/water2.png';
 import Wipe1 from '../images/wipe1.png';
 import Virus1 from '../images/virus.png';
 import { InRange } from "../utils";
-import { buttonStyle } from "./layout";
+import { buttonStyle, basicBoxStyle } from "./layout";
 
 type Direction = "up" | "down" | "left" | "right";
 var viruses: { x: number, y: number, img: HTMLImageElement, dir: Direction, dead: boolean }[] = [];
@@ -28,9 +28,13 @@ var cleanctx: CanvasRenderingContext2D | null = null;
 var spawned = 0;
 var killed = 0;
 
-export const CleaningView: React.FC<{ close: (score: number) => void }> = props => {
+const virusesPerRun = 50;
+
+export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: number, close: (score: number, sprays: number, towels: number) => void }> = props => {
     const [spray, setSpray] = React.useState(Spray1);
     const [towel, setTowel] = React.useState(Towel1);
+    const [paperTowels, setPaperTowels] = React.useState(props.paperTowels);
+    const [cleaningSprays, setCleaningSprays] = React.useState(props.cleaningSprays);
 
     React.useEffect(() => {
         spawned = 0;
@@ -38,7 +42,7 @@ export const CleaningView: React.FC<{ close: (score: number) => void }> = props 
 
         if (interval) { clearInterval(interval) }
         interval = setInterval(() => {
-            if (spawned < 50) {
+            if (spawned < virusesPerRun) {
                 if (Math.random() < .1) {
                     spawned++;
                     viruses.push({
@@ -62,7 +66,7 @@ export const CleaningView: React.FC<{ close: (score: number) => void }> = props 
             }
             else if (viruses.length == 0) {
                 clearInterval(interval);
-                props.close(killed / spawned);
+                props.close(killed / spawned, cleaningSprays, paperTowels);
                 alert(`Done! you got ${killed} out of ${spawned}`);
                 return;
             }
@@ -91,9 +95,15 @@ export const CleaningView: React.FC<{ close: (score: number) => void }> = props 
     return <div style={{ overflow: "hidden", cursor: `url(${CrossHair}) 12 12, crosshair`, position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "green" }}>
         <div style={{ position: "relative" }}>
 
-            <div style={{ position: "absolute", top: 0, bottom: 0, right: 0, zIndex: 8 }}>
-                <button style={{ ...buttonStyle }} onClick={() => props.close(0)}>Quit</button>
+            <div style={{ position: "absolute", top: 430, bottom: 0, right: 0, zIndex: 8 }}>
+                <button style={{ ...buttonStyle }} onClick={() => props.close(killed / virusesPerRun, cleaningSprays, paperTowels)}>Quit</button>
             </div>
+
+            <div style={{ position: "absolute", top: 410, bottom: 0, left: 0, zIndex: 8 }}>
+                <div style={{ ...basicBoxStyle, color: cleaningSprays <= 0 ? "red" : undefined }}>Cleaning spray: {cleaningSprays}</div>
+                <div style={{ ...basicBoxStyle, color: paperTowels <= 0 ? "red" : undefined }}>Paper Towels: {paperTowels}</div>
+            </div>
+
             <img style={{ position: "absolute", left: 0, top: 50, zIndex: 1 }} src={spray} />
             <img style={{ position: "absolute", left: 0, top: 50, zIndex: 2 }} src={towel} />
             <canvas
@@ -102,7 +112,7 @@ export const CleaningView: React.FC<{ close: (score: number) => void }> = props 
                 height={465}
                 id="viruscanvas"
             />
-            <canvas draggable onDragOver={ev => {
+            <canvas draggable={paperTowels > 0} onDragOver={ev => {
                 const canv = document.getElementById("cleancanvas") as HTMLCanvasElement;
                 const rect = canv!.getBoundingClientRect()
                 const x = ev.clientX - rect.left
@@ -113,6 +123,7 @@ export const CleaningView: React.FC<{ close: (score: number) => void }> = props 
                 const half = size / 2;
                 ctx?.clearRect(x - half, y - half, size, size);
             }} onDragStart={ev => {
+                setPaperTowels(paperTowels - 1);
                 ev.dataTransfer.setDragImage(wipe, 50, 50);
                 console.log("drag!!");
                 setTowel(Towel2);
@@ -121,6 +132,8 @@ export const CleaningView: React.FC<{ close: (score: number) => void }> = props 
                 setTowel(Towel1);
             }}
                 onClick={(ev) => {
+                    if (cleaningSprays <= 0) { return; }
+                    setCleaningSprays(cleaningSprays - 1);
                     cleancanv = cleancanv ?? document.getElementById("cleancanvas") as HTMLCanvasElement;
                     const rect = cleancanv!.getBoundingClientRect()
                     const x = ev.clientX - rect.left
