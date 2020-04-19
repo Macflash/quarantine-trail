@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/quarantine-trail/static/css/main.8cd67856.chunk.css",
-    "main.js": "/quarantine-trail/static/js/main.31ce61ba.chunk.js",
-    "main.js.map": "/quarantine-trail/static/js/main.31ce61ba.chunk.js.map",
+    "main.js": "/quarantine-trail/static/js/main.51b757f2.chunk.js",
+    "main.js.map": "/quarantine-trail/static/js/main.51b757f2.chunk.js.map",
     "runtime-main.js": "/quarantine-trail/static/js/runtime-main.a36e4c1d.js",
     "runtime-main.js.map": "/quarantine-trail/static/js/runtime-main.a36e4c1d.js.map",
     "static/js/2.9fc39b7b.chunk.js": "/quarantine-trail/static/js/2.9fc39b7b.chunk.js",
     "static/js/2.9fc39b7b.chunk.js.map": "/quarantine-trail/static/js/2.9fc39b7b.chunk.js.map",
     "index.html": "/quarantine-trail/index.html",
-    "precache-manifest.94a8cc839b1f0688493e2b35bf4d16f0.js": "/quarantine-trail/precache-manifest.94a8cc839b1f0688493e2b35bf4d16f0.js",
+    "precache-manifest.530479e2f10d0ce4e2b45f379115b6aa.js": "/quarantine-trail/precache-manifest.530479e2f10d0ce4e2b45f379115b6aa.js",
     "service-worker.js": "/quarantine-trail/service-worker.js",
     "static/css/main.8cd67856.chunk.css.map": "/quarantine-trail/static/css/main.8cd67856.chunk.css.map",
     "static/js/2.9fc39b7b.chunk.js.LICENSE.txt": "/quarantine-trail/static/js/2.9fc39b7b.chunk.js.LICENSE.txt",
@@ -16,6 +16,8 @@
     "static/media/backgroundnoise.mp3": "/quarantine-trail/static/media/backgroundnoise.8d4f3006.mp3",
     "static/media/clean music.wav": "/quarantine-trail/static/media/clean music.ff1ce7b2.wav",
     "static/media/cough.mp3": "/quarantine-trail/static/media/cough.74d61e5a.mp3",
+    "static/media/eagle.png": "/quarantine-trail/static/media/eagle.17a8ab26.png",
+    "static/media/eagle_r.png": "/quarantine-trail/static/media/eagle_r.0237e28f.png",
     "static/media/graph.png": "/quarantine-trail/static/media/graph.e774b7c6.png",
     "static/media/help.png": "/quarantine-trail/static/media/help.392a8b16.png",
     "static/media/longshift.png": "/quarantine-trail/static/media/longshift.2df3933a.png",
@@ -39,6 +41,6 @@
     "static/js/runtime-main.a36e4c1d.js",
     "static/js/2.9fc39b7b.chunk.js",
     "static/css/main.8cd67856.chunk.css",
-    "static/js/main.31ce61ba.chunk.js"
+    "static/js/main.51b757f2.chunk.js"
   ]
 }
