@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "c3eb2ac091429c7a1a4b3586936f6c87",
+    "revision": "2f83f463903e32c06370c6fb4f99287c",
     "url": "/quarantine-trail/index.html"
   },
   {
-    "revision": "79f98da3cf1212272f09",
+    "revision": "b4472f26e6f8ab5d2ae8",
     "url": "/quarantine-trail/static/css/main.37274586.chunk.css"
   },
   {
-    "revision": "e151b97e76ae4d554cec",
-    "url": "/quarantine-trail/static/js/2.7591570d.chunk.js"
+    "revision": "0d36477fb219d11d1cd9",
+    "url": "/quarantine-trail/static/js/2.808bfebf.chunk.js"
   },
   {
     "revision": "e88a3e95b5364d46e95b35ae8c0dc27d",
-    "url": "/quarantine-trail/static/js/2.7591570d.chunk.js.LICENSE.txt"
+    "url": "/quarantine-trail/static/js/2.808bfebf.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "79f98da3cf1212272f09",
-    "url": "/quarantine-trail/static/js/main.346a82b2.chunk.js"
+    "revision": "b4472f26e6f8ab5d2ae8",
+    "url": "/quarantine-trail/static/js/main.3d39a288.chunk.js"
   },
   {
     "revision": "e6273734f052dc856e75",
@@ -60,6 +60,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/quarantine-trail/static/media/supplies.1521c45c.png"
   },
   {
+    "revision": "4eb7457ab61774f4cba6cde39773e6fa",
+    "url": "/quarantine-trail/static/media/towel2.4eb7457a.png"
+  },
+  {
     "revision": "89a40b1c3c0671a11ee8155b2040ab3f",
     "url": "/quarantine-trail/static/media/virus1.89a40b1c.bmp"
   },
@@ -70,5 +74,9 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "366f569bf950477905badf925cabae2b",
     "url": "/quarantine-trail/static/media/virus3.366f569b.bmp"
+  },
+  {
+    "revision": "a7f92de4adba44885f384606d2e46c1d",
+    "url": "/quarantine-trail/static/media/water2.a7f92de4.png"
   }
 ]);
