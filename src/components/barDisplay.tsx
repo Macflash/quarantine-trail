@@ -1,14 +1,16 @@
 
 import React from 'react';
+import { ColorYellow } from './layout';
 
 export const BarBlock: React.FC<{ value: number, max: number, color?: string }> = props => {
     return <div
-     title={props.value +""} 
-     style={{ 
-         flex: "auto",
-          border: `1px solid ${props.color || "orange"}`, 
-          backgroundColor: props.color || "orange", 
-          height: `${100 * props.value / props.max}%`, minWidth: .1, maxWidth: 100 }}></div>
+        title={props.value + ""}
+        style={{
+            flex: "auto",
+            border: `1px solid ${props.color || "orange"}`,
+            backgroundColor: props.color || "orange",
+            height: `${100 * props.value / props.max}%`, minWidth: .1, maxWidth: 100
+        }}></div>
 }
 
 export const BarDisplay: React.FC<{ values: number[], fillColor?: string }> = props => {
@@ -25,8 +27,8 @@ export const BarDisplay: React.FC<{ values: number[], fillColor?: string }> = pr
 
 
     return <div style={{ position: "relative", display: "flex", flexDirection: "row", height: 50, alignItems: "flex-end", justifyContent: "center", margin: 10, overflowX: "auto" }}>
-        <div style={{position: "absolute", top: 0, left: 0, borderTop: "1px solid black"}}>{max}</div>
-        <div style={{position: "absolute", bottom: 0, left: 0, borderBottom: "1px solid black"}}>{0}</div>
+        <div style={{ backgroundColor: ColorYellow, position: "absolute", top: 0, left: 0, borderTop: "1px solid black" }}>{max}</div>
+        <div style={{ backgroundColor: ColorYellow, position: "absolute", bottom: 0, left: 0, borderBottom: "1px solid black" }}>{0}</div>
         {c}
-        </div>
+    </div>
 }
