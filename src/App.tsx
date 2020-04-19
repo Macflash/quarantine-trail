@@ -67,6 +67,7 @@ function App() {
   const [stage, setStage] = React.useState<Stage>(isDev ? "Game" : "Menu");
 
   let layout = <Layout gameOver={()=>{
+    Logs = [];
     employees.forEach(e=>e.status = "Good");
     setStage("Menu");
   }} />;

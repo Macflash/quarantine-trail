@@ -185,6 +185,15 @@ export const ReverseCleanMap: ReverseLookup<Cleanliness> = {
     5: "Dangerous!",
 };
 
+export const CleanColorMap: { [P in Cleanliness]: string | undefined } = {  
+    "Pristine": "blue",
+    "Fair": undefined,
+    "Poor": undefined,
+    "Dirty": "darkred",
+    "Filthy": "darkred",
+    "Dangerous!": "red",
+}
+
 export const Clean = (currentValue: Cleanliness, change: number): Cleanliness => {
     let cur = CleanMap[currentValue];
     cur -= change;
@@ -864,7 +873,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 <div style={{ ...bodyStyle }}>
                     <BodyRow left="Money:" right={`$${Math.floor(money)}`} />
                     <BodyRow left="Pay:" right={payQ} />
-                    <BodyRow left="Cleanliness:" right={cleanliness} />
+                    <BodyRow left="Cleanliness:" right={<div style={{color: CleanColorMap[cleanliness]}}>{cleanliness}</div>} />
                     <BodyRow left="Hours:" right={hourQ} />
                     <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{ color: "red" }}>Low</div>} />
                     <BodyRow left="Health:" right={<div style={{textAlign: "right"}}>{avgStatus}</div>} />

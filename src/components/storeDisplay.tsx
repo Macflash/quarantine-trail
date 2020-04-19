@@ -73,9 +73,19 @@ export const StoreDisplay: React.FC<{ paused: boolean, customers: number, height
                     c.dist = Math.round(PickRandom([10, 25, 50])/ speed);
                 }
 
+                // push apart
+                customers.forEach(otherC => {
+                    if(c == otherC){return;}
+
+                    const forceX = 1 / Math.pow(c.x - otherC.x, 2);
+                    const forceY = 1 / Math.pow(c.y - otherC.y, 2);
+                    c.x += forceX * (c.x - otherC.x);
+                    c.y += forceY * (c.y - otherC.y);
+                })
+
                 c.x = ConstrainRange(c.x, minX, maxX);
                 c.y = ConstrainRange(c.y, 0, width);
-            })
+            });
 
             setC([...customers]);
         }, 100);
