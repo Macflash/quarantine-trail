@@ -28,7 +28,7 @@ export const isDev = window.location.href.indexOf("localhost") >= 0 && enableDev
 export var yourName = isDev ? "YOU" : "";
 export var businessName = PickRandom(["OK Food!", "Eat 'r Up!", "Burgers and More Things", "Fancy Fish", "Mario's Asian Fusion", "Leftover's Cafe", "Papi Juan's"]);
 
-export var startingGame = null;
+export var startingGame: Game | null = null;
 
 export var employees: Employee[] = [
   { name: PickRandom(["Bert", "Simon", "Sampson"]), status: "Good", mood: "Ok" },

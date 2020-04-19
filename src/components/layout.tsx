@@ -240,6 +240,7 @@ const Randomize = (base: number, variation: number): number => {
     return Math.round(base - variation + (Math.random() * 2 * variation));
 }
 
+// TODO: all of this needs to be in the SAVED game....
 var month = 0;
 var customers = 0;
 var infectionGraph = [0];
@@ -264,7 +265,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
 
-    const [game, setGame] = React.useState<Game>(startingGame ?? {
+    const [game, setGame] = React.useState<Game>(startingGame ? {...startingGame, date: new Date(startingGame.date)} : {
         infectRate: "Normal",
 
         date: new Date("02/02/2020"),
