@@ -8,6 +8,7 @@ import Water1 from '../images/water2.png';
 import Wipe1 from '../images/wipe1.png';
 import Virus1 from '../images/virus.png';
 import { InRange } from "../utils";
+import { buttonStyle } from "./layout";
 
 type Direction = "up" | "down" | "left" | "right";
 var viruses: { x: number, y: number, img: HTMLImageElement, dir: Direction, dead: boolean }[] = [];
@@ -20,14 +21,14 @@ var v1 = document.createElement("img");
 v1.src = Virus1;
 
 var vcanv: HTMLCanvasElement | null = null;
-var vctx: CanvasRenderingContext2D  | null = null;
+var vctx: CanvasRenderingContext2D | null = null;
 var cleancanv: HTMLCanvasElement | null = null;
-var cleanctx: CanvasRenderingContext2D  | null = null;
+var cleanctx: CanvasRenderingContext2D | null = null;
 
 var spawned = 0;
 var killed = 0;
 
-export const CleaningView: React.FC<{ close: () => void }> = props => {
+export const CleaningView: React.FC<{ close: (score: number) => void }> = props => {
     const [spray, setSpray] = React.useState(Spray1);
     const [towel, setTowel] = React.useState(Towel1);
 
@@ -37,35 +38,37 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
 
         if (interval) { clearInterval(interval) }
         interval = setInterval(() => {
-            if(spawned > 50){
-                alert(`Done! you got ${killed} out of ${spawned} and missed ${missed}`)
+            if (spawned < 50) {
+                if (Math.random() < .1) {
+                    spawned++;
+                    viruses.push({
+                        dead: false,
+                        dir: "right",
+                        img: v1,
+                        x: -50,
+                        y: InRange(0, 300)
+                    });
+                }
+                else if (Math.random() < .1) {
+                    spawned++;
+                    viruses.push({
+                        dead: false,
+                        dir: "left",
+                        img: v1,
+                        x: 650,
+                        y: InRange(0, 300)
+                    });
+                }
+            }
+            else if (viruses.length == 0) {
                 clearInterval(interval);
+                props.close(killed / spawned);
+                alert(`Done! you got ${killed} out of ${spawned}`);
                 return;
             }
 
-            if (Math.random() < .1) {
-                spawned++;
-                viruses.push({
-                    dead: false,
-                    dir: "right",
-                    img: v1,
-                    x: -50,
-                    y: InRange(0, 500)
-                });
-            }
-            else if (Math.random() < .1) {
-                spawned++;
-                viruses.push({
-                    dead: false,
-                    dir: "left",
-                    img: v1,
-                    x: 650,
-                    y: InRange(0, 500)
-                });
-            }
-
             viruses.forEach(v => {
-                if(v.dead){ return; }
+                if (v.dead) { return; }
                 if (v.dir == "left") {
                     v.x -= 30;
                 }
@@ -82,11 +85,15 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
             viruses.forEach(v => vctx?.drawImage(v.img, v.x, v.y))
         }, 100);
 
-        return () => {clearInterval(interval); vcanv = null; vctx = null; cleanctx = null; cleancanv = null; };
+        return () => { clearInterval(interval); vcanv = null; vctx = null; cleanctx = null; cleancanv = null; };
     }, []);
 
     return <div style={{ overflow: "hidden", cursor: `url(${CrossHair}) 12 12, crosshair`, position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "green" }}>
         <div style={{ position: "relative" }}>
+
+            <div style={{ position: "absolute", top: 0, bottom: 0, right: 0, zIndex: 8 }}>
+                <button style={{ ...buttonStyle }} onClick={() => props.close(0)}>Quit</button>
+            </div>
             <img style={{ position: "absolute", left: 0, top: 50, zIndex: 1 }} src={spray} />
             <img style={{ position: "absolute", left: 0, top: 50, zIndex: 2 }} src={towel} />
             <canvas
@@ -102,7 +109,7 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
                 const y = ev.clientY - rect.top
 
                 const ctx = canv.getContext("2d");
-                const size = 50;
+                const size = 100;
                 const half = size / 2;
                 ctx?.clearRect(x - half, y - half, size, size);
             }} onDragStart={ev => {
@@ -121,7 +128,7 @@ export const CleaningView: React.FC<{ close: () => void }> = props => {
 
                     //check for viruses
                     viruses.forEach(v => {
-                        if(Math.abs(v.x - x) < 50 && Math.abs(v.y - y) < 50){
+                        if (Math.abs(v.x - x) < 50 && Math.abs(v.y - y) < 50) {
                             cleanctx?.drawImage(v.img, v.x, v.y);
                             v.dead = true;
                             killed++;

@@ -538,7 +538,30 @@ export const Layout: React.FC<{gameOver?: Callback}> = props => {
             />;
             break;
         case "Cleaning":
-            centerMenu = <CleaningView close={ResetView} />;
+            centerMenu = <CleaningView close={score => {
+                if(score >.9){
+                    AddLog("You did a great job cleaning! The store looks much better." , {color: "blue"});
+                    setGame({...game, cleanliness: Clean(cleanliness, 3)});
+                }
+                else if(score > .75){
+                    AddLog("You did a good job cleaning. The store looks better." , {color: "blue"});
+                    setGame({...game, cleanliness: Clean(cleanliness, 2)});
+                }
+                else if(score > .5){
+                    AddLog("You did an OK job cleaning. The store is slightly cleaner." , {color: "blue"});
+                    setGame({...game, cleanliness: Clean(cleanliness, 1)});
+                }
+                else if(score > .25){
+                    AddLog("You did a poor job cleaning. The store doesn't look much cleaner." , {color: "blue"});
+                    if(Math.random() < .5) { setGame({...game, cleanliness: Clean(cleanliness, 1)});}
+                }
+                else if(score > 0){
+                    AddLog("You did a terrible job cleaning. The store looks the same as it did before." , {color: "blue"});
+                    if(Math.random() < .1) { setGame({...game, cleanliness: Clean(cleanliness, 1)});}
+                }
+                
+                ResetView();
+            }} />;
             break;
         case "Chart":
             centerMenu = <BarDisplay values={infectionGraph} />;
