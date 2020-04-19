@@ -243,6 +243,8 @@ const Randomize = (base: number, variation: number): number => {
 var month = 0;
 var customers = 0;
 var infectionGraph = [0];
+var deceasedGraph = [0];
+var moneyGraph = [1600];
 
 export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [paused, setPaused] = React.useState(false);
@@ -298,7 +300,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     alert("Oh no, you are out of money! Better go to the bank!");
                     //props.gameOver?.();
                 }
-                else {
+                else if (money < 0) {
                     props.gameOver?.();
                     alert("Oh no, you went bankrupt!");
                 }
@@ -699,6 +701,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 const newInfected = infected + increase - (recoveries + deaths);
                 infectionGraph.push(newInfected);
+                deceasedGraph.push(deceased + deaths);
+                moneyGraph.push(money);
                 setGame({
                     ...game,
                     date: newDate,
@@ -794,7 +798,12 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             />;
             break;
         case "Chart":
-            centerMenu = <BarDisplay values={infectionGraph} />;
+            centerMenu = <div>
+                <div>Infection</div>
+                    <BarDisplay values={infectionGraph} fillColor="orange" />;
+                <div>Money</div>
+                    <BarDisplay values={moneyGraph} fillColor="green" />;
+                </div>;
             break;
         case "Bank":
             const paymentAmount = Math.min(1000, debt);
@@ -913,15 +922,21 @@ export const LogViewer: React.FC = props => {
                 logs = Logs;
                 setLogs([...Logs]);
             }
+
+            var el = document.getElementById("logviewer");
+            el!.scrollTop= el!.scrollHeight;
+            console.log("scroll", el!.scrollHeight);
         }, 500);
     }, [])
 
-    return <div style={{ overflowY: "scroll", ...basicBoxStyle, flex: "auto" }}>
+    return <div id="logviewer" style={{ overflowY: "scroll", ...basicBoxStyle, flex: "auto"}}>
+        <div style={{ display: "flex", flexDirection: "column-reverse" }}>
         {logs.map((log, i) =>
             <div key={i}
-                style={{ textAlign: "left", fontSize: 12, fontWeight: 700, ...log.style }}
+                style={{ flex: "none", textAlign: "left", fontSize: 12, fontWeight: 700, ...log.style }}
             >{log.message}
             </div>)}
+        </div>
     </div>;
 }
 

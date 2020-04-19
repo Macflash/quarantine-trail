@@ -12,14 +12,14 @@ export const BarBlock: React.FC<{ value: number, max: number, color?: string }> 
 }
 
 export const BarDisplay: React.FC<{ values: number[], fillColor?: string }> = props => {
-    const { values, fillColor = "green" } = props;
+    const { values, fillColor } = props;
 
     let max = 0;
     values.forEach(v => max = Math.max(v, max));
 
     const c = [];
     for (let i = 0; i < props.values.length; i++) {
-        c.push(<BarBlock key={i} value={values[i]} max={max} />)
+        c.push(<BarBlock key={i} value={values[i]} max={max} color={fillColor} />)
     }
 
 

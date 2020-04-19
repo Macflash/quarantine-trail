@@ -47,7 +47,7 @@ export interface ILog {
 
 export var Logs: ILog[] = [];
 export var AddLog = (message: string, style?: React.CSSProperties) => {
-  Logs.push({message, style});
+  Logs.unshift({message, style});
 }
 
 function App() {

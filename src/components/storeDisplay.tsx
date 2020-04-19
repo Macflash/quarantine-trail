@@ -79,8 +79,8 @@ export const StoreDisplay: React.FC<{ paused: boolean, customers: number, height
 
                     const forceX = 1 / Math.pow(c.x - otherC.x, 2);
                     const forceY = 1 / Math.pow(c.y - otherC.y, 2);
-                    c.x += forceX * (c.x - otherC.x);
-                    c.y += forceY * (c.y - otherC.y);
+                    c.x += ConstrainRange(forceX * (c.x - otherC.x), 0, 1);
+                    c.y += ConstrainRange(forceY * (c.y - otherC.y), 0, 1);
                 })
 
                 c.x = ConstrainRange(c.x, minX, maxX);
