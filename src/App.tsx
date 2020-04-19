@@ -292,9 +292,9 @@ const PickNames: React.FC<{ onClick: () => void }> = props => {
           <div><label><input type="radio" disabled /> Saddlemaker</label></div>
           <div><label><input type="radio" disabled /> Teacher</label></div>
         </div>
-        <div style={{ position: "absolute", top: 0, bottom: 0, right: 16, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {/* TODO: add occupations and info here: <div style={{ position: "absolute", top: 0, bottom: 0, right: 16, display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <MenuCircle image={Help} />
-        </div>
+          </div>*/}
       </div>
 
       {/** Employee names */}
