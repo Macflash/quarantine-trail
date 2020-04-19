@@ -264,8 +264,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         employees: StartEmployees,
 
         cleanliness: "Fair",
-        paperTowels: 10,
-        cleaningSprays: 20,
+        paperTowels: isDev ? 100 : 10,
+        cleaningSprays: isDev ? 1000 : 25,
     });
 
     const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays } = game;

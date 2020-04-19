@@ -7,7 +7,7 @@ import Towel2 from '../images/towel2.png';
 import Water1 from '../images/water2.png';
 import Wipe1 from '../images/wipe1.png';
 import Virus1 from '../images/virus.png';
-import { InRange } from "../utils";
+import { InRange, PickRandom } from "../utils";
 import { buttonStyle, basicBoxStyle } from "./layout";
 
 type Direction = "up" | "down" | "left" | "right";
@@ -30,6 +30,40 @@ var killed = 0;
 
 const virusesPerRun = 50;
 
+const spray_sound = require("../sounds/spray.mp3");
+const wipe_sound = require("../sounds/wipe.mp3");
+
+const sneeze_sound = require("../sounds/sneeze.mp3");
+const smallcough_sound = require("../sounds/smallcough.mp3");
+const cough_sound = require("../sounds/cough.mp3");
+const backgroundnoise_sound = require("../sounds/backgroundnoise.mp3");
+
+
+const playSpray = () => {
+    var audio = new Audio(spray_sound);
+    audio.volume = .25;
+    audio.play();
+}
+
+const playWipe = () => {
+    var audio = new Audio(wipe_sound);
+    audio.volume = .25;
+    audio.play();
+}
+
+const playVirusSound = () => {
+    const pick = PickRandom([sneeze_sound, smallcough_sound, cough_sound, backgroundnoise_sound]);
+    var audio = new Audio(pick);
+    audio.volume = .25;
+
+    if (pick == cough_sound) { audio.volume = .05; }
+    if (pick == backgroundnoise_sound) { audio.volume = .4; }
+
+    audio.play();
+}
+
+const cleanmusic = require("../sounds/clean music.wav");
+
 export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: number, close: (score: number, sprays: number, towels: number) => void }> = props => {
     const [spray, setSpray] = React.useState(Spray1);
     const [towel, setTowel] = React.useState(Towel1);
@@ -37,6 +71,14 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
     const [cleaningSprays, setCleaningSprays] = React.useState(props.cleaningSprays);
 
     React.useEffect(() => {
+        var audio = new Audio(cleanmusic);
+        audio.volume = .25;
+        audio.play();
+        return () => audio.pause()
+    }, []);
+
+    React.useEffect(() => {
+        viruses = [];
         spawned = 0;
         killed = 0;
 
@@ -44,6 +86,9 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
         interval = setInterval(() => {
             if (spawned < virusesPerRun) {
                 if (Math.random() < .1) {
+                    if (Math.random() < .2) {
+                        playVirusSound();
+                    }
                     spawned++;
                     viruses.push({
                         dead: false,
@@ -123,6 +168,7 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                 const half = size / 2;
                 ctx?.clearRect(x - half, y - half, size, size);
             }} onDragStart={ev => {
+                playWipe();
                 setPaperTowels(paperTowels - 1);
                 ev.dataTransfer.setDragImage(wipe, 50, 50);
                 console.log("drag!!");
@@ -133,15 +179,21 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
             }}
                 onClick={(ev) => {
                     if (cleaningSprays <= 0) { return; }
+                    playSpray();
                     setCleaningSprays(cleaningSprays - 1);
                     cleancanv = cleancanv ?? document.getElementById("cleancanvas") as HTMLCanvasElement;
                     const rect = cleancanv!.getBoundingClientRect()
                     const x = ev.clientX - rect.left
                     const y = ev.clientY - rect.top
 
+                    const size = 200;
+                    const half = size / 2;
+                    const effectiveRange = half;
+
                     //check for viruses
                     viruses.forEach(v => {
-                        if (Math.abs(v.x - x) < 50 && Math.abs(v.y - y) < 50) {
+                        const dist = Math.sqrt(Math.pow(v.x - x, 2) + Math.pow(v.y - y, 2));
+                        if (dist < effectiveRange) {
                             cleanctx?.drawImage(v.img, v.x, v.y);
                             v.dead = true;
                             killed++;
@@ -150,8 +202,6 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
 
                     cleanctx = cleanctx ?? cleancanv.getContext("2d");
                     cleanctx!.fillStyle = "rgba(0,150,255, 50)";
-                    const size = 200;
-                    const half = size / 2;
                     //ctx?.fillRect(x-half,y-half,size,size);
                     cleanctx?.drawImage(splotch, x - half, y - half);
 
