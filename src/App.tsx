@@ -71,21 +71,17 @@ function App() {
   }} />;
 
   if (stage == "Menu") {
-    layout = <Menu onClick={() => {
-      if (startingGame) {
-        setStage("Game");
-      }
-      else {
-        setStage("Intro")
-      }
-    }}
+    layout = <Menu onClick={() => setStage("Intro")}
       introduction={() => setStage("DetailedIntro")}
       options={() => setStage("OptionsMenu")}
     />;
   }
 
   if (stage == "Intro") {
-    layout = <Intro onClick={() => setStage("PickNames")} />;
+    layout = <Intro onClick={() => {
+      if (startingGame) { setStage("Game"); }
+      else { setStage("PickNames") }
+    }} />;
   }
 
   if (stage == "DetailedIntro") {
