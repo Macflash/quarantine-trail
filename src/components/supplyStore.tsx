@@ -1,13 +1,22 @@
 import * as React from "react";
 import Background from "../images/storeback.png";
 import { basicBoxStyle, ColorYellow, Callback, buttonStyle, MiniBorder, PrintMoney } from "./layout";
-import { ConstrainRange, ParseConstrainRange, PickRandom } from "../utils";
+import { ConstrainRange, ParseConstrainRange, PickRandom, shuffle } from "../utils";
 
-export const SupplyStore: React.FC<{ money: number, paperTowels: number, cleaningSpray: number, onCancel: Callback, onBuy: (towels: number, sprays: number, cost: number) => void }> = props => {
+export function GetPerDate<T>(input: T[], date: Date) {
+    return input[(Math.floor(date.getDate() / 7) + ((date.getMonth() * 13) % 23)) % input.length];
+}
+
+var orderedPrices = shuffle([10, 11, 15, 25, 54, 38]);
+var orderedPrices2 = shuffle([15, 17, 9, 23, 76, 34, 93]);
+
+console.log(orderedPrices);
+
+export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: number, cleaningSpray: number, onCancel: Callback, onBuy: (towels: number, sprays: number, cost: number) => void }> = props => {
     const [buySpray, setBuySpray] = React.useState(0);
     const [buyTowel, setBuyTowel] = React.useState(0);
-    const [priceTowel] = React.useState(PickRandom([10, 12, 11, 15, 25, 54]));
-    const [priceSpray] = React.useState(PickRandom([15, 17, 16, 23, 76, 34]));
+    const [priceTowel] = React.useState(GetPerDate(orderedPrices, props.date));
+    const [priceSpray] = React.useState(GetPerDate(orderedPrices2, props.date));
 
     const perRoll = 10;
     const perBottle = 20;

@@ -22,7 +22,7 @@ const textBlockStyle: React.CSSProperties = {
 
 const savedGameKey = "quarantinetrail_savedgame";
 
-const enableDevMode = false;
+const enableDevMode = true;
 export const isDev = window.location.href.indexOf("localhost") >= 0 && enableDevMode;
 
 export var yourName = isDev ? "YOU" : "";

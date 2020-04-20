@@ -849,6 +849,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             break;
         case "Supplies":
             centerMenu = <SupplyStore
+                date={date}
                 money={money}
                 paperTowels={paperTowels}
                 cleaningSpray={cleaningSprays}

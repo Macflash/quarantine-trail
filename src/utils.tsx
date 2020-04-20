@@ -28,3 +28,18 @@ export function useHistory<T>(initial: T[] = []): [T[], Setter<T>] {
 
     return [history, add];
 }
+
+export function shuffle<T>(items: T[]): T[] {
+    const shuffle = items.map(item => ({ item, random: Math.random() }));
+    const newItems = [...shuffle].sort((a, b) => {
+        if (a.random > b.random) {
+            return 1;
+        }
+        if (a.random == b.random) {
+            return 0;
+        }
+        return -1;
+    });
+
+    return newItems.map(wrapper => wrapper.item);
+}
