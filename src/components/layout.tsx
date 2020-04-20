@@ -241,6 +241,8 @@ export interface Game {
     cleanliness: Cleanliness,
     paperTowels: number,
     cleaningSprays: number,
+    masks: number,
+    gloves:number,
 };
 
 function useStateAndView<T>(defaultValue: T, onChange?: () => void, logger?: (value: T) => void): [T, Setter<T>] {
@@ -309,9 +311,11 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         cleanliness: "Fair",
         paperTowels: isDev ? 100 : 10,
         cleaningSprays: isDev ? 1000 : 25,
+        masks: 0,
+        gloves:0,
     });
 
-    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays } = game;
+    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = game;
 
     if (employees.filter(e => e.status != "Deceased").length == 0) {
         alert("Game Over! All your employees died.");
@@ -333,8 +337,6 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 });
 
                 score+= empHp;
-
-
                 score -= totalYouInfected * 500;
                 score *= Number(startDate) / Number(date);
 
@@ -489,26 +491,20 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 }
                 else if (sickCustomers < 5) {
                     // small chance the store gets dirty
-                    if (Math.random() < .5) {
+                    if (Math.random() < .075) {
                         newCleanliness = Clean(newCleanliness, -1);
                     }
                 }
                 else if (sickCustomers < 20) {
                     // small chance the store gets dirty
-                    if (Math.random() < .5) {
+                    if (Math.random() < .1) {
                         newCleanliness = Clean(newCleanliness, -1);
-                    }
-                    else if (Math.random() < .5) {
-                        newCleanliness = Clean(newCleanliness, -2);
                     }
                 }
                 else if (sickCustomers > 40) {
                     // small chance the store gets dirty
-                    if (Math.random() < .5) {
-                        newCleanliness = Clean(newCleanliness, -2);
-                    }
-                    else if (Math.random() < .5) {
-                        newCleanliness = Clean(newCleanliness, -3);
+                    if (Math.random() < .15) {
+                        newCleanliness = Clean(newCleanliness, -1);
                     }
                 }
 
@@ -854,8 +850,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 paperTowels={paperTowels}
                 cleaningSpray={cleaningSprays}
                 onCancel={ResetView}
-                onBuy={(towels, sprays, cost) => {
-                    setGame({ ...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money - cost });
+                onBuy={(cost, towels, sprays, masks, gloves) => {
+                    setGame({ ...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money - cost, });
                     ResetView();
                 }}
             />;
@@ -947,11 +943,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         <div style={{ marginBottom: 12 }}>Current Supplies:</div>
                         <div style={{ marginBottom: 7 }}>{paperTowels} paper towels</div>
                         <div style={{ marginBottom: 7 }}>{cleaningSprays} sprays of disinfectant</div>
-                        {/* 
                         TODO: Add masks and food stuff:
-                         <div style={{ marginBottom: 7 }}>5 masks</div>
-                        <div style={{ marginBottom: 7 }}>1 set of gloves</div>
-                        <div style={{ marginBottom: 7 }}>100 pounds of food</div>
+                         <div style={{ marginBottom: 7 }}>{masks} masks</div>
+                        <div style={{ marginBottom: 7 }}>{gloves} set of gloves</div>
+{/*                        <div style={{ marginBottom: 7 }}>100 pounds of food</div>
                         */}
                     </div>
                     <div style={{ textAlign: "right", width: 160 }}>

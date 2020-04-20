@@ -9,22 +9,30 @@ export function GetPerDate<T>(input: T[], date: Date) {
 
 var orderedPrices = shuffle([10, 11, 15, 25, 54, 38]);
 var orderedPrices2 = shuffle([15, 17, 9, 23, 76, 34, 93]);
+var orderedPrices3 = shuffle([13, 46, 72, 23, 39, 142, 66]);
+var orderedPrices4 = shuffle([15, 71, 90, 32, 67, 43, 39]);
 
 console.log(orderedPrices);
 
-export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: number, cleaningSpray: number, onCancel: Callback, onBuy: (towels: number, sprays: number, cost: number) => void }> = props => {
+export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: number, cleaningSpray: number, onCancel: Callback, onBuy: (cost: number,towels: number, sprays: number, masks:number, gloves:number) => void }> = props => {
     const [buySpray, setBuySpray] = React.useState(0);
     const [buyTowel, setBuyTowel] = React.useState(0);
+    const [buyMask, setBuyMask] = React.useState(0);
+    const [buyGloves, setBuyGloves] = React.useState(0);
+
     const [priceTowel] = React.useState(GetPerDate(orderedPrices, props.date));
     const [priceSpray] = React.useState(GetPerDate(orderedPrices2, props.date));
+    const [priceMask] = React.useState(GetPerDate(orderedPrices3, props.date));
+    const [priceGloves] = React.useState(GetPerDate(orderedPrices4, props.date));
 
     const perRoll = 10;
     const perBottle = 20;
 
     const costTowel = priceTowel * buyTowel;
     const costSpray = priceSpray * buySpray;
-
-    const total = costTowel + costSpray;
+    const costMask = priceMask * buyMask;
+    const costGloves = priceGloves * buyGloves;
+    const total = costTowel + costSpray + costMask + costGloves;
 
     return <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: ColorYellow, fontWeight: 700 }}>
         <img src={Background} />
@@ -52,6 +60,20 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
                     <td style={{ textAlign: "right" }}>{PrintMoney(priceTowel)}</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(costTowel)}</td>
                 </tr>
+                <tr>
+                    <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
+                    <td><input type="number" value={buyMask} onChange={ev => setBuyMask(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
+                    <td style={{ fontSize: 12, textAlign: "left" }}>Masks</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(priceMask)}</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(costMask)}</td>
+                </tr>
+                <tr>
+                    <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
+                    <td><input type="number" value={buyGloves} onChange={ev => setBuyGloves(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
+                    <td style={{ fontSize: 12, textAlign: "left" }}>Disposable Gloves</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(priceGloves)}</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(costGloves)}</td>
+                </tr>
             </table>
             <div style={{ textAlign: "right" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: 5 }}>
@@ -68,7 +90,7 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
                 <button
                     disabled={total > props.money || total < 0}
                     style={{ ...buttonStyle, border: MiniBorder, margin: 10, width: undefined, display: "inline-block" }}
-                    onClick={() => props.onBuy(buyTowel * perRoll, buySpray * perBottle, total)}>Buy</button>
+                    onClick={() => props.onBuy(total, buyTowel * perRoll, buySpray * perBottle, buyMask, buyGloves)}>Buy</button>
             </div>
         </div>
     </div>
