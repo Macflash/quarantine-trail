@@ -453,12 +453,12 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     }
 
                     if (usingMasks) {
-                        spreadChance / 2;
+                        spreadChance /= 2;
                     }
 
                     if (newGloves > 0) {
-                        spreadChance / 2;
-                        if (Math.random() < .1) {
+                        spreadChance /= 2;
+                        if (Math.random() < .3) {
                             newGloves--;
                         }
                     }
@@ -581,8 +581,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     else {
                         // TODO Make this not terrible!
                         var ppeMultiplier = 1;
-                        if (usingMasks) { ppeMultiplier * 1.5 }
-                        if (newGloves > 0) { ppeMultiplier * .125 }
+                        if (usingMasks) { ppeMultiplier *= 1.5 }
+                        if (newGloves > 0) { ppeMultiplier *= .125 }
                         var cVal = CleanMap[cleanliness];
                         var combo = Math.sqrt(((sickCustomers / ppeMultiplier) + 1) / transactions) * Math.pow(cVal + 1, .6);
                         const chance = Math.pow(Math.random(), 1 / combo);
