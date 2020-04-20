@@ -351,7 +351,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             }
             if (!paused) {
                 if (money < 0 && debt < MaxDebt) {
-                    setPaused(true);
+                    Pause();
                     alert("Oh no, you are out of money! Better go to the bank!");
                     //props.gameOver?.();
                 }
