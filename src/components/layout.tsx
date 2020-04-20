@@ -876,8 +876,15 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 masks={masks}
                 gloves={gloves}
                 onCancel={ResetView}
-                onBuy={(cost, towels, sprays, masks, gloves) => {
-                    setGame({ ...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money - cost, });
+                onBuy={(cost, towels, sprays, m, g) => {
+                    setGame({
+                        ...game,
+                        paperTowels: paperTowels + towels,
+                        cleaningSprays: cleaningSprays + sprays,
+                        masks: masks + m,
+                        gloves: gloves + g,
+                        money: money - cost,
+                    });
                     ResetView();
                 }}
             />;
@@ -969,7 +976,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         <div style={{ marginBottom: 12 }}>Current Supplies:</div>
                         <div style={{ marginBottom: 7 }}>{paperTowels} paper towels</div>
                         <div style={{ marginBottom: 7 }}>{cleaningSprays} sprays of disinfectant</div>
-                         <div style={{ marginBottom: 7 }}>{masks} masks</div>
+                        <div style={{ marginBottom: 7 }}>{masks} masks</div>
                         <div style={{ marginBottom: 7 }}>{gloves} set of gloves</div>
                     </div>
                     <div style={{ textAlign: "right", width: 160 }}>
