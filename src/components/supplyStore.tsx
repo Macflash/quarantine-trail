@@ -27,6 +27,8 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
 
     const perRoll = 10;
     const perBottle = 20;
+    const perSet = 5;
+    const perBox = 50;
 
     const costTowel = priceTowel * buyTowel;
     const costSpray = priceSpray * buySpray;
@@ -63,14 +65,14 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
                 <tr>
                     <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
                     <td><input type="number" value={buyMask} onChange={ev => setBuyMask(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
-                    <td style={{ fontSize: 12, textAlign: "left" }}>Masks</td>
+                    <td style={{ fontSize: 12, textAlign: "left" }}>Masks ({perSet}/set)</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(priceMask)}</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(costMask)}</td>
                 </tr>
                 <tr>
                     <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
                     <td><input type="number" value={buyGloves} onChange={ev => setBuyGloves(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
-                    <td style={{ fontSize: 12, textAlign: "left" }}>Disposable Gloves</td>
+                    <td style={{ fontSize: 12, textAlign: "left" }}>Disposable Gloves ({perBox}/box)</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(priceGloves)}</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(costGloves)}</td>
                 </tr>
@@ -90,7 +92,7 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
                 <button
                     disabled={total > props.money || total < 0}
                     style={{ ...buttonStyle, border: MiniBorder, margin: 10, width: undefined, display: "inline-block" }}
-                    onClick={() => props.onBuy(total, buyTowel * perRoll, buySpray * perBottle, buyMask, buyGloves)}>Buy</button>
+                    onClick={() => props.onBuy(total, buyTowel * perRoll, buySpray * perBottle, buyMask * perSet, buyGloves * perBox)}>Buy</button>
             </div>
         </div>
     </div>

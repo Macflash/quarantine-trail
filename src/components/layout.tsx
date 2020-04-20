@@ -311,8 +311,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         cleanliness: "Fair",
         paperTowels: isDev ? 100 : 10,
         cleaningSprays: isDev ? 1000 : 25,
-        masks: 0,
-        gloves: 0,
+        masks: 10,
+        gloves: 50,
     });
 
     const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = game;
@@ -968,11 +968,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         <div style={{ marginBottom: 12 }}>Current Supplies:</div>
                         <div style={{ marginBottom: 7 }}>{paperTowels} paper towels</div>
                         <div style={{ marginBottom: 7 }}>{cleaningSprays} sprays of disinfectant</div>
-                        TODO: Add masks and food stuff:
                          <div style={{ marginBottom: 7 }}>{masks} masks</div>
                         <div style={{ marginBottom: 7 }}>{gloves} set of gloves</div>
-                        {/*                        <div style={{ marginBottom: 7 }}>100 pounds of food</div>
-                        */}
                     </div>
                     <div style={{ textAlign: "right", width: 160 }}>
                         <div style={{ marginBottom: 12 }}>Current Health:</div>
@@ -993,7 +990,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     let avgHealth = 0;
     employees.forEach(e => avgHealth += HealthMap[e.status]);
     avgHealth /= employees.length;
-    const avgStatus = ReverseHealthMap[Math.round(avgHealth)];
+    const avgStatus = ReverseHealthMap[Math.floor(avgHealth)];
 
     return <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "stretch", backgroundColor: ColorBrown, height: "100%", padding: margin, border: MiniBorder }}>
         <VerticalMenu setView={setView} items={[
@@ -1033,7 +1030,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <BodyRow left="Pay:" right={payQ} />
                     <BodyRow left="Cleanliness:" right={<div style={{ color: CleanColorMap[cleanliness] }}>{cleanliness}</div>} />
                     <BodyRow left="Hours:" right={hourQ} />
-                    <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" : <div style={{ color: "red" }}>Low</div>} />
+                    <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" && masks > employees.length * 3 && gloves > employees.length * 5 : <div style={{ color: "red" }}>Low</div>} />
                     <BodyRow left="Health:" right={<div style={{ textAlign: "right" }}>{avgStatus}</div>} />
                     <br />
                     <BodyRow left="Store:" right={paused ? <span style={{ color: "red" }}>Closed</span> : "Open"} />
