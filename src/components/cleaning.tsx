@@ -65,11 +65,16 @@ const playVirusSound = () => {
 
 const cleanmusic = require("../sounds/clean music.wav");
 
+var realSprays = 0;
+var realTowels = 0;
+
 export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: number, close: (score: number, sprays: number, towels: number) => void }> = props => {
     const [spray, setSpray] = React.useState(Spray1);
     const [towel, setTowel] = React.useState(Towel1);
     const [paperTowels, setPaperTowels] = React.useState(props.paperTowels);
     const [cleaningSprays, setCleaningSprays] = React.useState(props.cleaningSprays);
+    realTowels = paperTowels;
+    realSprays = cleaningSprays;
 
     React.useEffect(() => {
         var audio = new Audio(cleanmusic);
@@ -112,7 +117,7 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
             }
             else if (viruses.length == 0) {
                 clearInterval(interval);
-                props.close(killed / spawned, cleaningSprays, paperTowels);
+                props.close(killed / spawned, realSprays, realTowels);
                 alert(`Done! you got ${killed} out of ${spawned}`);
                 return;
             }
@@ -158,36 +163,36 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                 height={465}
                 id="viruscanvas"
             />
-            <canvas 
+            <canvas
                 style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, zIndex: 2 }}
                 width={618}
                 height={465}
                 id="cleancanvas"
             />
-            <div id="dragger!" style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0, height: 465, width: 618, zIndex: 10}}
-            draggable={paperTowels > 0} 
-            onDragOver={ev => {
-                const canv = document.getElementById("cleancanvas") as HTMLCanvasElement;
-                const rect = canv!.getBoundingClientRect()
-                const x = ev.clientX - rect.left
-                const y = ev.clientY - rect.top
+            <div id="dragger!" style={{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, height: 465, width: 618, zIndex: 10 }}
+                draggable={paperTowels > 0}
+                onDragOver={ev => {
+                    const canv = document.getElementById("cleancanvas") as HTMLCanvasElement;
+                    const rect = canv!.getBoundingClientRect()
+                    const x = ev.clientX - rect.left
+                    const y = ev.clientY - rect.top
 
-                const ctx = canv.getContext("2d");
-                const size = 100;
-                const half = size / 2;
-                ctx?.clearRect(x - half, y - half, size, size);
-            }} 
-            onDragStart={ev => {
-                playWipe();
-                setPaperTowels(paperTowels - 1);
-                ev.dataTransfer.setDragImage(wipe, 50, 50);
-                console.log("drag!!");
-                setTowel(Towel2);
-            }} 
-            onDragEnd={() => {
-                console.log("drag!!");
-                setTowel(Towel1);
-            }}
+                    const ctx = canv.getContext("2d");
+                    const size = 100;
+                    const half = size / 2;
+                    ctx?.clearRect(x - half, y - half, size, size);
+                }}
+                onDragStart={ev => {
+                    playWipe();
+                    setPaperTowels(paperTowels - 1);
+                    ev.dataTransfer.setDragImage(wipe, 50, 50);
+                    console.log("drag!!");
+                    setTowel(Towel2);
+                }}
+                onDragEnd={() => {
+                    console.log("drag!!");
+                    setTowel(Towel1);
+                }}
                 onClick={(ev) => {
                     console.log("clicked!");
                     if (cleaningSprays <= 0) { return; }
