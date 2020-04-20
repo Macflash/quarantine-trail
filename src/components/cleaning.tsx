@@ -144,7 +144,6 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
     }, []);
 
     const clickFunction = (ev:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        console.log("clicked!");
         if (cleaningSprays <= 0) { return; }
         playSpray();
         setCleaningSprays(cleaningSprays - 1);
@@ -172,7 +171,6 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
         //ctx?.fillRect(x-half,y-half,size,size);
         cleanctx?.drawImage(splotch, x - half, y - half);
 
-        console.log(x, y);
         setSpray(Spray2);
         setTimeout(() => {
             setSpray(Spray1);
@@ -222,11 +220,9 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                     playWipe();
                     setPaperTowels(paperTowels - 1);
                     ev.dataTransfer.setDragImage(wipe, 50, 50);
-                    console.log("drag!!");
                     setTowel(Towel2);
                 }}
                 onDragEnd={() => {
-                    console.log("drag!!");
                     setTowel(Towel1);
                 }}
                 onContextMenu={ev =>{
