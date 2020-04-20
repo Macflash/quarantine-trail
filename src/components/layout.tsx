@@ -270,7 +270,7 @@ var totalYouInfected = 0;
 
 const MaxDebt = 100000;
 
-const PrintMoney = (money: number): string => {
+export const PrintMoney = (money: number): string => {
     return `$${Number(Math.round(money)).toLocaleString()}.00`
 }
 
@@ -594,7 +594,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         // Health has gotten worse
                         if (HealthMap[e.status] > HealthMap[originalHealth]) {
                             if (e.status == "Sick") {
-                                AddLog(`${e.name} is sick.`);
+                                AddLog(`${e.name} is sick.`, {color: "darkred"});
                             }
                             if (e.status == "Coronavirus") {
                                 AddLog(`${e.name} has Coronavirus.`, { color: "red" });
@@ -1042,11 +1042,10 @@ export const LogViewer: React.FC = props => {
             if (Logs.length > logs.length) {
                 logs = Logs;
                 setLogs([...Logs]);
-            }
-
-            var el = document.getElementById("logviewer");
-            if (el) {
-                el!.scrollTop = el!.scrollHeight;
+                var el = document.getElementById("logviewer");
+                if (el) {
+                    el!.scrollTop = el!.scrollHeight;
+                }
             }
         }, 500);
     }, [])
