@@ -242,7 +242,7 @@ export interface Game {
     paperTowels: number,
     cleaningSprays: number,
     masks: number,
-    gloves:number,
+    gloves: number,
 };
 
 function useStateAndView<T>(defaultValue: T, onChange?: () => void, logger?: (value: T) => void): [T, Setter<T>] {
@@ -282,17 +282,17 @@ var reallyPaused = false;
 
 export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [paused, setPaused] = React.useState(false);
-    const Pause = React.useCallback(() => {reallyPaused = true; setPaused(true); }, [setPaused]);
+    const Pause = React.useCallback(() => { reallyPaused = true; setPaused(true); }, [setPaused]);
 
     const [view, setView] = useStateAndView<View>("Store", Pause);
     const ResetView = React.useCallback(() => setView("Store"), [setView]);
 
-    const UnPause = React.useCallback(() => { ResetView();  reallyPaused = false; setPaused(false); }, [setPaused, ResetView]);
+    const UnPause = React.useCallback(() => { ResetView(); reallyPaused = false; setPaused(false); }, [setPaused, ResetView]);
 
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
 
-    const [game, setGame] = React.useState<Game>(startingGame ? {...startingGame, date: new Date(startingGame.date)} : {
+    const [game, setGame] = React.useState<Game>(startingGame ? { ...startingGame, date: new Date(startingGame.date) } : {
         infectRate: "Normal",
 
         date: startDate,
@@ -312,7 +312,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         paperTowels: isDev ? 100 : 10,
         cleaningSprays: isDev ? 1000 : 25,
         masks: 0,
-        gloves:0,
+        gloves: 0,
     });
 
     const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = game;
@@ -325,7 +325,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     React.useEffect(() => {
         // advance the days!
         setTimeout(() => {
-            if(reallyPaused){ return; }
+            if (reallyPaused) { return; }
             if (debt <= 0 && infected == 0 && date > new Date("04/04/2020")) {
                 props.gameOver?.();
                 let score = 0;
@@ -336,7 +336,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     empHp += e.status == "Deceased" ? 0 : MoodScoreMap[e.mood];
                 });
 
-                score+= empHp;
+                score += empHp;
                 score -= totalYouInfected * 500;
                 score *= Number(startDate) / Number(date);
 
@@ -345,7 +345,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 You scored ${Math.round(score)}pts!
                 Money: $${money} -> ${money}pts
                 Employee Health: ${empHp} pts
-                Customers you got sick: ${totalYouInfected} -> -${totalYouInfected *500}pts
+                Customers you got sick: ${totalYouInfected} -> -${totalYouInfected * 500}pts
                 `);
             }
             if (!paused) {
@@ -392,6 +392,14 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 else if (slowEvent) {
                     AddLog("Today was slow.");
                     transactions /= 1.5;
+                }
+
+                let newMasks = masks;
+                let newGloves = gloves;
+                let usingMasks = false;
+                if (masks > employees.length) {
+                    usingMasks = true;
+                    newMasks -= employees.length;
                 }
 
                 //UPDATE cleanliness
@@ -442,6 +450,17 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     }
                     else if (cleanliness == "Pristine") {
                         spreadChance = .09;
+                    }
+
+                    if (usingMasks) {
+                        spreadChance / 2;
+                    }
+
+                    if (newGloves > 0) {
+                        spreadChance / 2;
+                        if (Math.random() < .1) {
+                            newGloves--;
+                        }
                     }
 
                     // TODO: Factor in masks or gloves here! 
@@ -561,8 +580,11 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     }
                     else {
                         // TODO Make this not terrible!
+                        var ppeMultiplier = 1;
+                        if (usingMasks) { ppeMultiplier * 1.5 }
+                        if (newGloves > 0) { ppeMultiplier * .125 }
                         var cVal = CleanMap[cleanliness];
-                        var combo = Math.sqrt(sickCustomers + 1 / transactions) * Math.pow(cVal + 1, .6);
+                        var combo = Math.sqrt(((sickCustomers / ppeMultiplier) + 1) / transactions) * Math.pow(cVal + 1, .6);
                         const chance = Math.pow(Math.random(), 1 / combo);
 
                         let SickChance = .9;
@@ -593,7 +615,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         // Health has gotten worse
                         if (HealthMap[e.status] > HealthMap[originalHealth]) {
                             if (e.status == "Sick") {
-                                AddLog(`${e.name} is sick.`, {color: "darkred"});
+                                AddLog(`${e.name} is sick.`, { color: "darkred" });
                             }
                             if (e.status == "Coronavirus") {
                                 AddLog(`${e.name} has Coronavirus.`, { color: "red" });
@@ -755,6 +777,9 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     cleanliness: newCleanliness,
                     employees: newEmployees,
                     yourStatus: yourNewStatus,
+
+                    masks: newMasks,
+                    gloves: newGloves,
                 });
             }
         }, isDev ? 500 : tickSpeed);
@@ -763,10 +788,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     let centerMenu = <StoreDisplay paused={paused} customers={customers} height={220} width={280} />;
     switch (view) {
         case "OptionsMenu":
-        centerMenu = <div style={{position: "absolute", top: 0, left: 0, right: 0, bottom: 0}}>
-            <OptionsMenu onClick={ResetView} game={game} />
-        </div>
-        break;
+            centerMenu = <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}>
+                <OptionsMenu onClick={ResetView} game={game} />
+            </div>
+            break;
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
                 helpContent={<div>
@@ -862,7 +887,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 <BarDisplay values={infectionGraph} fillColor="orange" />
                 <div>Money</div>
                 <BarDisplay values={moneyGraph} fillColor="green" />
-                </div>;
+            </div>;
             break;
         case "Bank":
             const paymentAmount = Math.min(1000, debt);
@@ -946,7 +971,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         TODO: Add masks and food stuff:
                          <div style={{ marginBottom: 7 }}>{masks} masks</div>
                         <div style={{ marginBottom: 7 }}>{gloves} set of gloves</div>
-{/*                        <div style={{ marginBottom: 7 }}>100 pounds of food</div>
+                        {/*                        <div style={{ marginBottom: 7 }}>100 pounds of food</div>
                         */}
                     </div>
                     <div style={{ textAlign: "right", width: 160 }}>
@@ -1019,7 +1044,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={paused ? UnPause : Pause}>{paused ? "Continue" : "Time out"}</button></span>
                 </div>
                 <div style={{ padding: 5, margin: 6 }}>
-                    <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={()=>setView("OptionsMenu")}>Options</button></span>
+                    <span style={buttonWrapperStyle}><button style={buttonStyle} onClick={() => setView("OptionsMenu")}>Options</button></span>
                 </div>
             </div>
         </div>
@@ -1068,7 +1093,7 @@ export const BodyRow: React.FC<{ left: React.ReactNode, right: React.ReactNode }
 }
 
 export const MenuCircle: React.FC<{ image?: string, onClick?: Callback }> = props => {
-    return <div className="menuCircle"  onClick={props.onClick} style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black", cursor: "pointer" }}>
+    return <div className="menuCircle" onClick={props.onClick} style={{ width: 30, height: 40, borderRadius: 80, backgroundColor: "white", border: `5px outset ${ColorBrown}`, boxShadow: "5px 1px 0 black", cursor: "pointer" }}>
         {props.image ? <img onClick={props.onClick} src={props.image} style={{ marginTop: 5 }} /> : null}
     </div>;
 }
