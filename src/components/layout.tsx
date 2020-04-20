@@ -276,14 +276,16 @@ export const PrintMoney = (money: number): string => {
 
 const startDate = new Date("02/02/2020");
 
+var reallyPaused = false;
+
 export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [paused, setPaused] = React.useState(false);
-    const Pause = React.useCallback(() => setPaused(true), [setPaused]);
+    const Pause = React.useCallback(() => {reallyPaused = true; setPaused(true); }, [setPaused]);
 
     const [view, setView] = useStateAndView<View>("Store", Pause);
     const ResetView = React.useCallback(() => setView("Store"), [setView]);
 
-    const UnPause = React.useCallback(() => { ResetView(); setPaused(false); }, [setPaused, ResetView]);
+    const UnPause = React.useCallback(() => { ResetView();  reallyPaused = false; setPaused(false); }, [setPaused, ResetView]);
 
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
@@ -319,6 +321,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     React.useEffect(() => {
         // advance the days!
         setTimeout(() => {
+            if(reallyPaused){ return; }
             if (debt <= 0 && infected == 0 && date > new Date("04/04/2020")) {
                 props.gameOver?.();
                 let score = 0;
