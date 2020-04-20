@@ -14,7 +14,7 @@ var orderedPrices4 = shuffle([15, 71, 90, 32, 67, 43, 39]);
 
 console.log(orderedPrices);
 
-export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: number, cleaningSpray: number, onCancel: Callback, onBuy: (cost: number,towels: number, sprays: number, masks:number, gloves:number) => void }> = props => {
+export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: number, cleaningSpray: number, masks: number, gloves: number, onCancel: Callback, onBuy: (cost: number,towels: number, sprays: number, masks:number, gloves:number) => void }> = props => {
     const [buySpray, setBuySpray] = React.useState(0);
     const [buyTowel, setBuyTowel] = React.useState(0);
     const [buyMask, setBuyMask] = React.useState(0);
@@ -27,7 +27,7 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
 
     const perRoll = 10;
     const perBottle = 20;
-    const perSet = 5;
+    const perSet = 10;
     const perBox = 50;
 
     const costTowel = priceTowel * buyTowel;
@@ -63,14 +63,14 @@ export const SupplyStore: React.FC<{ date: Date, money: number, paperTowels: num
                     <td style={{ textAlign: "right" }}>{PrintMoney(costTowel)}</td>
                 </tr>
                 <tr>
-                    <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
+                    <td style={{ textAlign: "right" }}>{props.masks}</td>
                     <td><input type="number" value={buyMask} onChange={ev => setBuyMask(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
                     <td style={{ fontSize: 12, textAlign: "left" }}>Masks ({perSet}/set)</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(priceMask)}</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(costMask)}</td>
                 </tr>
                 <tr>
-                    <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
+                    <td style={{ textAlign: "right" }}>{props.gloves}</td>
                     <td><input type="number" value={buyGloves} onChange={ev => setBuyGloves(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
                     <td style={{ fontSize: 12, textAlign: "left" }}>Disposable Gloves ({perBox}/box)</td>
                     <td style={{ textAlign: "right" }}>{PrintMoney(priceGloves)}</td>

@@ -463,7 +463,6 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         }
                     }
 
-                    // TODO: Factor in masks or gloves here! 
                     if (serverIsSick && Math.random() < spreadChance) {
                         customerIsSick = true; // You spread it!
                         youInfected++;
@@ -874,6 +873,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 money={money}
                 paperTowels={paperTowels}
                 cleaningSpray={cleaningSprays}
+                masks={masks}
+                gloves={gloves}
                 onCancel={ResetView}
                 onBuy={(cost, towels, sprays, masks, gloves) => {
                     setGame({ ...game, paperTowels: paperTowels + towels, cleaningSprays: cleaningSprays + sprays, money: money - cost, });
