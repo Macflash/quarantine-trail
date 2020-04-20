@@ -150,7 +150,7 @@ const Menu: React.FC<{ onClick: Callback, introduction: Callback, options: Callb
 const Intro: React.FC<{ onClick: () => void }> = props => {
   return <div style={{ ...basicBoxStyle, border: InnerBorder, height: "100%" }}>
     <div style={{ ...headerStyle, marginTop: 12 }}>Welcome to the Quarantine Trail!</div>
-    <div style={textBlockStyle}>You're about to begin a great adventure, running a small business during a global pandemic and local quarantine somewhere in the midst of the rugged landscape of North America. Your essential business, run by a team of employees, will provide an essential service to your customers and community somewhere between Indepdence, Missouri, to the fertile Willamette Valey of Oregon State, to the inner city of New York City--a distance of over 2,500 miles.</div>
+    <div style={textBlockStyle}>You're about to begin a great adventure, running a small business during a global pandemic and local quarantine somewhere in the midst of the rugged landscape of North America. Your essential business, run by a team of employees, will provide an essential service to your customers and community somewhere between Independence, Missouri, to the fertile Willamette Valey of Oregon State, to the inner city of New York City--a distance of over 2,500 miles.</div>
     <div style={textBlockStyle}>Before you set off on the trail, register your name, the names of the members of your staff, and your business. After that, you'll need to buy supplies and make other important decisions.</div>
     <div style={textBlockStyle}>Good Luck!</div>
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around", marginTop: 35 }}>
@@ -177,13 +177,13 @@ const slide1 = <div>
 
 const slide2 = <div>
   <div style={{ ...textBlockStyle, fontSize: 12 }}>
-    If for some reason you don't survive--your employees get sick, sick customers bring in the coronavirus, you run out of masks and cleaning spplies--don't give up! Unlike the real-life essential workers of 2020, you can try again and again until you succeed and your name is added to the "The Quarantine Trail List of Legends."
+    If for some reason you don't survive--your employees get sick, sick customers bring in the coronavirus, you run out of masks and cleaning supplies--don't give up! Unlike the real-life essential workers of 2020, you can try again and again until you succeed and your name is added to the "The Quarantine Trail List of Legends."
     </div>
   <div style={{ ...textBlockStyle, fontSize: 12 }}>
     The object of "The Quarantine Trail" is to make it all the way through the pandemic and pay off any remaining debt. Along the way, you'll have many decisions to make.
     </div>
   <div style={{ ...textBlockStyle, fontSize: 12 }}>
-    On the computer screen you'll see varios "buttons" that you can click with the mouse. Clicking on these buttons allows you to perform different functions vital to the success of your journey. For example, clicking on the "Pay" button lets you decide how much money you employees will make each day during the quarantine.
+    On the computer screen you'll see various "buttons" that you can click with the mouse. Clicking on these buttons allows you to perform different functions vital to the success of your journey. For example, clicking on the "Pay" button lets you decide how much money your employees will make each day during the quarantine.
     </div>
 </div>;
 
@@ -192,7 +192,7 @@ const slide3 = <div>
     You'll also see a "Conditions" panel that keeps you informed of the date, the spread of the pandemic, and the current situation of your business. Just like the real-life business owners, you'll have to stay alert and make good decisions if you want your employees and your business to survive.
     </div>
   <div style={{ ...textBlockStyle, fontSize: 12 }}>
-    If you amke it all the way to the end of the pandemic, you'll receive points based on your current status. If your score is high enough, you'll be added to the List of Legends.
+    If you make it all the way to the end of the pandemic, you'll receive points based on your current status. If your score is high enough, you'll be added to the List of Legends.
     </div>
   <div style={{ ...textBlockStyle, fontSize: 12 }}>
     If you have to stop in the middle of your journey, you can Quit and Save (by going to the Options Screen) so that you can resume the journey at a later time.
