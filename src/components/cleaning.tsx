@@ -143,6 +143,42 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
         return () => { clearInterval(interval); vcanv = null; vctx = null; cleanctx = null; cleancanv = null; };
     }, []);
 
+    const clickFunction = (ev:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        console.log("clicked!");
+        if (cleaningSprays <= 0) { return; }
+        playSpray();
+        setCleaningSprays(cleaningSprays - 1);
+        cleancanv = cleancanv ?? document.getElementById("cleancanvas") as HTMLCanvasElement;
+        const rect = cleancanv!.getBoundingClientRect()
+        const x = ev.clientX - rect.left
+        const y = ev.clientY - rect.top
+
+        const size = 200;
+        const half = size / 2;
+        const effectiveRange = half;
+
+        //check for viruses
+        viruses.forEach(v => {
+            const dist = Math.sqrt(Math.pow(v.x - x, 2) + Math.pow(v.y - y, 2));
+            if (dist < effectiveRange) {
+                cleanctx?.drawImage(v.img, v.x, v.y);
+                v.dead = true;
+                killed++;
+            }
+        });
+
+        cleanctx = cleanctx ?? cleancanv.getContext("2d");
+        cleanctx!.fillStyle = "rgba(0,150,255, 50)";
+        //ctx?.fillRect(x-half,y-half,size,size);
+        cleanctx?.drawImage(splotch, x - half, y - half);
+
+        console.log(x, y);
+        setSpray(Spray2);
+        setTimeout(() => {
+            setSpray(Spray1);
+        }, 150);
+    }
+
     return <div style={{ overflow: "hidden", cursor: `url(${CrossHair}) 12 12, crosshair`, position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "green" }}>
         <div style={{ position: "relative" }}>
 
@@ -193,41 +229,11 @@ export const CleaningView: React.FC<{ paperTowels: number, cleaningSprays: numbe
                     console.log("drag!!");
                     setTowel(Towel1);
                 }}
-                onClick={(ev) => {
-                    console.log("clicked!");
-                    if (cleaningSprays <= 0) { return; }
-                    playSpray();
-                    setCleaningSprays(cleaningSprays - 1);
-                    cleancanv = cleancanv ?? document.getElementById("cleancanvas") as HTMLCanvasElement;
-                    const rect = cleancanv!.getBoundingClientRect()
-                    const x = ev.clientX - rect.left
-                    const y = ev.clientY - rect.top
-
-                    const size = 200;
-                    const half = size / 2;
-                    const effectiveRange = half;
-
-                    //check for viruses
-                    viruses.forEach(v => {
-                        const dist = Math.sqrt(Math.pow(v.x - x, 2) + Math.pow(v.y - y, 2));
-                        if (dist < effectiveRange) {
-                            cleanctx?.drawImage(v.img, v.x, v.y);
-                            v.dead = true;
-                            killed++;
-                        }
-                    });
-
-                    cleanctx = cleanctx ?? cleancanv.getContext("2d");
-                    cleanctx!.fillStyle = "rgba(0,150,255, 50)";
-                    //ctx?.fillRect(x-half,y-half,size,size);
-                    cleanctx?.drawImage(splotch, x - half, y - half);
-
-                    console.log(x, y);
-                    setSpray(Spray2);
-                    setTimeout(() => {
-                        setSpray(Spray1);
-                    }, 150);
-                }}></div>
+                onContextMenu={ev =>{
+                    ev.preventDefault();
+                    clickFunction(ev);
+                }}
+                onClick={clickFunction}></div>
         </div>
     </div>;
 }
