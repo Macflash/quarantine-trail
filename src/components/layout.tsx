@@ -279,10 +279,12 @@ export const PrintMoney = (money: number): string => {
 const startDate = new Date("02/02/2020");
 
 var reallyPaused = false;
+var gameinterval: any | null = null;
+var realGame: Game | null = null;
 
 export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [paused, setPaused] = React.useState(false);
-    const Pause = React.useCallback(() => { reallyPaused = true; setPaused(true); }, [setPaused]);
+    const Pause = React.useCallback(() => { reallyPaused = true; clearInterval(gameinterval); gameinterval = null; setPaused(true); }, [setPaused]);
 
     const [view, setView] = useStateAndView<View>("Store", Pause);
     const ResetView = React.useCallback(() => setView("Store"), [setView]);
@@ -292,7 +294,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
     const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
 
-    const [game, setGame] = React.useState<Game>(startingGame ? { ...startingGame, date: new Date(startingGame.date) } : {
+    const [game, setGame] = useStateAndView<Game>(startingGame ? { ...startingGame, date: new Date(startingGame.date) } : {
         infectRate: "Normal",
 
         date: startDate,
@@ -313,19 +315,18 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         cleaningSprays: isDev ? 1000 : 25,
         masks: 10,
         gloves: 50,
-    });
-
-    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = game;
-
-    if (employees.filter(e => e.status != "Deceased").length == 0) {
-        alert("Game Over! All your employees died.");
-        props.gameOver?.();
-    }
+    }, undefined, gameToSave => realGame = gameToSave);
 
     React.useEffect(() => {
+        if (gameinterval && !reallyPaused) {
+            console.log("already running");
+            return;
+        }
         // advance the days!
-        setTimeout(() => {
-            if (reallyPaused) { return; }
+        console.log("starting the loop!");
+        gameinterval = setInterval(() => {
+            const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
+            if (reallyPaused) { clearInterval(gameinterval); return; }
             if (debt <= 0 && infected == 0 && date > new Date("04/04/2020")) {
                 props.gameOver?.();
                 let score = 0;
@@ -782,7 +783,14 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 });
             }
         }, isDev ? 500 : tickSpeed);
-    }, [paused, game])
+    }, [paused]);
+
+    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
+
+    if (employees.filter(e => e.status != "Deceased").length == 0) {
+        alert("Game Over! All your employees died.");
+        props.gameOver?.();
+    }
 
     let centerMenu = <StoreDisplay paused={paused} customers={customers} height={220} width={280} />;
     switch (view) {
@@ -1150,7 +1158,7 @@ export function CenterMenu<T>(props: { title: string, items?: { name: T, image?:
     return <div style={{ width: 280, position: "relative" }}>
         <div style={{ textAlign: "left", margin: "0 10px", fontSize: 14 }}>{props.title}</div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            {props.items?.map(item => <CenterMenuItem {...item} onClick={() => { props.setValue(item.name) }} />)}
+            {props.items?.map((item, index) => <CenterMenuItem key={index} {...item} onClick={() => { props.setValue(item.name) }} />)}
         </div>
 
         {props.helpContent
