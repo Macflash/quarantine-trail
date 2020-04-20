@@ -102,11 +102,11 @@ const PayMap: Lookup<PayQuality> = {
     "Paid Sick Leave": 22,
 };
 
-export type HourQuality = "Short Shifts" | "Normal Shifts" | "Grueling shifts";
+export type HourQuality = "Relaxed Pace" | "Normal Pace" | "Grueling Pace";
 const HourMap: Lookup<HourQuality> = {
-    "Short Shifts": 12,
-    "Normal Shifts": 9,
-    "Grueling shifts": 7,
+    "Relaxed Pace": 12,
+    "Normal Pace": 9,
+    "Grueling Pace": 7,
 };
 
 export type Callback = () => void;
@@ -292,7 +292,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const UnPause = React.useCallback(() => { ResetView(); reallyPaused = false; setPaused(false); }, [setPaused, ResetView]);
 
     const [payQ, setPayQ] = useStateAndView<PayQuality>("Overtime", ResetView, val => AddLog(`You decided to change the the pay to ${val}.`));
-    const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Shifts", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
+    const [hourQ, setHourQ] = useStateAndView<HourQuality>("Normal Pace", ResetView, val => AddLog(`You decided to change the the hours to ${val}.`));
 
     const [game, setGame] = useStateAndView<Game>(startingGame ? { ...startingGame, date: new Date(startingGame.date) } : {
         infectRate: "Normal",
@@ -590,12 +590,12 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         let SickChance = .9;
                         let HealChance = .1;
 
-                        if (hourQ == "Short Shifts") {
+                        if (hourQ == "Relaxed Pace") {
                             // better chances for health
                             SickChance = .95;
                             HealChance = .12;
                         }
-                        else if (hourQ == "Grueling shifts") {
+                        else if (hourQ == "Grueling Pace") {
                             // worse chances for health
                             SickChance = .85;
                             HealChance = .05;
@@ -801,7 +801,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             break;
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
-                helpContent={<div>
+                helpContent={<div style={{fontSize: 11}}>
                     <div>Paid Sick Leave - Pay is respectful and generous. Sick employees can stay home to recover.</div>
                     <br />
                     <br />
@@ -821,19 +821,19 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             break;
         case "Hours":
             centerMenu = <CenterMenu<HourQuality>
-                helpContent={<div>
-                    <div>Short Shifts - Your employees work 8 hours a day. They can take many breaks and rarely get tired.</div>
+                helpContent={<div style={{fontSize: 11}}>
+                    <div>Relaxed Pace - Your employees work 8 hours a day. They can take many breaks and rarely get tired.</div>
                     <br />
-                    <div>Normal Shifts - Your employees work 12 hours a day, starting at sunrise and stopping at sunset. They stop to rest only when you allow it. They finish each day very tired.</div>
+                    <div>Normal Pace - Your employees work 12 hours a day, starting at sunrise and stopping at sunset. They stop to rest only when you allow it. They finish each day very tired.</div>
                     <br />
-                    <div>Grueling Shifts - Your employees work 16 hours a day, starting before dawn and going until dark. They rarely rest or see their families. They finish each day exhausted and their health suffers.</div>
+                    <div>Grueling Pace - Your employees work 16 hours a day, starting before dawn and going until dark. They rarely rest or see their families. They finish each day exhausted and their health suffers.</div>
                 </div>}
                 setValue={setHourQ}
                 title="How long should your employees work each day?"
                 items={[
-                    { name: "Short Shifts", image: ShortShift },
-                    { name: "Normal Shifts", image: RegularShift },
-                    { name: "Grueling shifts", image: LongShift },
+                    { name: "Relaxed Pace", image: ShortShift },
+                    { name: "Normal Pace", image: RegularShift },
+                    { name: "Grueling Pace", image: LongShift },
                 ]}
             />;
             break;
@@ -1044,8 +1044,8 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 <div style={{ ...bodyStyle }}>
                     <BodyRow left="Money:" right={PrintMoney(money)} />
                     <BodyRow left="Pay:" right={payQ} />
+                    <BodyRow left="Pace:" right={hourQ} />
                     <BodyRow left="Cleanliness:" right={<div style={{ color: CleanColorMap[cleanliness] }}>{cleanliness}</div>} />
-                    <BodyRow left="Hours:" right={hourQ} />
                     <BodyRow left="Supplies:" right={cleaningSprays > 60 && paperTowels > 10 ? "Good" && masks > employees.length * 3 && gloves > employees.length * 5 : <div style={{ color: "red" }}>Low</div>} />
                     <BodyRow left="Health:" right={<div style={{ textAlign: "right" }}>{avgStatus}</div>} />
                     <br />
@@ -1148,7 +1148,7 @@ export function CenterMenu<T>(props: { title: string, items?: { name: T, image?:
         return <div style={{ ...bodyText, fontSize: 12, padding: "10px 2px", textAlign: "left", position: "relative", height: "100%" }}>
             {props.helpContent}
             <div style={{ position: "absolute", bottom: 30, left: 0, right: 0, textAlign: "center" }}>
-                <span style={{ border: "3px solid black", padding: 2, borderRadius: 8 }}>
+                <span style={{ border: "3px solid black", padding: 3, borderRadius: 8 }}>
                     <button onClick={() => setViewHelp(false)} style={{ cursor: "pointer", width: 75, backgroundColor: ColorYellow, borderRadius: 5, border: MiniBorder, fontWeight: 700 }}>OK</button>
                 </span>
             </div>
