@@ -93,7 +93,7 @@ export const basicBoxStyle = {
     border: MiniBorder,
 }
 
-export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Hours" | "Hunt" | "OptionsMenu";
+export type View = "Store" | "Chart" | "Guide" | "Status" | "Pay" | "Bank" | "Supplies" | "News" | "Cleaning" | "Pace" | "Hunt" | "OptionsMenu";
 
 export type PayQuality = "Paid Sick Leave" | "Overtime" | "Minimum Wage";
 const PayMap: Lookup<PayQuality> = {
@@ -819,7 +819,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 ]}
             />;
             break;
-        case "Hours":
+        case "Pace":
             centerMenu = <CenterMenu<HourQuality>
                 helpContent={<div style={{fontSize: 11}}>
                     <div>Relaxed Pace - Your employees work 8 hours a day. They can take many breaks and rarely get tired.</div>
@@ -1065,7 +1065,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         <VerticalMenu setView={setView} items={[
             { image: Supplies, name: "Supplies" },
             { image: News, name: "News" },
-            { image: Hours, name: "Hours" },
+            { image: Hours, name: "Pace" },
             { image: Finances, name: "Bank" },
             { image: Cleaning, name: "Cleaning" },
         ]} />
