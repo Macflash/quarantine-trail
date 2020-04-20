@@ -1,6 +1,6 @@
 import * as React from "react";
 import Background from "../images/storeback.png";
-import { basicBoxStyle, ColorYellow, Callback, buttonStyle, MiniBorder } from "./layout";
+import { basicBoxStyle, ColorYellow, Callback, buttonStyle, MiniBorder, PrintMoney } from "./layout";
 import { ConstrainRange, ParseConstrainRange, PickRandom } from "../utils";
 
 export const SupplyStore: React.FC<{ money: number, paperTowels: number, cleaningSpray: number, onCancel: Callback, onBuy: (towels: number, sprays: number, cost: number) => void }> = props => {
@@ -33,25 +33,25 @@ export const SupplyStore: React.FC<{ money: number, paperTowels: number, cleanin
                     <td style={{ textAlign: "right" }}>{props.cleaningSpray}</td>
                     <td><input type="number" value={buySpray} onChange={ev => setBuySpray(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
                     <td style={{ fontSize: 12, textAlign: "left" }}>Cleaning spray ({perBottle}/bottle)</td>
-                    <td style={{ textAlign: "right" }}>${priceSpray}.00</td>
-                    <td style={{ textAlign: "right" }}>${costSpray}.00</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(priceSpray)}</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(costSpray)}</td>
                 </tr>
                 <tr>
                     <td style={{ textAlign: "right" }}>{props.paperTowels}</td>
                     <td><input type="number" value={buyTowel} onChange={ev => setBuyTowel(ParseConstrainRange(ev.target.value, 0, 100))} style={{ ...basicBoxStyle, width: 50 }} /></td>
                     <td style={{ fontSize: 12, textAlign: "left" }}>Paper Towels ({perRoll}/roll)</td>
-                    <td style={{ textAlign: "right" }}>${priceTowel}.00</td>
-                    <td style={{ textAlign: "right" }}>${costTowel}.00</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(priceTowel)}</td>
+                    <td style={{ textAlign: "right" }}>{PrintMoney(costTowel)}</td>
                 </tr>
             </table>
             <div style={{ textAlign: "right" }}>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: 5 }}>
                     <div>Total: </div>
-                    <div style={{ width: 100 }}>${total}.00</div>
+                    <div style={{ width: 100 }}>{PrintMoney(total)}</div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: 5 }}>
                     <div>You have: </div>
-                    <div style={{ width: 100 }}>${props.money}.00</div>
+                    <div style={{ width: 100 }}>{PrintMoney(props.money)}</div>
                 </div>
             </div>
             <div style={{ textAlign: "left", margin: 10 }}>
