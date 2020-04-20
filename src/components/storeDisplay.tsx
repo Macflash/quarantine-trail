@@ -89,7 +89,7 @@ export const StoreDisplay: React.FC<{ paused: boolean, customers: number, height
             });
 
             setC([...customers]);
-            console.log(customers);
+            //console.log(customers);
         }, 100);
 
         return () => clearInterval(interval);
