@@ -25,9 +25,6 @@ import CleanGreat from '../images/cleangreat.png';
 import CleanOk from '../images/cleanok.png';
 import CleanBad from '../images/cleanbad.png';
 
-import Tweet from '../images/shitnews.png';
-
-
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
 import { isDev, yourName as StartingName, businessName as StartingBusinessName, Logs, AddLog, tickSpeed, OptionsMenu, startingGame } from '../App';
@@ -36,6 +33,7 @@ import { employees as StartEmployees } from '../App';
 import { CleaningView } from './cleaning';
 import { SupplyStore } from './supplyStore';
 import { PickRandom } from '../utils';
+import { NewsFeed } from './news';
 
 export const ColorYellow = "rgb(255,247,138)";
 export const ColorOrange = "rgb(247,166,48)";
@@ -999,7 +997,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             </div>;
             break;
         case "News":
-            centerMenu = <img width="100%" src={Tweet} />;
+            centerMenu = <NewsFeed date={date} />;
             break;
     }
 
