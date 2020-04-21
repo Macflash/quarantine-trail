@@ -352,9 +352,11 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             }
             if (!paused) {
                 if (money < 0 && debt < MaxDebt) {
-                    Pause();
-                    alert("Oh no, you are out of money! Better go to the bank!");
-                    //props.gameOver?.();
+                    if (!isDev) {
+                        Pause();
+                        alert("Oh no, you are out of money! Better go to the bank!");
+                        //props.gameOver?.();
+                    }
                 }
                 else if (money < 0) {
                     props.gameOver?.();
@@ -418,6 +420,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     youWorked = true;
                     availableEmployees = [{ name: yourName, status: yourStatus, mood: "Ok" }];
                 }
+
+                const sickCustomerOdds = 1 - (infected / (uninfected + recovered + infected));
+                console.log("sick odds", sickCustomerOdds);
+
                 for (var i = 0; i < transactions; i++) {
                     // pick a random employee to have them interact with!
                     // if there is PTO then only use NOT sick employees
@@ -429,9 +435,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         sickModifier = .9;
                     }
 
-                    var customerIsSick = Math.random() < (2 * infected / (uninfected + recovered + infected));
-                    if (Math.random() < .5) {
-                        customerIsSick = customerIsSick || Math.random() < (2 * infected / (uninfected + recovered + infected));
+
+                    var customerIsSick = Math.random() > sickCustomerOdds;
+                    if (Math.random() < .2) {
+                        customerIsSick = customerIsSick || (Math.random() > sickCustomerOdds);
                     }
 
                     let spreadChance = .1;
@@ -718,10 +725,11 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
 
                 // lookup the infections
                 // TODO: this is STRICTLY the same as the 14 days. We should probably add some variation!
-                var historical = pastInfected[pastInfected.length - 14];
+                var historical = pastInfected[pastInfected.length - 14] - pastInfected[pastInfected.length - 15];
                 let deaths = 0;
                 let recoveries = 0;
-                if(historical){
+                //console.log(historical, pastInfected);
+                if (historical) {
                     deaths = InRange(0, historical * .1);
                     recoveries = historical - deaths;
                 }
@@ -800,8 +808,10 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     const { infectRate, date, infected, pastInfected, deceased, pastDeceased, uninfected, recovered, money, pastMoney, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
 
     if (employees.filter(e => e.status != "Deceased").length == 0) {
-        alert("Game Over! All your employees died.");
-        props.gameOver?.();
+        if (!isDev) {
+            alert("Game Over! All your employees died.");
+            props.gameOver?.();
+        }
     }
 
     let centerMenu = <StoreDisplay paused={paused} customers={customers} height={220} width={280} />;
@@ -813,7 +823,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             break;
         case "Pay":
             centerMenu = <CenterMenu<PayQuality>
-                helpContent={<div style={{fontSize: 11}}>
+                helpContent={<div style={{ fontSize: 11 }}>
                     <div>Paid Sick Leave - Pay is respectful and generous. Sick employees can stay home to recover.</div>
                     <br />
                     <br />
@@ -833,7 +843,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
             break;
         case "Pace":
             centerMenu = <CenterMenu<HourQuality>
-                helpContent={<div style={{fontSize: 11}}>
+                helpContent={<div style={{ fontSize: 11 }}>
                     <div>Relaxed Pace - Your employees work 8 hours a day. They can take many breaks and rarely get tired.</div>
                     <br />
                     <div>Normal Pace - Your employees work 12 hours a day, starting at sunrise and stopping at sunset. They stop to rest only when you allow it. They finish each day very tired.</div>
@@ -1016,7 +1026,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
     }
 
     let avgHealth = 0;
-    employees.forEach(e => avgHealth += HealthMap[e.status]);
+    employees.filter(e => e.status != "Deceased").forEach(e => avgHealth += HealthMap[e.status]);
     avgHealth /= employees.length;
     const avgStatus = ReverseHealthMap[Math.floor(avgHealth)];
 
