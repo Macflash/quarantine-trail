@@ -2,12 +2,14 @@ import * as React from "react";
 import TweetImg from '../images/shitnews.png';
 import { tweets } from "./tweets";
 import { PickRandom } from "../utils";
+import { buttonStyle, MiniBorder } from "./layout";
 
 export const TweetBox: React.FC<{date: Date}> = props => {
     const dateToUse = new Date(props.date);
     dateToUse.setHours(dateToUse.getHours() + 16 * Math.random());
     dateToUse.setMinutes(dateToUse.getMinutes() + 60 * Math.random());
     dateToUse.setSeconds(dateToUse.getSeconds() + 60 * Math.random());
+    
     return <div style={{ textAlign: 'left', position: "relative",
     fontFamily: "Helvetica, Arial",  }}>
         <div style={{ 
@@ -27,9 +29,12 @@ export const TweetBox: React.FC<{date: Date}> = props => {
 }
 
 export const NewsFeed: React.FC<{date: Date}> = props => {
-    return <div style={{ backgroundColor: "white" }}>
+    const [page, setPage] = React.useState(1);
+
+    return <div style={{ backgroundColor: "white",position: "relative" }}>
         <TweetBox {...props} />
         <TweetBox {...props} />
+        <button style={{...buttonStyle, border: MiniBorder,  position: 'absolute', width: 70, bottom: 8, right: 4}} onClick={()=>setPage(page+1)}>More</button>
     </div>
 }
 
