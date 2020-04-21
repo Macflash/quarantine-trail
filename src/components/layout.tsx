@@ -10,7 +10,6 @@ import Hours from '../images/hours.png';
 import Finances from '../images/finances.png';
 import Cleaning from '../images/cleaning.png';
 import Supplies from '../images/supplies.png';
-import Hunt from '../images/hunt.png';
 import Placeholder from '../images/status placeholder.png';
 
 import PayBad from '../images/paybad.png';
@@ -20,10 +19,6 @@ import PayGreat from '../images/paygreat.png';
 import ShortShift from '../images/shortshift.png';
 import RegularShift from '../images/regularshift.png';
 import LongShift from '../images/longshift.png';
-
-import CleanGreat from '../images/cleangreat.png';
-import CleanOk from '../images/cleanok.png';
-import CleanBad from '../images/cleanbad.png';
 
 import { StoreDisplay } from './storeDisplay';
 import { BarDisplay } from './barDisplay';
@@ -226,7 +221,11 @@ export interface Game {
     date: Date,
     uninfected: number, // total pool that can get sick
     infected: number,
+    pastInfected: number[],
+
     deceased: number,
+    pastDeceased: number[],
+
     recovered: number,
 
     // Business Stats
@@ -234,6 +233,8 @@ export interface Game {
     yourStatus: Health,
     businessName: string,
     money: number,
+    pastMoney: number[],
+
     debt: number,
     employees: Employee[],
     cleanliness: Cleanliness,
@@ -262,10 +263,6 @@ const Randomize = (base: number, variation: number): number => {
 // TODO: all of this needs to be in the SAVED game....
 var month = 0;
 var customers = 0;
-var infectionGraph = [0];
-var deceasedGraph = [0];
-var moneyGraph = [1600];
-
 var totalYouInfected = 0;
 
 const MaxDebt = 100000;
@@ -298,10 +295,16 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         date: startDate,
         uninfected: 2000000,
         infected: 1,
+        pastInfected: [],
+
         deceased: 0,
+        pastDeceased: [],
+
         recovered: 0,
 
         money: 1600,
+        pastMoney: [],
+
         debt: 0,
         yourName: StartingName,
         yourStatus: "Good",
@@ -323,7 +326,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         // advance the days!
         console.log("starting the loop!");
         gameinterval = setInterval(() => {
-            const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
+            const { infectRate, date, infected, pastInfected, deceased, pastDeceased, uninfected, recovered, money, pastMoney, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
             if (reallyPaused) { clearInterval(gameinterval); return; }
             if (debt <= 0 && infected == 0 && date > new Date("04/04/2020")) {
                 props.gameOver?.();
@@ -756,9 +759,6 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                 }
 
                 const newInfected = infected + increase - (recoveries + deaths);
-                infectionGraph.push(newInfected);
-                deceasedGraph.push(deceased + deaths);
-                moneyGraph.push(money);
                 totalYouInfected += youInfected;
                 setGame({
                     ...game,
@@ -766,10 +766,16 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                     uninfected: uninfected - (increase + youInfected),
                     recovered: recovered + recoveries,
                     infected: newInfected + youInfected,
+                    pastInfected: [...pastInfected, infected],
+
                     deceased: deceased + deaths,
+                    pastDeceased: [...pastDeceased, deceased],
+
                     infectRate: newInfectRate,
 
                     money: money + (sales - cost) - (rentPayment + debtPayment + foodCost),
+                    pastMoney: [...pastMoney, money],
+
                     debt: debt - debtPrinciple,
 
                     cleanliness: newCleanliness,
@@ -783,7 +789,7 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         }, isDev ? 500 : tickSpeed);
     }, [paused]);
 
-    const { infectRate, date, infected, deceased, uninfected, recovered, money, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
+    const { infectRate, date, infected, pastInfected, deceased, pastDeceased, uninfected, recovered, money, pastMoney, debt, employees, yourName, yourStatus, businessName, cleanliness, paperTowels, cleaningSprays, masks, gloves } = realGame ?? game;
 
     if (employees.filter(e => e.status != "Deceased").length == 0) {
         alert("Game Over! All your employees died.");
@@ -898,9 +904,9 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
         case "Chart":
             centerMenu = <div>
                 <div>Infection</div>
-                <BarDisplay values={infectionGraph} fillColor="orange" />
+                <BarDisplay values={pastInfected} fillColor="orange" />
                 <div>Money</div>
-                <BarDisplay values={moneyGraph} fillColor="green" />
+                <BarDisplay values={pastMoney} fillColor="green" />
             </div>;
             break;
         case "Bank":
