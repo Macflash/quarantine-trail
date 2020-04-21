@@ -27,7 +27,7 @@ import { isDev, yourName as StartingName, businessName as StartingBusinessName, 
 import { employees as StartEmployees } from '../App';
 import { CleaningView } from './cleaning';
 import { SupplyStore } from './supplyStore';
-import { PickRandom } from '../utils';
+import { PickRandom, InRange } from '../utils';
 import { NewsFeed } from './news';
 
 export const ColorYellow = "rgb(255,247,138)";
@@ -716,8 +716,16 @@ export const Layout: React.FC<{ gameOver?: Callback }> = props => {
                         break;
                 }
 
-                const deaths = Math.round((infected * .007 * Math.random()) + Math.random());
-                const recoveries = Math.round((infected / 21) * Math.random());
+                // lookup the infections
+                // TODO: this is STRICTLY the same as the 14 days. We should probably add some variation!
+                var historical = pastInfected[pastInfected.length - 14];
+                let deaths = 0;
+                let recoveries = 0;
+                if(historical){
+                    deaths = InRange(0, historical * .1);
+                    recoveries = historical - deaths;
+                }
+
                 const increase = Math.min(uninfected, Math.round((infected * growthRate) + (Math.random() * 2)));
 
                 let newInfectRate = infectRate
